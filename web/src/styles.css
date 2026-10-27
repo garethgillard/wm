@@ -310,8 +310,8 @@ input.inline-field{height:40px;padding:0 11px}
 .emojis{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:5px}
 .emojis button{aspect-ratio:1;border:1px solid var(--line);background:#0d0b10;border-radius:6px;font-size:20px;line-height:1;cursor:pointer;padding:0}
 .emojis button[aria-pressed="true"]{border-color:var(--gold);background:rgba(201,165,92,.14);box-shadow:0 0 12px rgba(201,165,92,.25)}
-.swatches{display:flex;flex-wrap:wrap;gap:9px}
-.swatches button{width:32px;height:32px;border-radius:50%;cursor:pointer;padding:0;border:2px solid transparent;
+.swatches{display:grid;grid-template-columns:repeat(8,28px);justify-content:space-between;gap:10px 6px}
+.swatches button{width:28px;height:28px;border-radius:50%;cursor:pointer;padding:0;border:2px solid transparent;
   background:radial-gradient(circle at 40% 30%,var(--robe-lit),var(--robe) 70%);box-shadow:0 0 0 1px var(--line)}
 .swatches button[aria-pressed="true"]{border-color:var(--gold-bright);box-shadow:0 0 0 3px rgba(201,165,92,.25)}
 .err{margin:0;color:var(--blood-bright);font-size:14px}

@@ -1,4 +1,4 @@
-// Keep EMOJI and ROBES the same length as EMOJI_COUNT / COLOR_COUNT in app/store.py (24 and 8).
+// Keep EMOJI and ROBES the same length as EMOJI_COUNT / COLOR_COUNT in app/store.py (24 and 16).
 export const EMOJI = ['🦊','🐺','🐱','🦉','🐸','🐗','🐲','🦇','🐐','🐍','🐙','🦄','🐰','🐭','🐻','🐼','🐯','🦁','🐷','🐮','🐴','🦝','🐵','🐟']
 
 // Robe colours. `fill` is the cloth, `lit` the candlelit edge of the folds,
@@ -12,6 +12,14 @@ export const ROBES = [
   { name: 'Ash', fill: '#45414d', lit: '#6d6878', ink: '#cfcad6' },
   { name: 'Bone', fill: '#b9ae9a', lit: '#e3d9c6', ink: '#f1e8d5' },
   { name: 'Gilt', fill: '#6e531f', lit: '#b38a3c', ink: '#ecc873' },
+  { name: 'Ember', fill: '#5c2a0e', lit: '#a5531f', ink: '#f39a5c' },
+  { name: 'Abyss', fill: '#0e3236', lit: '#1d6166', ink: '#6fd3d0' },
+  { name: 'Rose', fill: '#4a1430', lit: '#8a2d5c', ink: '#ef8fbe' },
+  { name: 'Violet', fill: '#23164a', lit: '#47358a', ink: '#a99af5' },
+  { name: 'Ochre', fill: '#5b4a0e', lit: '#9c8422', ink: '#f0dc6a' },
+  { name: 'Frost', fill: '#8fa7b8', lit: '#c9d9e4', ink: '#bfe0f5' },
+  { name: 'Rust', fill: '#3e2416', lit: '#6e4430', ink: '#d8a27e' },
+  { name: 'Absinthe', fill: '#3a4a0c', lit: '#6f8a1a', ink: '#c8e86a' },
 ]
 
 export const IDEAS = ['Costume contest', 'Tarot readings', 'Pumpkin carving', 'Murder mystery', 'Horror film night', 'Ghost story circle', 'Melange tasting', 'Séance']

@@ -103,6 +103,8 @@ async def run(url: str):
     r = await b.request("join", codename="Neon Herring", emoji=23, color=3)
     check("B joins", r["ok"])
     b_id = r["you"]
+    r = await b.request("join", codename="Someone Else Entirely", emoji=5, color=16)
+    check("a robe beyond the 16 colours is refused", r["ok"] is False and r["error"] == "invalid")
     r = await b.request("join", codename="Someone Else Entirely", emoji=5, color=2)
     p = await a.expect("player", lambda m: m["player"]["id"] == b_id and m["player"]["emoji"] == 5)
     check("names are fixed: B changes familiar and robe but keeps the name", r["ok"] and p["player"]["codename"] == "Neon Herring" and p["player"]["color"] == 2)

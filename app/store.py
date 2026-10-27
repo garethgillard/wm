@@ -9,8 +9,8 @@ import sqlite3
 import threading
 import time
 
-EMOJI_COUNT = 24   # must match EMOJI in static/app.js
-COLOR_COUNT = 8    # must match COLORS in static/app.js
+EMOJI_COUNT = 24   # must match EMOJI in web/src/lib/constants.js
+COLOR_COUNT = 16   # must match ROBES in web/src/lib/constants.js
 HISTORY = 300      # messages sent to a browser when it connects
 KEEP = 2000        # messages kept in the database
 
