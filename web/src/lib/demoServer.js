@@ -186,10 +186,11 @@ export function connectDemo({ onOpen, onMessage, onClose }) {
     if (m.type === 'typing') return
 
     if (m.type === 'join') {
-      const codename = clean(m.codename, 28)
-      if (codename.length < 2) return ack(false, { error: 'invalid' })
-      if (db.players.some(p => p.id !== me && p.codename.toLowerCase() === codename.toLowerCase())) return ack(false, { error: 'taken' })
       let player = db.players.find(p => p.id === me)
+      // A secret name is fixed once taken; only the familiar, robe and attendance can change.
+      const codename = player ? player.codename : clean(m.codename, 28)
+      if (codename.length < 2) return ack(false, { error: 'invalid' })
+      if (!player && db.players.some(p => p.codename.toLowerCase() === codename.toLowerCase())) return ack(false, { error: 'taken' })
       const created = !player
       if (created) {
         player = { id: 'you-' + nextId(), joinedAt: Date.now() }

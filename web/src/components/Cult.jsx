@@ -1,4 +1,4 @@
-// Shared drawings: the WM sigil, robed and masked figures, chairs and small avatars.
+// Shared drawings: the WM sigil, robed figures (the animal face is their mask), chairs and small avatars.
 // Every drawing uses local coordinates with the seat point at (0, 0) and the hood tip near y = -118.
 import { EMOJI, ROBES } from '../lib/constants'
 
@@ -67,12 +67,10 @@ export function Sigil({ className, title }) {
 const BODY = 'M-36 0 C-37 -22 -33 -44 -22 -56 C-15 -63 15 -63 22 -56 C33 -44 37 -22 36 0 Z'
 const HOOD = 'M-25 -56 C-30 -78 -22 -104 0 -118 C22 -104 30 -78 25 -56 C12 -50 -12 -50 -25 -56 Z'
 const FOLDS = 'M-11 -52 C-15 -32 -18 -14 -21 0 M10 -52 C13 -32 16 -14 18 0 M0 -50 C1 -30 -1 -14 0 0'
-const MASK = 'M-15 -85 C-11 -91 -3 -90 0 -86 C3 -90 11 -91 15 -85 C14 -78 8 -76 4 -78 C2 -79 1 -80 0 -80 C-1 -80 -2 -79 -4 -78 C-8 -76 -14 -78 -15 -85 Z ' +
-  'M-10.6 -83 a3.4 2.1 0 1 0 6.8 0 a3.4 2.1 0 1 0 -6.8 0 Z M3.8 -83 a3.4 2.1 0 1 0 6.8 0 a3.4 2.1 0 1 0 -6.8 0 Z'
 export const CHAIR = 'M-31 6 L-31 -96 C-31 -121 -15 -135 0 -142 C15 -135 31 -121 31 -96 L31 6 Z'
 
-// The hooded head: hood, face in the hood opening, shadow, and the gold masquerade mask.
-function Head({ player, masked = true }) {
+// The hooded head: hood, the animal face in the hood opening, and the hood's shadow.
+function Head({ player }) {
   const robe = player.color ?? 0
   return (
     <>
@@ -82,7 +80,6 @@ function Head({ player, masked = true }) {
         <text x="0" y="-77" fontSize="23" textAnchor="middle" dominantBaseline="central">{EMOJI[player.emoji] ?? '❔'}</text>
         <ellipse cx="0" cy="-80" rx="15" ry="19" fill="url(#hood-shade)" />
       </g>
-      {masked && <path d={MASK} fill="url(#gold)" fillRule="evenodd" stroke="#3b2a10" strokeWidth="0.6" />}
     </>
   )
 }

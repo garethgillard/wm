@@ -46,9 +46,9 @@ export function JoinSheet({ current, players, me, onSave, onClose }) {
   const primary = current ? 'Save' : rsvp === 'maybe' ? 'Lurk in the shadows' : rsvp === 'no' ? 'Send your regrets' : 'Take a seat'
 
   function submit() {
-    const name = codename.trim().replace(/\s+/g, ' ').slice(0, 28)
+    const name = current ? current.codename : codename.trim().replace(/\s+/g, ' ').slice(0, 28)
     if (name.length < 2) return setError('Your secret name needs at least 2 characters.')
-    if (Object.values(players).some(p => p.id !== me && p.codename.toLowerCase() === name.toLowerCase())) return setError(errorText({ error: 'taken' }))
+    if (!current && Object.values(players).some(p => p.codename.toLowerCase() === name.toLowerCase())) return setError(errorText({ error: 'taken' }))
     if (!rsvp) return setError('Tell the circle whether you will attend.')
     run(name, emoji, color, rsvp)
   }
@@ -56,7 +56,7 @@ export function JoinSheet({ current, players, me, onSave, onClose }) {
   return (
     <Sheet
       title={current ? 'Change your disguise' : 'Take your vows'}
-      lede={current ? null : 'In the WM Cult you are known only by your secret name.'}
+      lede={current ? 'Your secret name is yours for good. The rest can change.' : 'In the WM Cult you are known only by your secret name. Choose well: it cannot be changed.'}
       onSubmit={submit}
       onClose={onClose}
       actions={<>
@@ -72,13 +72,15 @@ export function JoinSheet({ current, players, me, onSave, onClose }) {
         </svg>
         <span className="preview-name">{codename.trim() || 'Your secret name'}</span>
       </div>
-      <div>
-        <label className="label" htmlFor="codename">Secret name</label>
-        <div className="row">
-          <input className="field" id="codename" maxLength={28} required value={codename} onChange={e => setCodename(e.target.value)} />
-          <button className="btn" type="button" onClick={() => setCodename(randomName())} aria-label="Suggest a secret name">Divine one</button>
+      {!current && (
+        <div>
+          <label className="label" htmlFor="codename">Secret name</label>
+          <div className="row">
+            <input className="field" id="codename" maxLength={28} required value={codename} onChange={e => setCodename(e.target.value)} />
+            <button className="btn" type="button" onClick={() => setCodename(randomName())} aria-label="Suggest a secret name">Divine one</button>
+          </div>
         </div>
-      </div>
+      )}
       <div>
         <span className="label">Your familiar</span>
         <div className="emojis">

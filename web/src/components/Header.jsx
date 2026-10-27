@@ -14,15 +14,12 @@ export function Header({ party, boardOpen, unvoted, onToggleBoard, onIdentity, o
   return (
     <header className="masthead">
       <div className="lockup">
-        <Sigil className="masthead-sigil" title="The WM sigil" />
+        <Sigil className="masthead-sigil" title="The WM Cult" />
         <div className="masthead-title">
-          <p className="eyebrow">
-            The WM Cult<span className="eyebrow-extra"> · All Hallows&rsquo; Eve</span>
-            {!connected && ready && <span className="offline"> · reconnecting…</span>}
-          </p>
           <div className="title" role="heading" aria-level={1}>
             <EditableText value={name} canEdit={isAdmin && ready && connected} label="the name of the gathering" maxLength={40} onSave={onSaveName} />
           </div>
+          {!connected && ready && <p className="offline">Reconnecting…</p>}
         </div>
       </div>
       <div className="masthead-actions">

@@ -1,6 +1,6 @@
 // The centrepiece: a round table in a candlelit dungeon. Every member sits at it as a robed,
 // masked figure. Their candle is lit while they are here; empty chairs wait for newcomers.
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Chair, Figure } from './Cult'
 import { roman } from '../lib/constants'
 import { nameOf } from '../lib/format'
@@ -156,6 +156,17 @@ function Banner({ x }) {
 export function RitualTable({ party }) {
   const { players, online, typing, me } = party
   const [selected, setSelected] = useState(null)
+  const [expanded, setExpanded] = useState(false) // the big view of the chamber
+  const lightbox = useRef(null)
+
+  useEffect(() => {
+    if (!expanded) return
+    const el = lightbox.current
+    if (el) el.scrollLeft = (el.scrollWidth - el.clientWidth) / 2 // phones: start in the middle of the room
+    const onKey = e => { if (e.key === 'Escape') setExpanded(false) }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [expanded])
 
   const members = useMemo(
     () => Object.values(players).sort((a, b) => a.joinedAt - b.joinedAt || a.id.localeCompare(b.id)),
@@ -192,7 +203,7 @@ export function RitualTable({ party }) {
     return (
       <g key={p.id} className={`seat${isHere ? ' here' : ' away'}${p.id === me ? ' mine' : ''}${seat.shadow ? ' shadow' : ''}`} style={{ transform }}
         role="button" tabIndex={0} aria-label={`${nameOf(players, p.id)}${p.id === me ? ' (you)' : ''}${status}${isHere ? ', here now' : ''}`}
-        onClick={() => setSelected(selected === p.id ? null : p.id)}
+        onClick={e => { e.stopPropagation(); setSelected(selected === p.id ? null : p.id) }}
         onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelected(selected === p.id ? null : p.id) } }}>
         <title>{nameOf(players, p.id)}</title>
         {!seat.shadow && <Chair />}
@@ -232,10 +243,22 @@ export function RitualTable({ party }) {
   const back = seats.filter(s => s.back)
   const front = seats.filter(s => !s.back)
 
-  return (
-    <figure className="ritual">
+  const caption = attendingCount ? (
+    <>
+      <span className="count-roman" aria-hidden="true">{roman(attendingCount)}</span>
+      <span>
+        {attendingCount} attending
+        {shadows.length > 0 && ` · ${shadows.length} in the shadows`}
+        {` · ${here} here now`}
+      </span>
+    </>
+  ) : <span>{members.length ? 'No one has said yes yet. The table waits.' : 'The table is empty. Take the first seat.'}</span>
+
+  // One scene element, shown either in the panel or in the big view (never both, so ids stay unique).
+  const scene = (
       <svg className="scene" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid slice" role="img"
-        aria-label={`The ritual table. ${members.length} members have taken a seat, ${here} here now.`}>
+        onClick={() => { if (!expanded) setExpanded(true) }}
+        aria-label={`The ritual table. ${attendingCount} attending, ${here} here now.`}>
         <defs>
           <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0" stopColor="#1a141e" /><stop offset="0.55" stopColor="#120e15" /><stop offset="1" stopColor="#09070b" />
@@ -310,18 +333,28 @@ export function RitualTable({ party }) {
 
         {[...shadows, ...seats].map(renderTag)}
       </svg>
-      <figcaption>
-        {attendingCount ? (
-          <>
-            <span className="count-roman" aria-hidden="true">{roman(attendingCount)}</span>
-            <span>
-              {attendingCount} attending
-              {shadows.length > 0 && ` · ${shadows.length} in the shadows`}
-              {` · ${here} here now`}
-            </span>
-          </>
-        ) : <span>{members.length ? 'No one has said yes yet. The table waits.' : 'The table is empty. Take the first seat.'}</span>}
-      </figcaption>
+  )
+
+  return (
+    <figure className="ritual">
+      {expanded ? <div className="scene scene-placeholder" aria-hidden="true" /> : (
+        <div className="scene-wrap">
+          {scene}
+          <button type="button" className="expand-btn" onClick={() => setExpanded(true)} aria-label="Open the chamber full screen">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4" fill="none" stroke="currentColor" strokeWidth="1.6" /></svg>
+          </button>
+        </div>
+      )}
+      <figcaption>{caption}</figcaption>
+      {expanded && (
+        <div className="lightbox" role="dialog" aria-modal="true" aria-label="The chamber">
+          <div className="lightbox-scroll" ref={lightbox}>{scene}</div>
+          <p className="lightbox-caption">{caption}</p>
+          <button type="button" className="lightbox-close" onClick={() => setExpanded(false)} aria-label="Close the chamber view" autoFocus>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5 L19 19 M19 5 L5 19" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" /></svg>
+          </button>
+        </div>
+      )}
     </figure>
   )
 }

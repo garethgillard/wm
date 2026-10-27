@@ -188,7 +188,9 @@ async def handle(conn: Conn, msg: dict) -> None:
     if kind == "join":
         if not conn.spend(1):
             return await ack(False, error="slow")
-        codename = clean(msg.get("codename"), 28)
+        before = store.player_by_token(conn.token_hash)
+        # A secret name is fixed once taken; only the familiar, robe and attendance can change.
+        codename = before["codename"] if before else clean(msg.get("codename"), 28)
         emoji, color = msg.get("emoji"), msg.get("color")
         if len(codename) < 2 or not isinstance(emoji, int) or not isinstance(color, int) \
                 or not 0 <= emoji < EMOJI_COUNT or not 0 <= color < COLOR_COUNT:
@@ -196,11 +198,10 @@ async def handle(conn: Conn, msg: dict) -> None:
         rsvp = msg.get("rsvp")
         if rsvp is not None and rsvp not in RSVP:
             return await ack(False, error="invalid")
-        if store.codename_taken(codename, conn.pid):
+        if not before and store.codename_taken(codename, None):
             return await ack(False, error="taken")
-        if conn.pid is None and store.player_count() >= MAX_PLAYERS:
+        if not before and store.player_count() >= MAX_PLAYERS:
             return await ack(False, error="full")
-        before = store.player_by_token(conn.token_hash)
         player, created = store.upsert_player(conn.token_hash, codename, emoji, color, rsvp)
         conn.pid = player["id"]
         # Any other tabs from the same browser now belong to this player too.
