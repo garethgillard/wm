@@ -1,7 +1,7 @@
-@font-face{font-family:"Bricolage Grotesque";src:url("fonts/bricolage-grotesque-latin-wght-normal.woff2") format("woff2");font-weight:200 800;font-style:normal;font-display:swap}
-@font-face{font-family:"Martian Mono";src:url("fonts/martian-mono-latin-400-normal.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap}
-@font-face{font-family:"Martian Mono";src:url("fonts/martian-mono-latin-500-normal.woff2") format("woff2");font-weight:500;font-style:normal;font-display:swap}
-@font-face{font-family:"Saira Stencil One";src:url("fonts/saira-stencil-one-latin-400-normal.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"Bricolage Grotesque";src:url("./fonts/bricolage-grotesque-latin-wght-normal.woff2") format("woff2");font-weight:200 800;font-style:normal;font-display:swap}
+@font-face{font-family:"Martian Mono";src:url("./fonts/martian-mono-latin-400-normal.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"Martian Mono";src:url("./fonts/martian-mono-latin-500-normal.woff2") format("woff2");font-weight:500;font-style:normal;font-display:swap}
+@font-face{font-family:"Saira Stencil One";src:url("./fonts/saira-stencil-one-latin-400-normal.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap}
 
 /* Layout: one-screen app. Briefing card on top; chat beside the voting board on desktop, tabs (Chat / Vote / Crew) on phones. */
 :root{
@@ -35,6 +35,7 @@
 [hidden]{display:none!important}
 html{height:100%;box-sizing:border-box;padding-top:env(safe-area-inset-top, 0px);padding-bottom:env(safe-area-inset-bottom, 0px)}
 *,*::before,*::after{box-sizing:border-box}
+#root{height:100%}
 body{height:100%;margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased}
 button,input{font:inherit;color:inherit}
 :focus-visible{outline:2.5px solid var(--accent);outline-offset:2px}
@@ -201,3 +202,6 @@ code{font-family:var(--mono);font-size:.85em;background:var(--surface-2);padding
 .organiser{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;margin:0 12px 14px;padding:12px 14px;border-top:1px dashed var(--line);font-size:13px;color:var(--muted)}
 .organiser strong{color:var(--ink);font-weight:650}
 .status-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--nogo)}
+.demo-bar{flex:none;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:4px 12px;padding:8px 14px;border-radius:12px;background:var(--sun);color:var(--sun-ink);font-size:13px}
+.demo-bar code{background:rgba(255,255,255,.45);color:var(--sun-ink)}
+.demo-bar .linkbtn{color:var(--sun-ink)}

@@ -24,7 +24,8 @@ DB_PATH = os.environ.get("DB_PATH", "party.db")
 MAX_PLAYERS = int(os.environ.get("MAX_PLAYERS", "200"))
 MAX_CONNECTIONS = int(os.environ.get("MAX_CONNECTIONS", "500"))
 
-STATIC = Path(__file__).resolve().parent.parent / "static"
+# The React build (web/dist). Run `npm run build` in web/ first, or use Docker.
+STATIC = Path(os.environ.get("WEB_DIST", Path(__file__).resolve().parent.parent / "web" / "dist"))
 TOKEN_RE = re.compile(r"^[A-Za-z0-9_-]{20,100}$")
 SPACES = re.compile(r"\s+")
 
@@ -57,7 +58,7 @@ async def healthz():
     return JSONResponse({"ok": True})
 
 
-app.mount("/static", StaticFiles(directory=STATIC), name="static")
+app.mount("/assets", StaticFiles(directory=STATIC / "assets", check_dir=False), name="assets")
 
 
 # ---------------------------------------------------------------------------

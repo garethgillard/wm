@@ -10,7 +10,7 @@ A small live chat room for planning a work party. Everyone picks a secret **code
 - Works on phones (tabs) and desktops (side by side), light and dark mode
 - Everything stays on your server: SQLite database, self-hosted fonts, no third-party requests
 
-**Stack:** Python 3.12, FastAPI + WebSockets, SQLite, plain HTML/CSS/JS. One Docker container.
+**Stack:** React 19 + Vite for the page, Python 3.12 + FastAPI + WebSockets for the server, SQLite for storage. Docker builds both into one container.
 
 ---
 
@@ -71,24 +71,31 @@ Then remove the nginx/Apache site and close the ports if nothing else needs them
 
 ---
 
-## Run it on your laptop
+## Work on it on your laptop
 
-With Docker:
+Two terminals, so page edits show up instantly:
+```bash
+# 1. the server (port 8000)
+python -m venv .venv && .venv/bin/pip install -r requirements.txt
+ADMIN_CODE=test .venv/bin/uvicorn app.main:app --reload --port 8000
+
+# 2. the page (opens http://localhost:5173, forwards the live connection to port 8000)
+cd web && npm install && npm run dev
+```
+Use a normal window and a private window to be two people at once.
+
+Or run the whole thing exactly as it will be deployed:
 ```bash
 cp .env.example .env
-docker compose up --build
+docker compose up --build        # then open http://127.0.0.1:8080
 ```
-Then open http://127.0.0.1:8080. To try two people at once, use a normal window and a private window.
 
-Without Docker:
-```bash
-python -m venv .venv
-.venv/bin/pip install -r requirements.txt
-ADMIN_CODE=test .venv/bin/uvicorn app.main:app --reload --port 8080
-```
+### Demo build
+`cd web && npm run build:demo` makes `web/dist-demo/party-hq-demo.html`: one self-contained page where the other agents are simulated (organiser code `demo`). Handy for showing the idea before deploying.
 
 ## Test
 ```bash
+cd web && npm run build && cd ..          # the server serves web/dist
 .venv/bin/python tests/smoke_test.py
 ```
 Starts a throwaway server with a temporary database and checks passcode, joining, duplicate codenames, live chat, ideas, votes, organiser permissions, typing and reconnecting.
@@ -108,7 +115,7 @@ Starts a throwaway server with a temporary database and checks passcode, joining
 
 ```
 browser ──HTTPS──▶ nginx / Apache ──▶ party-hq container (uvicorn, 127.0.0.1:8080)
-                                         ├─ GET /          page (static/)
+                                         ├─ GET /          page (web/dist, built React)
                                          ├─ WS  /ws        live chat, votes, presence
                                          └─ /data/party.db SQLite (Docker volume)
 ```
@@ -122,15 +129,20 @@ browser ──HTTPS──▶ nginx / Apache ──▶ party-hq container (uvicor
 
 - Anyone with the link (and passcode) can post. Keep the link within the group.
 - Codenames are what everyone sees. The app stores no names, emails or IP addresses and keeps no access log (your nginx/Apache logs still record visits as usual).
-- Fonts: Bricolage Grotesque, Martian Mono and Saira Stencil One, self-hosted under the SIL Open Font License (see `static/fonts/`).
+- Fonts: Bricolage Grotesque, Martian Mono and Saira Stencil One, self-hosted under the SIL Open Font License (see `web/src/fonts/`).
 
 ## Project layout
 
 ```
-app/main.py         web server, WebSocket handling, permissions
-app/store.py        SQLite storage
-app/backup.py       database backup helper
-static/             page, styles, script, fonts
-deploy/             nginx and Apache examples
-tests/smoke_test.py end-to-end test
+app/main.py              server: WebSocket messages, permissions, serves web/dist
+app/store.py             SQLite storage
+app/backup.py            database backup helper
+web/src/App.jsx          page layout and the actions behind each button
+web/src/components/      Header, Tabs, Chat, Activities, Crew, Sheets (pop-ups), Avatar, VoteButtons
+web/src/lib/useParty.js  live data: connects, keeps state, sends requests
+web/src/lib/socket.js    the real WebSocket connection
+web/src/lib/demoServer.js  demo-only pretend server with simulated colleagues
+web/src/styles.css       all styling (colours are tokens at the top)
+deploy/                  nginx and Apache examples
+tests/smoke_test.py      end-to-end test
 ```
