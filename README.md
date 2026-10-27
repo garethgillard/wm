@@ -21,11 +21,7 @@ A live, Halloween-themed gathering room for planning a work party. First-time vi
 
 Tick these off in order. Commands run on the NREC instance unless noted.
 
-- [ ] **1. Push this repo to GitHub** (on your laptop, once; skip if it's already there)
-  ```bash
-  git remote add origin git@github.com:garethgillard/wm.git
-  git push -u origin main
-  ```
+- [x] **1. The repo is on GitHub**: https://github.com/garethgillard/wm
 - [ ] **2. Open ports 80 and 443** in the NREC dashboard: *Network → Security Groups → Manage Rules → Add Rule* (HTTP, then HTTPS). Skip if your SNP portal already serves on 80/443.
 - [ ] **3. Check Docker is installed**: `docker compose version`. If not, follow Docker's install guide for Ubuntu: https://docs.docker.com/engine/install/ubuntu/
 - [ ] **4. Clone and start it** (one command does the rest: makes `.env` with a fresh organiser code, builds, starts, checks it answers)

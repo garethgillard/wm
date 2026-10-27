@@ -18,8 +18,8 @@ One step at a time. Tick each box when it's done.
 - [ ] Final look over the demo on phone and desktop
 
 ## 2. Get it ready
-- [ ] Run `tests/smoke_test.py` against the final build
-- [ ] Push the repo to GitHub as garethgillard/wm
+- [x] Run `tests/smoke_test.py` against the final build
+- [x] Push the repo to GitHub: https://github.com/garethgillard/wm (public)
 
 ## 3. Deploy on NREC (README checklist, steps 2–10)
 - [ ] Ports 80/443 open
