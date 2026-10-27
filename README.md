@@ -1,4 +1,4 @@
-# Party HQ: The WM Cult
+# WM: The WM Cult gathering
 
 A live, Halloween-themed gathering room for planning a work party. First-time visitors land on a black page with the WM letters and an Enter button. Everyone takes their vows with a **secret name** (fixed once chosen), an animal **familiar** and a **robe**, whispers in the chat, and votes **Aye** or **Nay** on the proposed rites. No accounts: people open the link, pick a name and take a seat.
 
@@ -21,49 +21,38 @@ A live, Halloween-themed gathering room for planning a work party. First-time vi
 
 Tick these off in order. Commands run on the NREC instance unless noted.
 
-- [ ] **1. Push this repo to GitHub** (on your laptop)
+- [ ] **1. Push this repo to GitHub** (on your laptop, once; skip if it's already there)
   ```bash
-  git remote add origin git@github.com:<you>/party-hq.git
+  git remote add origin git@github.com:garethgillard/wm.git
   git push -u origin main
   ```
 - [ ] **2. Open ports 80 and 443** in the NREC dashboard: *Network → Security Groups → Manage Rules → Add Rule* (HTTP, then HTTPS). Skip if your SNP portal already serves on 80/443.
 - [ ] **3. Check Docker is installed**: `docker compose version`. If not, follow Docker's install guide for Ubuntu: https://docs.docker.com/engine/install/ubuntu/
-- [ ] **4. Clone the repo**
+- [ ] **4. Clone and start it** (one command does the rest: makes `.env` with a fresh organiser code, builds, starts, checks it answers)
   ```bash
-  git clone https://github.com/<you>/party-hq.git ~/party-hq
-  cd ~/party-hq
+  git clone https://github.com/garethgillard/wm.git ~/wm && cd ~/wm
+  PARTY_PASSCODE=pick-a-door-password ./scripts/setup.sh
   ```
-- [ ] **5. Set your codes**
-  ```bash
-  cp .env.example .env
-  openssl rand -base64 18      # copy the output into ADMIN_CODE
-  nano .env                    # set ADMIN_CODE, and PARTY_PASSCODE if you want one
-  ```
-  If something else already uses port 8080 on the instance (check with `ss -ltn | grep 8080`), set `PARTY_PORT` to a free port and use that port in step 7.
-- [ ] **6. Start it**
-  ```bash
-  docker compose up -d --build
-  curl http://127.0.0.1:8080/healthz      # → {"ok":true}
-  ```
-- [ ] **7. Put it behind your web server with HTTPS.** Use whichever server the instance already runs. Each file has two options:
+  Leave out `PARTY_PASSCODE=…` for no door password. If port 8080 is taken on the instance, add `PARTY_PORT=8090` (and use that port in step 5). The script prints your organiser code at the end.
+- [ ] **5. Put it behind your web server with HTTPS.** Use whichever server the instance already runs. Each file has two options:
   - **Option A, its own hostname** (e.g. `party.example.org`): needs a DNS name pointing at the instance's public IP.
   - **Option B, a sub-path on a site you already have** (e.g. `https://<your-snp-portal-host>/party/`): no new DNS or certificate needed.
 
   nginx: [`deploy/nginx.conf`](deploy/nginx.conf) · Apache: [`deploy/apache.conf`](deploy/apache.conf). Each file lists its exact commands, including `certbot` for HTTPS.
-- [ ] **8. Test it**: open the link on your phone and laptop, pick two codenames, send a message and vote. Both should update instantly.
-- [ ] **9. Unlock organiser mode**: notice board → *Enter organiser code* → paste your `ADMIN_CODE`. The summons starts as *Friday 30 October* at *CIGENE*; tap any text on the board to change it (name, when, where, notices, rite titles), then post your starting notices and propose the starting rites. Edits show for everyone straight away.
-- [ ] **10. Share the link** (and the passcode, if you set one) with your colleagues.
+- [ ] **6. Test it**: open the link on your phone and laptop, pick two codenames, send a message and vote. Both should update instantly.
+- [ ] **7. Unlock organiser mode**: notice board → *Enter organiser code* → paste the organiser code the setup script printed (it's also in `.env` as `ADMIN_CODE`). The summons starts as *Friday 30 October* at *CIGENE*; tap any text on the board to change it (name, when, where, notices, rite titles), then post your starting notices and propose the starting rites. Edits show for everyone straight away.
+- [ ] **8. Share the link** (and the passcode, if you set one) with your colleagues.
 
 ### Updating
 ```bash
-cd ~/party-hq && git pull && docker compose up -d --build
+cd ~/wm && git pull && docker compose up -d --build
 ```
-Chat history, codenames and votes live in the `party-data` Docker volume and survive updates.
+Chat history, codenames and votes live in the `wm-data` Docker volume and survive updates.
 
 ### Backup
 ```bash
-docker compose exec party-hq python -m app.backup /data/backup.db
-docker compose cp party-hq:/data/backup.db ./party-backup.db
+docker compose exec wm python -m app.backup /data/backup.db
+docker compose cp wm:/data/backup.db ./wm-backup.db
 ```
 
 ### After the party
@@ -117,7 +106,7 @@ Starts a throwaway server with a temporary database and checks the password, joi
 ## How it works
 
 ```
-browser ──HTTPS──▶ nginx / Apache ──▶ party-hq container (uvicorn, 127.0.0.1:8080)
+browser ──HTTPS──▶ nginx / Apache ──▶ wm container (uvicorn, 127.0.0.1:8080)
                                          ├─ GET /          page (web/dist, built React)
                                          ├─ WS  /ws        live chat, votes, presence
                                          └─ /data/party.db SQLite (Docker volume)

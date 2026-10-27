@@ -1,15 +1,15 @@
 services:
-  party-hq:
+  wm:
     build: .
-    image: party-hq:latest
-    container_name: party-hq
+    image: wm:latest
+    container_name: wm
     restart: unless-stopped
     env_file: .env
     # Only reachable from the server itself; nginx or Apache in front handles HTTPS.
     ports:
       - "127.0.0.1:${PARTY_PORT:-8080}:8000"
     volumes:
-      - party-data:/data
+      - wm-data:/data
 
 volumes:
-  party-data:
+  wm-data:

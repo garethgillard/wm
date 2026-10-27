@@ -1,4 +1,4 @@
-# Party HQ tracker
+# WM tracker
 
 One step at a time. Tick each box when it's done.
 
@@ -19,12 +19,11 @@ One step at a time. Tick each box when it's done.
 
 ## 2. Get it ready
 - [ ] Run `tests/smoke_test.py` against the final build
-- [ ] Push the repo to GitHub
+- [ ] Push the repo to GitHub as garethgillard/wm
 
 ## 3. Deploy on NREC (README checklist, steps 2–10)
 - [ ] Ports 80/443 open
-- [ ] `.env` with organiser code (and passcode if wanted)
-- [ ] `docker compose up -d --build`
+- [ ] `./scripts/setup.sh` (makes `.env`, builds, starts)
 - [ ] nginx or Apache + HTTPS
 - [ ] Tested on two devices
 - [ ] Link shared with colleagues
