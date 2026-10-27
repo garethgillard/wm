@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Party HQ</title>
+<meta name="description" content="Plan the work party: pick a codename, chat with the crew and vote on what to do.">
+<meta property="og:title" content="Party HQ">
+<meta property="og:description" content="Pick a codename, chat with the crew and vote on what to do.">
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%89%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+<div class="app" id="app" data-tab="chat">
+  <header class="brief">
+    <div class="brief-top">
+      <div class="brief-title">
+        <p class="eyebrow"><span>Party HQ</span><span class="stamp">Codenames only</span></p>
+        <h1 id="partyName">Work party</h1>
+        <div class="meta-row">
+          <p class="meta" id="partyMeta">Date and place to be decided</p>
+          <button type="button" class="linkbtn" id="editInfo" hidden>Edit details</button>
+        </div>
+      </div>
+      <button type="button" class="me-btn" id="meBtn" hidden></button>
+    </div>
+    <div class="online" id="online"><span>Connecting…</span></div>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="Sections">
+    <button type="button" class="tab" role="tab" data-tab="chat" aria-selected="true" id="tab-chat">Chat <span class="badge" id="chatBadge" hidden></span></button>
+    <button type="button" class="tab" role="tab" data-tab="vote" aria-selected="false" id="tab-vote">Vote <span class="count" id="voteCount">0</span></button>
+    <button type="button" class="tab" role="tab" data-tab="crew" aria-selected="false" id="tab-crew">Crew <span class="count" id="crewCountTab">0</span></button>
+  </nav>
+
+  <main class="stage">
+    <section class="pane" id="pane-chat" aria-label="Chat">
+      <div class="feed" id="feed" aria-live="polite"></div>
+      <div class="typing" id="typing"></div>
+      <form class="composer" id="composer" autocomplete="off" hidden>
+        <input class="field" id="msgInput" maxlength="500" placeholder="Say something, or /idea Bowling" aria-label="Message">
+        <button class="btn primary" type="submit">Send</button>
+      </form>
+      <div class="composer-note" id="composerNote">Connecting to Party HQ…</div>
+    </section>
+
+    <div class="side">
+      <section class="pane" id="pane-vote" aria-label="Vote on activities">
+        <div class="pane-head"><h2>Activities</h2><span class="sub">Ranked by go minus no-go</span></div>
+        <div class="pane-body">
+          <form class="add" id="addForm" autocomplete="off" hidden>
+            <input class="field" id="actInput" maxlength="80" placeholder="Propose an activity" aria-label="New activity">
+            <button class="btn" type="submit">Add</button>
+          </form>
+          <div class="ideas" id="ideas" hidden></div>
+          <ol class="acts" id="acts"></ol>
+        </div>
+      </section>
+
+      <section class="pane" id="pane-crew" aria-label="Crew">
+        <div class="pane-head"><h2>Crew <span class="count" id="crewCount">0</span></h2><span class="sub" id="crewSub"></span></div>
+        <div class="pane-body">
+          <ul class="crew-list" id="crewList"></ul>
+          <div class="organiser" id="organiser" hidden></div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<div class="layer" id="joinLayer" hidden>
+  <form class="sheet" id="joinForm" autocomplete="off">
+    <h2 id="joinTitle">Choose your secret identity</h2>
+    <p class="lede" id="joinLede">Everyone here goes by a codename. Pick one, choose an avatar, and you're in.</p>
+    <div class="preview"><span id="joinPreviewAv"></span><span class="preview-name" id="joinPreviewName"></span></div>
+    <div>
+      <label class="label" for="codename">Codename</label>
+      <div class="row">
+        <input class="field" id="codename" maxlength="28" required>
+        <button class="btn" type="button" id="dice" aria-label="Random codename">🎲</button>
+      </div>
+    </div>
+    <div><span class="label">Avatar</span><div class="emojis" id="emojiGrid"></div></div>
+    <div><span class="label">Colour</span><div class="swatches" id="swatches"></div></div>
+    <p class="err" id="joinErr" hidden></p>
+    <div class="sheet-actions">
+      <button class="btn" type="button" id="joinClose">Not now</button>
+      <button class="btn primary" type="submit" id="joinSubmit">Join the party</button>
+    </div>
+  </form>
+</div>
+
+<div class="layer" id="infoLayer" hidden>
+  <form class="sheet" id="infoForm" autocomplete="off">
+    <h2>Party details</h2>
+    <div class="stack-fields">
+      <div><label class="label" for="infoName">Party name</label><input class="field full" id="infoName" maxlength="40"></div>
+      <div><label class="label" for="infoWhen">When</label><input class="field full" id="infoWhen" maxlength="60" placeholder="Fri 11 Dec, from 17:00"></div>
+      <div><label class="label" for="infoWhere">Where</label><input class="field full" id="infoWhere" maxlength="60" placeholder="Still to be decided"></div>
+    </div>
+    <p class="err" id="infoErr" hidden></p>
+    <div class="sheet-actions">
+      <button class="btn" type="button" id="infoClose">Cancel</button>
+      <button class="btn primary" type="submit" id="infoSubmit">Save details</button>
+    </div>
+  </form>
+</div>
+
+<div class="layer" id="passLayer" hidden>
+  <form class="sheet" id="passForm" autocomplete="off">
+    <h2>Invite only</h2>
+    <p class="lede">Enter the passcode from the organiser to get into Party HQ.</p>
+    <div><label class="label" for="passInput">Passcode</label><input class="field full" id="passInput" maxlength="100" autocapitalize="off" autocorrect="off" spellcheck="false"></div>
+    <p class="err" id="passErr" hidden></p>
+    <div class="sheet-actions"><button class="btn primary" type="submit">Enter</button></div>
+  </form>
+</div>
+
+<div class="layer" id="adminLayer" hidden>
+  <form class="sheet" id="adminForm" autocomplete="off">
+    <h2>Organiser mode</h2>
+    <p class="lede">With the organiser code you can edit the party details and remove any activity.</p>
+    <div><label class="label" for="adminInput">Organiser code</label><input class="field full" id="adminInput" type="password" maxlength="100" autocomplete="off"></div>
+    <p class="err" id="adminErr" hidden></p>
+    <div class="sheet-actions">
+      <button class="btn" type="button" id="adminClose">Cancel</button>
+      <button class="btn primary" type="submit">Unlock</button>
+    </div>
+  </form>
+</div>
+
+<div class="toast" id="toast" role="status" hidden></div>
+<script src="static/app.js"></script>
+</body>
+</html>
