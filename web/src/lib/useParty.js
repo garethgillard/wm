@@ -27,7 +27,7 @@ function getToken() {
 const initialState = {
   connected: false, ready: false, locked: false, passWrong: false,
   me: null, isAdmin: false, hasAdmin: false,
-  info: null, players: {}, messages: [], activities: [], votes: {},
+  info: null, players: {}, messages: [], activities: [], notices: [], votes: {},
   online: [], typing: [],
 }
 
@@ -47,6 +47,7 @@ function reducer(s, a) {
         players: Object.fromEntries((st.players || []).map(p => [p.id, p])),
         messages: st.messages || [],
         activities: st.activities || [],
+        notices: st.notices || [],
         votes: st.votes || {},
       }
     }
@@ -60,6 +61,11 @@ function reducer(s, a) {
       return { ...s, activities: [...s.activities, a.activity] }
     case 'activity_removed':
       return { ...s, activities: s.activities.filter(x => x.id !== a.id) }
+    case 'notice':
+      if (s.notices.some(n => n.id === a.notice.id)) return s
+      return { ...s, notices: [...s.notices, a.notice] }
+    case 'notice_removed':
+      return { ...s, notices: s.notices.filter(n => n.id !== a.id) }
     case 'vote':
       return { ...s, votes: { ...s.votes, [a.pid]: { ...(s.votes[a.pid] || {}), [a.aid]: a.v } } }
     case 'info':
@@ -144,6 +150,8 @@ export function useParty() {
       try { await request('vote', { aid, v }) } catch (e) { dispatch({ type: 'vote', pid: me, aid, v: before }); throw e }
     },
     saveInfo: info => request('info', info),
+    addNotice: text => request('notice', { text }),
+    removeNotice: id => request('remove_notice', { id }),
     async unlockAdmin(code) {
       await request('admin', { code })
       lsSet(KEYS.admin, code)

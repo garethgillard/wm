@@ -23,6 +23,7 @@ ADMIN_CODE = os.environ.get("ADMIN_CODE", "").strip()
 DB_PATH = os.environ.get("DB_PATH", "party.db")
 MAX_PLAYERS = int(os.environ.get("MAX_PLAYERS", "200"))
 MAX_CONNECTIONS = int(os.environ.get("MAX_CONNECTIONS", "500"))
+MAX_NOTICES = 20
 
 # The React build (web/dist). Run `npm run build` in web/ first, or use Docker.
 STATIC = Path(os.environ.get("WEB_DIST", Path(__file__).resolve().parent.parent / "web" / "dist"))
@@ -261,11 +262,29 @@ async def handle(conn: Conn, msg: dict) -> None:
         if not conn.admin:
             return await ack(False, error="forbidden")
         info = store.set_info(
-            clean(msg.get("name"), 40) or "Work party",
+            clean(msg.get("name"), 40) or "The Halloween Conclave",
             clean(msg.get("when"), 60),
             clean(msg.get("where"), 60),
         )
         await hub.broadcast({"type": "info", "info": info})
+        return await ack()
+
+    if kind == "notice":
+        if not conn.admin:
+            return await ack(False, error="forbidden")
+        text = clean(msg.get("text"), 200)
+        if not text:
+            return await ack(False, error="invalid")
+        if store.notice_count() >= MAX_NOTICES:
+            return await ack(False, error="full")
+        await hub.broadcast({"type": "notice", "notice": store.add_notice(text)})
+        return await ack()
+
+    if kind == "remove_notice":
+        if not conn.admin:
+            return await ack(False, error="forbidden")
+        if store.remove_notice(str(msg.get("id", ""))):
+            await hub.broadcast({"type": "notice_removed", "id": str(msg.get("id"))})
         return await ack()
 
     await ack(False, error="unknown")

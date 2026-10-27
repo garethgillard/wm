@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Avatar } from './Avatar'
-import { COLORS, EMOJI, rand, randomName } from '../lib/constants'
+import { Chair, Figure } from './Cult'
+import { EMOJI, ROBES, rand, randomName } from '../lib/constants'
 import { errorText } from '../lib/format'
 
 // A centred card over a dimmed page. Escape closes it (when closing is allowed).
@@ -39,51 +39,56 @@ function useSave(save, onDone) {
 export function JoinSheet({ current, players, me, onSave, onClose }) {
   const [codename, setCodename] = useState(() => current?.codename ?? randomName())
   const [emoji, setEmoji] = useState(() => current?.emoji ?? rand(EMOJI.length))
-  const [color, setColor] = useState(() => current?.color ?? rand(COLORS.length))
+  const [color, setColor] = useState(() => current?.color ?? rand(ROBES.length))
   const { busy, error, setError, run } = useSave(onSave, onClose)
 
   function submit() {
     const name = codename.trim().replace(/\s+/g, ' ').slice(0, 28)
-    if (name.length < 2) return setError('Pick a codename with at least 2 characters.')
+    if (name.length < 2) return setError('Your secret name needs at least 2 characters.')
     if (Object.values(players).some(p => p.id !== me && p.codename.toLowerCase() === name.toLowerCase())) return setError(errorText({ error: 'taken' }))
     run(name, emoji, color)
   }
 
   return (
     <Sheet
-      title={current ? 'Change your identity' : 'Choose your secret identity'}
-      lede={current ? null : "Everyone here goes by a codename. Pick one, choose an avatar, and you're in."}
+      title={current ? 'Change your disguise' : 'Take your vows'}
+      lede={current ? null : 'Members of the VM Cult are known only by their secret names. Choose yours, then your familiar and your robe.'}
       onSubmit={submit}
       onClose={onClose}
       actions={<>
-        <button className="btn" type="button" onClick={onClose}>{current ? 'Cancel' : 'Not now'}</button>
-        <button className="btn primary" type="submit" disabled={busy}>{current ? 'Save' : 'Join the party'}</button>
+        <button className="btn" type="button" onClick={onClose}>{current ? 'Cancel' : 'Watch from the shadows'}</button>
+        <button className="btn primary" type="submit" disabled={busy}>{current ? 'Save' : 'Take a seat'}</button>
       </>}
     >
       <div className="preview">
-        <Avatar player={{ emoji, color }} size="lg" />
-        <span className="preview-name">{codename.trim() || 'Codename'}</span>
+        <svg className="preview-figure" viewBox="-62 -156 124 166" aria-hidden="true">
+          <ellipse cx="0" cy="2" rx="52" ry="9" fill="#000" opacity="0.5" />
+          <Chair />
+          <Figure player={{ emoji, color }} lit />
+        </svg>
+        <span className="preview-name">{codename.trim() || 'Your secret name'}</span>
       </div>
       <div>
-        <label className="label" htmlFor="codename">Codename</label>
+        <label className="label" htmlFor="codename">Secret name</label>
         <div className="row">
           <input className="field" id="codename" maxLength={28} required value={codename} onChange={e => setCodename(e.target.value)} />
-          <button className="btn" type="button" onClick={() => setCodename(randomName())} aria-label="Random codename">🎲</button>
+          <button className="btn" type="button" onClick={() => setCodename(randomName())} aria-label="Suggest a secret name">Divine one</button>
         </div>
       </div>
       <div>
-        <span className="label">Avatar</span>
+        <span className="label">Your familiar</span>
         <div className="emojis">
           {EMOJI.map((e, i) => (
-            <button key={e} type="button" aria-pressed={i === emoji} aria-label={`Avatar ${e}`} onClick={() => setEmoji(i)}>{e}</button>
+            <button key={e} type="button" aria-pressed={i === emoji} aria-label={`Familiar ${e}`} onClick={() => setEmoji(i)}>{e}</button>
           ))}
         </div>
       </div>
       <div>
-        <span className="label">Colour</span>
+        <span className="label">Your robe <span className="label-value">{ROBES[color].name}</span></span>
         <div className="swatches">
-          {COLORS.map((c, i) => (
-            <button key={c} type="button" aria-pressed={i === color} aria-label={`Colour ${i + 1}`} style={{ '--av': c }} onClick={() => setColor(i)} />
+          {ROBES.map((r, i) => (
+            <button key={r.name} type="button" aria-pressed={i === color} aria-label={`${r.name} robe`} title={r.name}
+              style={{ '--robe': r.fill, '--robe-lit': r.lit }} onClick={() => setColor(i)} />
           ))}
         </div>
       </div>
@@ -93,25 +98,25 @@ export function JoinSheet({ current, players, me, onSave, onClose }) {
 }
 
 export function InfoSheet({ info, onSave, onClose }) {
-  const [name, setName] = useState(info?.name || 'Work party')
+  const [name, setName] = useState(info?.name || 'The Halloween Conclave')
   const [when, setWhen] = useState(info?.when || '')
   const [where, setWhere] = useState(info?.where || '')
   const { busy, error, run } = useSave(onSave, onClose)
 
   return (
     <Sheet
-      title="Party details"
+      title="Edit the summons"
       onSubmit={() => run({ name, when, where })}
       onClose={onClose}
       actions={<>
         <button className="btn" type="button" onClick={onClose}>Cancel</button>
-        <button className="btn primary" type="submit" disabled={busy}>Save details</button>
+        <button className="btn primary" type="submit" disabled={busy}>Save the summons</button>
       </>}
     >
       <div className="stack-fields">
-        <div><label className="label" htmlFor="infoName">Party name</label><input className="field full" id="infoName" maxLength={40} value={name} onChange={e => setName(e.target.value)} /></div>
-        <div><label className="label" htmlFor="infoWhen">When</label><input className="field full" id="infoWhen" maxLength={60} placeholder="Fri 11 Dec, from 17:00" value={when} onChange={e => setWhen(e.target.value)} /></div>
-        <div><label className="label" htmlFor="infoWhere">Where</label><input className="field full" id="infoWhere" maxLength={60} placeholder="Still to be decided" value={where} onChange={e => setWhere(e.target.value)} /></div>
+        <div><label className="label" htmlFor="infoName">Name of the gathering</label><input className="field full" id="infoName" maxLength={40} value={name} onChange={e => setName(e.target.value)} /></div>
+        <div><label className="label" htmlFor="infoWhen">When</label><input className="field full" id="infoWhen" maxLength={60} placeholder="Fri 30 Oct, from 18:00" value={when} onChange={e => setWhen(e.target.value)} /></div>
+        <div><label className="label" htmlFor="infoWhere">Where</label><input className="field full" id="infoWhere" maxLength={60} placeholder="To be revealed" value={where} onChange={e => setWhere(e.target.value)} /></div>
       </div>
       {error && <p className="err">{error}</p>}
     </Sheet>
@@ -127,7 +132,7 @@ export function OrganiserSheet({ hint, onUnlock, onClose }) {
   return (
     <Sheet
       title="Organiser mode"
-      lede="With the organiser code you can edit the party details and remove any activity."
+      lede="The organiser code lets you edit the summons, post notices and remove any rite."
       onSubmit={() => code.trim() && run(code.trim())}
       onClose={onClose}
       actions={<>
@@ -149,16 +154,16 @@ export function PasscodeSheet({ wrong, onSubmit }) {
   const [code, setCode] = useState('')
   return (
     <Sheet
-      title="Invite only"
-      lede="Enter the passcode from the organiser to get into Party HQ."
+      title="The door is sealed"
+      lede="Speak the password the organiser gave you to enter the chamber."
       onSubmit={() => code.trim() && onSubmit(code.trim())}
-      actions={<button className="btn primary" type="submit">Enter</button>}
+      actions={<button className="btn primary" type="submit">Enter the chamber</button>}
     >
       <div>
-        <label className="label" htmlFor="passInput">Passcode</label>
+        <label className="label" htmlFor="passInput">Password</label>
         <input className="field full" id="passInput" maxLength={100} autoCapitalize="off" autoCorrect="off" spellCheck={false} value={code} onChange={e => setCode(e.target.value)} />
       </div>
-      {wrong && <p className="err">That passcode didn't work. Check it with the organiser.</p>}
+      {wrong && <p className="err">The door stays shut. Check the password with the organiser.</p>}
     </Sheet>
   )
 }

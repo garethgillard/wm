@@ -1,13 +1,13 @@
-# Party HQ
+# Party HQ: The VM Cult
 
-A small live chat room for planning a work party. Everyone picks a secret **codename** and an emoji **avatar**, chats with the crew, proposes activities, and votes **Go** or **No-go** on each one. No accounts: people open the link, pick a codename and they're in.
+A live, Halloween-themed gathering room for planning a work party. Everyone takes their vows with a **secret name**, an animal **familiar** and a **robe**, whispers in the chat, and votes **Aye** or **Nay** on the proposed rites. No accounts: people open the link, pick a name and take a seat.
 
-- Live chat with day separators, "is typing…" and who's online
-- Propose activities from the Vote tab or by typing `/idea Bowling` in the chat
-- Activities ranked by Go minus No-go, with the leader highlighted
-- Optional passcode so only people you send it to can get in
-- Organiser code for you: edit the party name, date and place, and remove any activity
-- Works on phones (tabs) and desktops (side by side), light and dark mode
+- **Whispers** (left): live chat with "is whispering…" and day separators
+- **The ritual table** (centre): a candlelit dungeon round table where every member sits as a robed, masked figure. Their candle is lit while they are here; empty chairs wait for newcomers. Tap a figure to see its name
+- **The notice board** (right): the summons (name, when, where), notices from the organiser, and the rites to vote on, ranked by ayes minus nays
+- Phones: table on top, chat below, and the board drops down from the header
+- Propose rites from the board or by typing `/idea Séance` in the chat
+- Optional password at the door; an organiser code for you to edit the summons, post notices and remove any rite
 - Everything stays on your server: SQLite database, self-hosted fonts, no third-party requests
 
 **Stack:** React 19 + Vite for the page, Python 3.12 + FastAPI + WebSockets for the server, SQLite for storage. Docker builds both into one container.
@@ -48,7 +48,7 @@ Tick these off in order. Commands run on the NREC instance unless noted.
 
   nginx: [`deploy/nginx.conf`](deploy/nginx.conf) · Apache: [`deploy/apache.conf`](deploy/apache.conf). Each file lists its exact commands, including `certbot` for HTTPS.
 - [ ] **8. Test it**: open the link on your phone and laptop, pick two codenames, send a message and vote. Both should update instantly.
-- [ ] **9. Unlock organiser mode**: Crew tab → *Enter organiser code* → paste your `ADMIN_CODE`. Then *Edit details* to set the party name, date and place.
+- [ ] **9. Unlock organiser mode**: notice board → *Enter organiser code* → paste your `ADMIN_CODE`. Then *Edit the summons* to set the name, date and place, and post your notices.
 - [ ] **10. Share the link** (and the passcode, if you set one) with your colleagues.
 
 ### Updating
@@ -98,7 +98,7 @@ docker compose up --build        # then open http://127.0.0.1:8080
 cd web && npm run build && cd ..          # the server serves web/dist
 .venv/bin/python tests/smoke_test.py
 ```
-Starts a throwaway server with a temporary database and checks passcode, joining, duplicate codenames, live chat, ideas, votes, organiser permissions, typing and reconnecting.
+Starts a throwaway server with a temporary database and checks the password, joining, duplicate names, live chat, rites, votes, notices, organiser permissions, typing and reconnecting.
 
 ---
 
@@ -106,7 +106,7 @@ Starts a throwaway server with a temporary database and checks passcode, joining
 
 | Setting | What it does | Default |
 |---|---|---|
-| `PARTY_PASSCODE` | Passcode needed to see or join. Empty means anyone with the link gets in. | empty |
+| `PARTY_PASSCODE` | Password needed at the door. Empty means anyone with the link gets in. | empty |
 | `ADMIN_CODE` | Organiser code. Empty disables organiser mode. | empty |
 | `PARTY_PORT` | Port on the instance's localhost that the web server forwards to. | `8080` |
 | `MAX_PLAYERS` | Maximum number of codenames. | `200` |
@@ -129,7 +129,7 @@ browser ──HTTPS──▶ nginx / Apache ──▶ party-hq container (uvicor
 
 - Anyone with the link (and passcode) can post. Keep the link within the group.
 - Codenames are what everyone sees. The app stores no names, emails or IP addresses and keeps no access log (your nginx/Apache logs still record visits as usual).
-- Fonts: Bricolage Grotesque, Martian Mono and Saira Stencil One, self-hosted under the SIL Open Font License (see `web/src/fonts/`).
+- Fonts: Cinzel and Spectral, self-hosted under the SIL Open Font License (see `web/src/fonts/`).
 
 ## Project layout
 
@@ -138,7 +138,7 @@ app/main.py              server: WebSocket messages, permissions, serves web/dis
 app/store.py             SQLite storage
 app/backup.py            database backup helper
 web/src/App.jsx          page layout and the actions behind each button
-web/src/components/      Header, Tabs, Chat, Activities, Crew, Sheets (pop-ups), Avatar, VoteButtons
+web/src/components/      Header, Chat, RitualTable (the scene), Board, Sheets (pop-ups), Cult (sigil, figures, avatars)
 web/src/lib/useParty.js  live data: connects, keeps state, sends requests
 web/src/lib/socket.js    the real WebSocket connection
 web/src/lib/demoServer.js  demo-only pretend server with simulated colleagues

@@ -128,6 +128,16 @@ async def run(url: str):
     i = await b.expect("info")
     check("B sees the new party details", i["info"]["name"] == "Julebord")
 
+    r = await b.request("notice", text="Masks on at the door")
+    check("only the organiser can post notices", r["ok"] is False and r["error"] == "forbidden")
+    r = await a.request("notice", text="Masks on at the door")
+    check("organiser posts a notice", r["ok"] is True)
+    n = await b.expect("notice")
+    check("B sees the notice live", n["notice"]["text"] == "Masks on at the door")
+    await a.request("remove_notice", id=n["notice"]["id"])
+    gone = await b.expect("notice_removed")
+    check("organiser removes the notice", gone["id"] == n["notice"]["id"])
+
     await b.send(type="typing", on=True)
     pr = await a.expect("presence", lambda m: b_id in m["typing"])
     check("typing indicator reaches A", a_id in pr["online"] and b_id in pr["online"])

@@ -1,46 +1,38 @@
 import { useEffect } from 'react'
-import { Avatar, AvatarStack } from './Avatar'
+import { Avatar, Sigil } from './Cult'
 import { nameOf } from '../lib/format'
 
-export function Header({ party, onEditInfo, onIdentity }) {
-  const { info, players, me, ready, connected, locked, online, isAdmin } = party
-  const name = info?.name || 'Work party'
-  const meta = [info?.when, info?.where].filter(Boolean).join(' · ') || 'Date and place to be decided'
-  const crew = Object.keys(players)
-  const here = crew.filter(id => online.includes(id))
+export function Header({ party, boardOpen, unvoted, onToggleBoard, onIdentity }) {
+  const { info, players, me, ready, connected, locked } = party
+  const name = info?.name || 'The Halloween Conclave'
+  const meta = [info?.when, info?.where].filter(Boolean).join(' · ')
   const joined = !!players[me]
 
-  useEffect(() => { document.title = `${name} · Party HQ` }, [name])
-
-  let status
-  if (locked) status = <span>Invite only</span>
-  else if (!ready) status = <span>Connecting…</span>
-  else if (!connected) status = <><span className="status-dot" /><span>Reconnecting…</span></>
-  else if (!crew.length) status = <span>No one has joined yet</span>
-  else status = <><AvatarStack ids={here} players={players} /><span>{here.length} here now · {crew.length} in the crew</span></>
+  useEffect(() => { document.title = `${name} · The VM Cult` }, [name])
 
   return (
-    <header className="brief">
-      <div className="brief-top">
-        <div className="brief-title">
-          <p className="eyebrow"><span>Party HQ</span><span className="stamp">Codenames only</span></p>
-          <h1>{name}</h1>
-          <div className="meta-row">
-            <p className="meta">{meta}</p>
-            {isAdmin && ready && <button type="button" className="linkbtn" onClick={onEditInfo}>Edit details</button>}
-          </div>
-        </div>
-        {joined && (
-          <button type="button" className="me-btn" onClick={onIdentity} aria-label={`You are ${nameOf(players, me)}. Change codename or avatar`}>
+    <header className="masthead">
+      <Sigil className="masthead-sigil" />
+      <div className="masthead-title">
+        <p className="eyebrow">The VM Cult {!connected && ready && <span className="offline">· reconnecting…</span>}</p>
+        <h1>{name}</h1>
+        {meta && <p className="meta">{meta}</p>}
+      </div>
+      <div className="masthead-actions">
+        <button type="button" className={`board-toggle${boardOpen ? ' open' : ''}`} onClick={onToggleBoard} aria-expanded={boardOpen} aria-controls="board-panel" aria-label="Notices and votes">
+          <span className="board-label">Board</span>
+          {unvoted > 0 && <span className="badge" aria-label={`${unvoted} rites waiting for your vote`}>{unvoted}</span>}
+          <svg className="chevron" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 4.5 L6 8.5 L10 4.5" fill="none" stroke="currentColor" strokeWidth="1.6" /></svg>
+        </button>
+        {joined ? (
+          <button type="button" className="me-btn" onClick={onIdentity} aria-label={`You are ${nameOf(players, me)}. Change your name, familiar or robe`}>
             <Avatar player={players[me]} size="sm" />
             <span className="me-name">{nameOf(players, me)}</span>
           </button>
-        )}
-        {!joined && ready && connected && (
-          <button type="button" className="me-btn solo" onClick={onIdentity}>Join</button>
-        )}
+        ) : ready && connected && !locked ? (
+          <button type="button" className="btn primary join-btn" onClick={onIdentity}>Take a seat</button>
+        ) : null}
       </div>
-      <div className="online">{status}</div>
     </header>
   )
 }

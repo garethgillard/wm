@@ -5,28 +5,31 @@
 import { rand } from './constants'
 
 export const DEMO_ADMIN_CODE = 'demo'
-const STORE_KEY = 'partyhq-demo-v1'
+const STORE_KEY = 'partyhq-demo-v2'
 
 const BOTS = [
-  { id: 'bot-moose', codename: 'Captain Velvet Moose', emoji: 12, color: 1 },
-  { id: 'bot-herring', codename: 'Neon Herring', emoji: 23, color: 3 },
-  { id: 'bot-troll', codename: 'Baron Crispy Troll', emoji: 7, color: 6 },
-  { id: 'bot-lynx', codename: 'Professor Polar Lynx', emoji: 13, color: 0 },
+  { id: 'bot-hare', codename: 'Keeper Ashen Hare', emoji: 12, color: 1 },
+  { id: 'bot-owl', codename: 'The Veiled Owl', emoji: 3, color: 2 },
+  { id: 'bot-wolf', codename: 'Warden Hollow Wolf', emoji: 1, color: 0 },
+  { id: 'bot-toad', codename: 'Seer Crimson Toad', emoji: 4, color: 4 },
+  { id: 'bot-cat', codename: 'The Pale Oracle', emoji: 2, color: 6 },
+  { id: 'bot-goat', codename: 'Herald Ember Goat', emoji: 8, color: 7 },
+  { id: 'bot-octo', codename: 'Archivist of the Deep', emoji: 10, color: 3 },
 ]
 const LINES = [
-  "Who's in charge of the playlist?",
-  'Can we start after 17:00? Lab meeting always runs late.',
-  'Anything with food gets my vote.',
-  "Last year's julebord set a high bar.",
-  'Is there a budget per person?',
-  "Karaoke is a yes from me, but I'm not going first.",
-  'Sauna sounds great if there is somewhere to change.',
-  'Could we do two things? Activity first, dinner after.',
-  "I'll book whatever wins if we decide by Friday.",
-  'Does anyone know if the boat place does group bookings?',
+  'The candles are ordered. Black, obviously.',
+  'Do we chant before or after the snacks?',
+  "I've ironed my robe. Twice.",
+  'Who is bringing the punch? It should be red.',
+  'Can the ritual start after 18:00? Lab meeting always runs late.',
+  "Is there a dress code beyond 'ominous'?",
+  'I propose we offer the old printer to the void.',
+  'Masks on at the door, I assume?',
+  "I'll book whichever rite wins by Friday.",
+  'The basement room by the freezers has excellent acoustics for chanting.',
 ]
-const BOT_IDEAS = ['Shuffleboard bar', 'Ice skating', 'Cooking class']
-const REACTIONS = ['Ooh, {t}!', '{t} could work.', 'Not sure about {t}, but I could be convinced.', '{t}? Count me in.']
+const BOT_IDEAS = ['Pumpkin carving', 'Ghost story circle', 'Candlelit dinner']
+const REACTIONS = ['{t}? The circle approves.', '{t} could work.', '{t}. Intriguing.', 'Not sure about {t}, but I will honour the vote.']
 
 function seed() {
   const now = Date.now()
@@ -34,28 +37,39 @@ function seed() {
   let id = 0
   const msg = (pid, kind, text, minsAgo, aid = '') => ({ id: String(++id), pid, kind, text, aid, ts: now - minsAgo * min })
   const acts = [
-    { id: 'a1', title: 'Karaoke night', pid: 'bot-troll', ts: now - 34 * min },
-    { id: 'a2', title: 'Sauna and fjord dip', pid: 'bot-moose', ts: now - 30 * min },
-    { id: 'a3', title: 'Escape room', pid: 'bot-herring', ts: now - 22 * min },
+    { id: 'a1', title: 'Murder mystery', pid: 'bot-owl', ts: now - 44 * min },
+    { id: 'a2', title: 'Séance in the basement', pid: 'bot-toad', ts: now - 38 * min },
+    { id: 'a3', title: 'Tarot readings', pid: 'bot-cat', ts: now - 30 * min },
+    { id: 'a4', title: 'Horror film night', pid: 'bot-wolf', ts: now - 21 * min },
   ]
   return {
     nextId: 100,
-    info: { name: 'Julebord 2026', when: 'Fri 11 Dec, from 17:00', where: 'Still to be decided' },
-    players: BOTS.map((b, i) => ({ ...b, joinedAt: now - (60 - i * 5) * min })),
+    info: { name: 'The Halloween Conclave', when: 'Fri 30 Oct, from 18:00', where: 'The basement. Follow the candles.' },
+    notices: [
+      { id: 'n1', text: 'Dress code: a dark robe and a mask. Animal ears encouraged.', ts: now - 70 * min },
+      { id: 'n2', text: 'Bring something for the offering table. Snacks count.', ts: now - 65 * min },
+      { id: 'n3', text: 'Cast your votes by Wednesday so the rites can be booked.', ts: now - 60 * min },
+    ],
+    players: BOTS.map((b, i) => ({ ...b, joinedAt: now - (90 - i * 8) * min })),
     activities: acts,
     votes: {
-      'bot-moose': { a1: 1, a2: 1 },
-      'bot-herring': { a1: 1, a2: -1, a3: 1 },
-      'bot-troll': { a1: 1, a3: 1 },
+      'bot-hare': { a1: 1, a2: 1, a4: -1 },
+      'bot-owl': { a1: 1, a3: 1 },
+      'bot-wolf': { a1: 1, a2: -1, a4: 1 },
+      'bot-toad': { a2: 1, a3: 1 },
+      'bot-cat': { a3: 1, a1: 1 },
+      'bot-goat': { a1: 1, a2: 1, a4: 1 },
     },
     messages: [
-      msg('bot-moose', 'join', '', 60),
-      msg('bot-moose', 'msg', 'Who is ready to plan the julebord?', 40),
-      msg('bot-herring', 'msg', 'Me! Something that is not just dinner please', 38),
-      msg('bot-troll', 'suggest', 'Karaoke night', 34, 'a1'),
-      msg('bot-moose', 'suggest', 'Sauna and fjord dip', 30, 'a2'),
-      msg('bot-herring', 'suggest', 'Escape room', 22, 'a3'),
-      msg('bot-herring', 'msg', 'Escape room in the city centre does groups of up to 12', 21),
+      msg('bot-hare', 'join', '', 90),
+      msg('bot-hare', 'msg', 'The circle gathers on Friday. Robes are mandatory.', 72),
+      msg('bot-owl', 'msg', 'Finally. I have had the mask ready since August.', 70),
+      msg('bot-owl', 'suggest', 'Murder mystery', 44, 'a1'),
+      msg('bot-toad', 'suggest', 'Séance in the basement', 38, 'a2'),
+      msg('bot-wolf', 'msg', 'A séance in the basement with the freezers humming would be properly unsettling.', 36),
+      msg('bot-cat', 'suggest', 'Tarot readings', 30, 'a3'),
+      msg('bot-wolf', 'suggest', 'Horror film night', 21, 'a4'),
+      msg('bot-goat', 'msg', 'I can bring the projector. And the fog machine.', 19),
     ],
     tokens: {}, // browser token → player id
     linesUsed: 0,
@@ -74,7 +88,7 @@ export function connectDemo({ onOpen, onMessage, onClose }) {
   let admin = false
   let open = true
   const typing = new Set()
-  const online = new Set(['bot-moose', 'bot-herring', 'bot-troll'])
+  const online = new Set(['bot-hare', 'bot-owl', 'bot-wolf', 'bot-toad', 'bot-goat'])
   const timers = new Set()
 
   const later = (fn, ms) => { const t = setTimeout(() => { timers.delete(t); if (open) fn() }, ms); timers.add(t) }
@@ -84,7 +98,7 @@ export function connectDemo({ onOpen, onMessage, onClose }) {
   const clean = (v, n) => (typeof v === 'string' ? v.replace(/\s+/g, ' ').trim().slice(0, n) : '')
   const nextId = () => String(++db.nextId)
   const presence = () => emit({ type: 'presence', online: [...online, ...(me ? [me] : [])], typing: [...typing] })
-  const snapshot = () => ({ info: db.info, players: db.players, activities: db.activities, votes: db.votes, messages: db.messages.slice(-300) })
+  const snapshot = () => ({ info: db.info, notices: db.notices, players: db.players, activities: db.activities, votes: db.votes, messages: db.messages.slice(-300) })
 
   function addMessage(pid, kind, text = '', aid = '') {
     const m = { id: nextId(), pid, kind, text, aid, ts: Date.now() }
@@ -136,8 +150,7 @@ export function connectDemo({ onOpen, onMessage, onClose }) {
     later(tick, 9000 + rand(9000))
   }
   function churn() {
-    if (online.has('bot-lynx')) online.delete('bot-lynx'); else online.add('bot-lynx')
-    if (online.has('bot-lynx') && !db.players.some(p => p.id === 'bot-lynx')) db.players.push({ ...BOTS[3], joinedAt: Date.now() })
+    if (online.has('bot-octo')) online.delete('bot-octo'); else online.add('bot-octo')
     presence()
     later(churn, 35000 + rand(30000))
   }
@@ -175,7 +188,7 @@ export function connectDemo({ onOpen, onMessage, onClose }) {
       emit({ type: 'player', player })
       if (created) {
         addMessage(me, 'join')
-        botSay('bot-moose', `Welcome, ${codename}! Have a look at the votes.`, 2500)
+        botSay('bot-hare', `Welcome, ${codename}. Your seat was waiting.`, 2500)
       }
       presence()
       return
@@ -219,9 +232,26 @@ export function connectDemo({ onOpen, onMessage, onClose }) {
         setVote(me, m.aid, m.v)
         return ack(true)
       }
+      case 'notice': {
+        if (!admin) return ack(false, { error: 'forbidden' })
+        const text = clean(m.text, 200)
+        if (!text) return ack(false, { error: 'invalid' })
+        const n = { id: 'n' + nextId(), text, ts: Date.now() }
+        db.notices.push(n)
+        save()
+        emit({ type: 'notice', notice: n })
+        return ack(true)
+      }
+      case 'remove_notice': {
+        if (!admin) return ack(false, { error: 'forbidden' })
+        db.notices = db.notices.filter(n => n.id !== m.id)
+        save()
+        emit({ type: 'notice_removed', id: m.id })
+        return ack(true)
+      }
       case 'info': {
         if (!admin) return ack(false, { error: 'forbidden' })
-        db.info = { name: clean(m.name, 40) || 'Work party', when: clean(m.when, 60), where: clean(m.where, 60) }
+        db.info = { name: clean(m.name, 40) || 'The Halloween Conclave', when: clean(m.when, 60), where: clean(m.where, 60) }
         save()
         emit({ type: 'info', info: db.info })
         return ack(true)

@@ -32,15 +32,15 @@ export function ranked(activities, t) {
 
 export function errorText(e) {
   switch (e?.error) {
-    case 'slow': return 'Easy, agent. Wait a moment and try again.'
+    case 'slow': return 'Patience. Wait a moment and try again.'
     case 'offline':
     case 'timeout': return "You're offline. Reconnecting…"
     case 'forbidden': return 'Only the organiser can do that.'
-    case 'not_joined': return 'Pick a codename first.'
-    case 'taken': return 'Another agent already has that codename. Roll the dice for a new one.'
+    case 'not_joined': return 'Take your vows first.'
+    case 'taken': return 'Another member already goes by that name. Divine a new one.'
     case 'duplicate': return `${e.title || 'That'} is already on the list.`
-    case 'full': return 'The crew is full. Ask the organiser to raise the limit.'
-    case 'gone': return 'That activity was already removed.'
+    case 'full': return 'There is no more room. Ask the organiser.'
+    case 'gone': return 'That was already struck from the book.'
     default: return "That didn't save. Try again."
   }
 }

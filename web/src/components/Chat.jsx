@@ -1,11 +1,11 @@
 import { Fragment, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { Avatar } from './Avatar'
+import { Avatar } from './Cult'
 import { VoteButtons } from './VoteButtons'
 import { dayLabel, nameOf, sameDay, tally, timeLabel } from '../lib/format'
 
 const GROUP_GAP = 5 * 60 * 1000 // messages closer than this from one person are grouped
 
-export function Chat({ party, visible, notice, onSend, onVote, onTyping }) {
+export function Chat({ party, notice, onSend, onVote, onTyping }) {
   const { messages, players, activities, votes, me, typing, ready, locked, connected } = party
   const [text, setText] = useState('')
   const feed = useRef(null)
@@ -20,11 +20,11 @@ export function Chat({ party, visible, notice, onSend, onVote, onTyping }) {
   // Stay pinned to the newest message unless you've scrolled up to read.
   useLayoutEffect(() => {
     const el = feed.current
-    if (el && visible && (nearBottom.current || forceScroll.current)) {
+    if (el && (nearBottom.current || forceScroll.current)) {
       el.scrollTop = el.scrollHeight
       forceScroll.current = false
     }
-  }, [messages, votes, visible])
+  }, [messages, votes])
 
   function onScroll() {
     const el = feed.current
@@ -57,22 +57,26 @@ export function Chat({ party, visible, notice, onSend, onVote, onTyping }) {
 
   const typingNames = typing.filter(id => players[id]).map(id => nameOf(players, id))
   const typingLine = !typingNames.length ? ''
-    : typingNames.length === 1 ? `${typingNames[0]} is typing…`
-    : typingNames.length === 2 ? `${typingNames[0]} and ${typingNames[1]} are typing…`
-    : 'Several agents are typing…'
+    : typingNames.length === 1 ? `${typingNames[0]} is whispering…`
+    : typingNames.length === 2 ? `${typingNames[0]} and ${typingNames[1]} are whispering…`
+    : 'Several voices are whispering…'
 
   return (
-    <section className="pane" id="pane-chat" aria-label="Chat">
+    <section className="panel chat" aria-label="Chat">
+      <div className="panel-head">
+        <h2>Whispers</h2>
+        <span className="sub">the chat</span>
+      </div>
       <div className="feed" ref={feed} onScroll={onScroll} aria-live="polite">
         {!ready ? (
           <div className="empty-chat">
-            <p className="big">{locked ? 'Invite only' : 'Connecting…'}</p>
-            <p>{locked ? 'Enter the passcode from the organiser.' : 'Opening the secret channel.'}</p>
+            <p className="big">{locked ? 'The door is sealed' : 'Lighting the candles…'}</p>
+            <p>{locked ? 'Speak the password from the organiser.' : 'Connecting to the chamber.'}</p>
           </div>
         ) : !messages.length ? (
           <div className="empty-chat">
-            <p className="big">Comms are quiet</p>
-            <p>Say hello, or type <code>/idea</code> and an activity to put it to a vote.</p>
+            <p className="big">Silence in the chamber</p>
+            <p>Say something, or type <code>/idea</code> and a rite to put it to the vote.</p>
           </div>
         ) : (
           messages.map((m, i) => {
@@ -84,7 +88,7 @@ export function Chat({ party, visible, notice, onSend, onVote, onTyping }) {
               return (
                 <Fragment key={m.id}>
                   {day}
-                  <div className="event"><Avatar player={players[m.pid]} size="xs" /><span>{nameOf(players, m.pid)} joined the crew</span></div>
+                  <div className="event"><Avatar player={players[m.pid]} size="xs" /><span>{nameOf(players, m.pid)} took a seat at the table</span></div>
                 </Fragment>
               )
             }
@@ -96,12 +100,12 @@ export function Chat({ party, visible, notice, onSend, onVote, onTyping }) {
                   <div className="suggest">
                     <div className="suggest-head">
                       <Avatar player={players[m.pid]} size="xs" />
-                      <span>{nameOf(players, m.pid)} proposed an activity · {timeLabel(m.ts)}</span>
+                      <span>{nameOf(players, m.pid)} proposed a rite · {timeLabel(m.ts)}</span>
                     </div>
                     <div className="suggest-title">{a ? a.title : m.text}</div>
                     {a
-                      ? <div className="act-votes"><VoteButtons aid={a.id} count={counts[a.id]} mine={votes[me]?.[a.id] || 0} disabled={!connected} onVote={onVote} /></div>
-                      : <div className="suggest-gone">Taken off the list</div>}
+                      ? <VoteButtons aid={a.id} count={counts[a.id]} mine={votes[me]?.[a.id] || 0} disabled={!connected} onVote={onVote} />
+                      : <div className="suggest-gone">Struck from the book</div>}
                   </div>
                 </Fragment>
               )
@@ -133,7 +137,7 @@ export function Chat({ party, visible, notice, onSend, onVote, onTyping }) {
         <div className="composer-note">{notice}</div>
       ) : (
         <form className="composer" onSubmit={submit} autoComplete="off">
-          <input className="field" id="msgInput" maxLength={500} placeholder="Say something, or /idea Bowling" aria-label="Message"
+          <input className="field" id="msgInput" maxLength={500} placeholder="Whisper to the circle…" aria-label="Message"
             value={text} onChange={e => { setText(e.target.value); ping(!!e.target.value.trim()) }} />
           <button className="btn primary" type="submit">Send</button>
         </form>

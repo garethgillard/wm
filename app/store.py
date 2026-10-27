@@ -44,6 +44,11 @@ CREATE TABLE IF NOT EXISTS activities (
     pid TEXT NOT NULL,
     ts INTEGER NOT NULL
 );
+CREATE TABLE IF NOT EXISTS notices (
+    id TEXT PRIMARY KEY,
+    text TEXT NOT NULL,
+    ts INTEGER NOT NULL
+);
 CREATE TABLE IF NOT EXISTS votes (
     pid TEXT NOT NULL,
     aid TEXT NOT NULL,
@@ -74,6 +79,7 @@ class Store:
             players = [self._player(r) for r in self.db.execute("SELECT * FROM players")]
             msgs = self.db.execute("SELECT * FROM messages ORDER BY id DESC LIMIT ?", (HISTORY,)).fetchall()
             acts = [self._activity(r) for r in self.db.execute("SELECT * FROM activities ORDER BY ts")]
+            notices = [self._notice(r) for r in self.db.execute("SELECT * FROM notices ORDER BY ts")]
             votes: dict[str, dict[str, int]] = {}
             for r in self.db.execute("SELECT pid, aid, v FROM votes WHERE v != 0"):
                 votes.setdefault(r["pid"], {})[r["aid"]] = r["v"]
@@ -82,6 +88,7 @@ class Store:
             "players": players,
             "messages": [self._message(r) for r in reversed(msgs)],
             "activities": acts,
+            "notices": notices,
             "votes": votes,
         }
 
@@ -169,6 +176,21 @@ class Store:
                     (pid, aid, v),
                 )
 
+    def notice_count(self) -> int:
+        with self.lock:
+            return self.db.execute("SELECT COUNT(*) FROM notices").fetchone()[0]
+
+    def add_notice(self, text: str) -> dict:
+        nid = secrets.token_urlsafe(8)
+        with self.lock:
+            self.db.execute("INSERT INTO notices (id, text, ts) VALUES (?, ?, ?)", (nid, text, now_ms()))
+            row = self.db.execute("SELECT * FROM notices WHERE id = ?", (nid,)).fetchone()
+        return self._notice(row)
+
+    def remove_notice(self, nid: str) -> bool:
+        with self.lock:
+            return self.db.execute("DELETE FROM notices WHERE id = ?", (nid,)).rowcount > 0
+
     def set_info(self, name: str, when: str, where: str) -> dict:
         with self.lock:
             self.db.execute(
@@ -199,6 +221,10 @@ class Store:
     @staticmethod
     def _activity(r) -> dict:
         return {"id": r["id"], "title": r["title"], "pid": r["pid"], "ts": r["ts"]}
+
+    @staticmethod
+    def _notice(r) -> dict:
+        return {"id": r["id"], "text": r["text"], "ts": r["ts"]}
 
     @staticmethod
     def _info(r) -> dict:
