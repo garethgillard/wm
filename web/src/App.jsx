@@ -152,7 +152,7 @@ export default function App() {
   if (locked) notice = 'Speak the password to enter.'
   else if (!ready) notice = 'Lighting the candles…'
   else if (!connected) notice = 'Reconnecting… you can whisper again once you are back.'
-  else if (!joined) notice = <button type="button" className="btn primary" onClick={() => setSheet('join')}>Take your vows to join the whispers</button>
+  else if (!joined) notice = <button type="button" className="btn primary" onClick={() => setSheet('join')}>Join</button>
 
   return (
     <div className={`app${boardOpen ? ' board-open' : ''}`}>

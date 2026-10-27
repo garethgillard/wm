@@ -44,7 +44,7 @@ export function JoinSheet({ current, players, me, onSave, onLeave, onClose }) {
   const [color, setColor] = useState(() => current?.color ?? rand(ROBES.length))
   const [rsvp, setRsvp] = useState(() => current?.rsvp ?? null)
   const { busy, error, setError, run } = useSave(onSave, onClose)
-  const primary = current ? 'Save' : rsvp === 'maybe' ? 'Lurk in the shadows' : rsvp === 'no' ? 'Send your regrets' : 'Take a seat'
+  const primary = current ? 'Save' : 'Join'
 
   function submit() {
     const name = current ? current.codename : codename.trim().replace(/\s+/g, ' ').slice(0, 28)

@@ -34,7 +34,7 @@ export function Header({ party, boardOpen, unvoted, onToggleBoard, onIdentity, o
             <span className="me-name">{nameOf(players, me)}</span>
           </button>
         ) : ready && connected && !locked ? (
-          <button type="button" className="btn primary join-btn" onClick={onIdentity}><span className="join-long">Take a seat</span><span className="join-short">Join</span></button>
+          <button type="button" className="btn primary join-btn" onClick={onIdentity}>Join</button>
         ) : null}
       </div>
     </header>

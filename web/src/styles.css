@@ -99,7 +99,6 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.85em;bac
 .title{margin:2px 0 0;font-family:var(--display);font-weight:600;font-size:clamp(20px,2.6vw,30px);line-height:1.1;letter-spacing:.06em;color:var(--gold-bright);
   text-shadow:0 0 22px rgba(236,202,126,.25);text-wrap:balance;overflow-wrap:break-word}
 .masthead-actions{flex:none;display:flex;align-items:center;gap:10px}
-.join-short{display:none}
 .me-btn{display:flex;align-items:center;gap:9px;max-width:240px;border:1px solid var(--line-gold);background:rgba(20,17,23,.8);border-radius:999px;padding:4px 14px 4px 4px;cursor:pointer}
 .me-name{font-family:var(--display);font-weight:600;font-size:12px;letter-spacing:.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .board-toggle{display:none;align-items:center;gap:8px;height:40px;border:1px solid var(--line-gold);background:rgba(20,17,23,.8);border-radius:6px;padding:0 12px;
@@ -160,6 +159,7 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.85em;bac
 .typing{flex:none;min-height:22px;padding:2px 18px 0;font-style:italic;font-size:13px;color:var(--gold);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .composer{flex:none;display:flex;gap:8px;padding:10px 12px 12px;border-top:1px solid var(--line)}
 .composer-note{flex:none;margin:0;padding:12px 16px 14px;border-top:1px solid var(--line);font-style:italic;color:var(--ash);text-align:center}
+.composer-note .btn{font-style:normal;min-width:140px}
 
 /* votes */
 .votes{display:inline-flex;gap:6px}
@@ -380,8 +380,6 @@ input.inline-field{height:40px;padding:0 11px}
   .eyebrow-extra{display:none}
   .eyebrow{font-size:9.5px;letter-spacing:.26em}
   .title{font-size:15px;letter-spacing:.02em;overflow-wrap:normal;hyphens:none}
-  .join-long{display:none}
-  .join-short{display:inline}
   .masthead-actions{gap:8px}
   .board-toggle{padding:0 10px;gap:6px}
   .ritual .hint{display:none}

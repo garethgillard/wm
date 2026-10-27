@@ -69,7 +69,7 @@ export function Board({ party, canPropose, onRsvp, onJoin, onPropose, onVote, on
             <p className="rsvp-q">Will you attend?</p>
             {players[me]
               ? <RsvpChoice value={myRsvp} onChange={onRsvp} disabled={!connected} />
-              : <button type="button" className="btn primary small" onClick={onJoin}>Take your vows to answer</button>}
+              : <button type="button" className="btn primary small" onClick={onJoin}>Join</button>}
             <p className="rsvp-counts">{attendance.yes} attending · {attendance.maybe} maybe · {attendance.no} not coming</p>
           </div>
         )}
