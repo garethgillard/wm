@@ -9,7 +9,7 @@ One step at a time. Tick each box when it's done.
 - [x] Rename to WM (Wiener Melange), coffee + salmon touches, WM landing page, longer phone chat
 - [x] Edit board text in place while live (summons, notices, rite titles)
 - [x] Attendance: Yes / Maybe / No (Yes sits at the table, Maybe in the shadows)
-- [x] Cult title with sigil lockup and sigil tab icon, VM numerals, leaner text, gothic + animal + lab name suggestions
+- [x] Cult title with sigil lockup and sigil tab icon, leaner text, gothic + animal + lab name suggestions
 - [ ] Further tweaks from G
 - [ ] Final look over the demo on phone and desktop
 

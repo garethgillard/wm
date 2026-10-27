@@ -4,7 +4,7 @@ import { Avatar, AvatarStack } from './Cult'
 import { VoteButtons } from './VoteButtons'
 import { EditableText } from './EditableText'
 import { RsvpChoice, rsvpCounts } from './Rsvp'
-import { IDEAS, cultNumeral } from '../lib/constants'
+import { IDEAS, roman } from '../lib/constants'
 import { nameOf, ranked, tally } from '../lib/format'
 
 export function Board({ party, canPropose, onRsvp, onJoin, onPropose, onVote, onRemove, onRenameIdea, onSaveInfo, onAddNotice, onEditNotice, onRemoveNotice, onOrganiser, onLeaveOrganiser, onClose }) {
@@ -124,7 +124,7 @@ export function Board({ party, canPropose, onRsvp, onJoin, onPropose, onVote, on
             const canRemove = connected && (a.pid === me || isAdmin)
             return (
               <li key={a.id} className={`act${favoured ? ' favoured' : ''}`}>
-                <span className="rank">{cultNumeral(i + 1)}</span>
+                <span className="rank">{roman(i + 1)}</span>
                 <div className="act-main">
                   <div className="act-title">
                     <EditableText value={a.title} canEdit={connected && (a.pid === me || isAdmin)} label="this rite" maxLength={80}

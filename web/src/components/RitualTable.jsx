@@ -2,7 +2,7 @@
 // masked figure. Their candle is lit while they are here; empty chairs wait for newcomers.
 import { useMemo, useState } from 'react'
 import { Chair, Figure } from './Cult'
-import { cultNumeral } from '../lib/constants'
+import { roman } from '../lib/constants'
 import { nameOf } from '../lib/format'
 
 const CX = 400
@@ -313,7 +313,7 @@ export function RitualTable({ party }) {
       <figcaption>
         {attendingCount ? (
           <>
-            <span className="count-roman" aria-hidden="true">{cultNumeral(attendingCount)}</span>
+            <span className="count-roman" aria-hidden="true">{roman(attendingCount)}</span>
             <span>
               {attendingCount} attending
               {shadows.length > 0 && ` · ${shadows.length} in the shadows`}

@@ -51,5 +51,3 @@ export function roman(n) {
   return out
 }
 
-// House style: every V in a numeral becomes VM (5 → VM, 4 → IVM, 6 → VMI).
-export const cultNumeral = n => roman(n).replace(/V/g, 'VM')
