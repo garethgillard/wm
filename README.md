@@ -66,7 +66,6 @@ Render's free web services lose their disk whenever they sleep (after 15 minutes
 1. In Render: **New → Postgres**, plan **Free**, same region as the web service. When it's ready, copy its **Internal Database URL**.
 2. In the web service: **Environment → Add environment variable**:
    - `DATABASE_URL` = the Internal Database URL
-   - `ADMIN_CODE` = your organiser code (pick one and keep it; it never changes unless you edit it here)
 3. Save. Render redeploys, and from then on members, whispers, notices and votes survive sleeps and redeploys.
 
 Good to know:

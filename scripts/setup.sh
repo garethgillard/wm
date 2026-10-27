@@ -23,9 +23,6 @@ if [ -f .env ]; then
   echo "Keeping your existing .env."
 else
   cp .env.example .env
-  code="$(openssl rand -base64 18 2>/dev/null | tr -d '/+=' | cut -c1-20 || true)"
-  [ -n "$code" ] || code="$(head -c 32 /dev/urandom | base64 | tr -d '/+=' | cut -c1-20)"
-  sed -i "s|^ADMIN_CODE=.*|ADMIN_CODE=${code}|" .env
   if [ -n "${PARTY_PASSCODE:-}" ]; then
     sed -i "s|^PARTY_PASSCODE=.*|PARTY_PASSCODE=${PARTY_PASSCODE}|" .env
   fi
@@ -33,7 +30,7 @@ else
     sed -i "s|^PARTY_PORT=.*|PARTY_PORT=${PARTY_PORT}|" .env
   fi
   chmod 600 .env
-  echo "Created .env with a new organiser code."
+  echo "Created .env."
 fi
 port="$(grep -E '^PARTY_PORT=' .env | cut -d= -f2)"; port="${port:-8080}"
 
@@ -53,7 +50,7 @@ for i in $(seq 1 30); do
 done
 [ "${ok:-}" = 1 ] || die "It didn't answer on port ${port}. See what went wrong with:  docker compose logs --tail 50"
 
-admin="$(grep -E '^ADMIN_CODE=' .env | cut -d= -f2)"
+admin="$(grep -E '^ADMIN_CODE=' .env | cut -d= -f2)"; admin="${admin:-salmosalar}"
 pass="$(grep -E '^PARTY_PASSCODE=' .env | cut -d= -f2)"
 say "The WM Cult is running on http://127.0.0.1:${port}"
 echo "  Organiser code: ${admin}   (keep it to yourself)"

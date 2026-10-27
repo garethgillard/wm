@@ -20,7 +20,8 @@ from .store import COLOR_COUNT, EMOJI_COUNT, Store
 log = logging.getLogger("party-hq")
 
 PASSCODE = os.environ.get("PARTY_PASSCODE", "").strip()
-ADMIN_CODE = os.environ.get("ADMIN_CODE", "").strip()
+# Organiser code. Set ADMIN_CODE to override; otherwise the built-in one works.
+ADMIN_CODE = os.environ.get("ADMIN_CODE", "").strip() or "salmosalar"
 DB_PATH = os.environ.get("DB_PATH", "party.db")
 MAX_PLAYERS = int(os.environ.get("MAX_PLAYERS", "200"))
 MAX_CONNECTIONS = int(os.environ.get("MAX_CONNECTIONS", "500"))
