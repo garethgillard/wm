@@ -10,6 +10,7 @@ One step at a time. Tick each box when it's done.
 - [x] Edit board text in place while live (summons, notices, rite titles)
 - [x] Attendance: Yes / Maybe / No (Yes sits at the table, Maybe in the shadows)
 - [x] Cult title with sigil lockup and sigil tab icon, leaner text, gothic + animal + lab name suggestions
+- [x] Minimalist chat: robe-coloured names and side rules
 - [ ] Further tweaks from G
 - [ ] Final look over the demo on phone and desktop
 

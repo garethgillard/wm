@@ -1,16 +1,17 @@
 // Keep EMOJI and ROBES the same length as EMOJI_COUNT / COLOR_COUNT in app/store.py (24 and 8).
 export const EMOJI = ['🦊','🐺','🐱','🦉','🐸','🐗','🐲','🦇','🐐','🐍','🐙','🦄','🐰','🐭','🐻','🐼','🐯','🦁','🐷','🐮','🐴','🦝','🐵','🐟']
 
-// Robe colours. `fill` is the cloth, `lit` the candlelit edge of the folds.
+// Robe colours. `fill` is the cloth, `lit` the candlelit edge of the folds,
+// `ink` a readable tint for that person's name in the chat.
 export const ROBES = [
-  { name: 'Obsidian', fill: '#1b1a21', lit: '#3a3744' },
-  { name: 'Oxblood', fill: '#4f1019', lit: '#8a2331' },
-  { name: 'Midnight', fill: '#172042', lit: '#2f3f78' },
-  { name: 'Nightshade', fill: '#34183a', lit: '#5e3368' },
-  { name: 'Moss', fill: '#1f2e1c', lit: '#3d5536' },
-  { name: 'Ash', fill: '#45414d', lit: '#6d6878' },
-  { name: 'Bone', fill: '#b9ae9a', lit: '#e3d9c6' },
-  { name: 'Gilt', fill: '#6e531f', lit: '#b38a3c' },
+  { name: 'Obsidian', fill: '#1b1a21', lit: '#3a3744', ink: '#b3adc2' },
+  { name: 'Oxblood', fill: '#4f1019', lit: '#8a2331', ink: '#e8737f' },
+  { name: 'Midnight', fill: '#172042', lit: '#2f3f78', ink: '#8ba5f5' },
+  { name: 'Nightshade', fill: '#34183a', lit: '#5e3368', ink: '#c993d8' },
+  { name: 'Moss', fill: '#1f2e1c', lit: '#3d5536', ink: '#97c582' },
+  { name: 'Ash', fill: '#45414d', lit: '#6d6878', ink: '#cfcad6' },
+  { name: 'Bone', fill: '#b9ae9a', lit: '#e3d9c6', ink: '#f1e8d5' },
+  { name: 'Gilt', fill: '#6e531f', lit: '#b38a3c', ink: '#ecc873' },
 ]
 
 export const IDEAS = ['Costume contest', 'Tarot readings', 'Pumpkin carving', 'Murder mystery', 'Horror film night', 'Ghost story circle', 'Melange tasting', 'Séance']

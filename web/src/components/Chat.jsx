@@ -1,5 +1,5 @@
 import { Fragment, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { Avatar } from './Cult'
+import { ROBES } from '../lib/constants'
 import { VoteButtons } from './VoteButtons'
 import { RSVP, dayLabel, nameOf, sameDay, tally, timeLabel } from '../lib/format'
 
@@ -82,6 +82,9 @@ export function Chat({ party, notice, onSend, onVote, onTyping }) {
             const prev = messages[i - 1]
             const newDay = !prev || !sameDay(prev.ts, m.ts)
             const day = newDay && <div className="day">{dayLabel(m.ts)}</div>
+            const p = players[m.pid]
+            const ink = { '--ink': ROBES[p?.color ?? 0].ink }
+            const who = <span className="who">{nameOf(players, m.pid)}</span>
 
             if (m.kind === 'join' || m.kind === 'rsvp') {
               const line = m.kind === 'rsvp' ? RSVP[m.text]?.event
@@ -93,7 +96,7 @@ export function Chat({ party, notice, onSend, onVote, onTyping }) {
               return (
                 <Fragment key={m.id}>
                   {day}
-                  <div className={`event ${m.kind === 'rsvp' ? `rsvp-${m.text}` : ''}`}><Avatar player={players[m.pid]} size="xs" /><span>{nameOf(players, m.pid)} {line}</span></div>
+                  <p className="event-line" style={ink}>{who} {line}</p>
                 </Fragment>
               )
             }
@@ -102,35 +105,26 @@ export function Chat({ party, notice, onSend, onVote, onTyping }) {
               return (
                 <Fragment key={m.id}>
                   {day}
-                  <div className="suggest">
-                    <div className="suggest-head">
-                      <Avatar player={players[m.pid]} size="xs" />
-                      <span>{nameOf(players, m.pid)} proposes a rite · {timeLabel(m.ts)}</span>
+                  <div className="rite-line" style={ink}>
+                    <p className="event-line">{who} proposes a rite</p>
+                    <div className="rite-row">
+                      <span className="rite-title">{a ? a.title : m.text}</span>
+                      {a
+                        ? <VoteButtons compact aid={a.id} count={counts[a.id]} mine={votes[me]?.[a.id] || 0} disabled={!connected} onVote={onVote} />
+                        : <span className="rite-gone">struck from the book</span>}
                     </div>
-                    <div className="suggest-title">{a ? a.title : m.text}</div>
-                    {a
-                      ? <VoteButtons aid={a.id} count={counts[a.id]} mine={votes[me]?.[a.id] || 0} disabled={!connected} onVote={onVote} />
-                      : <div className="suggest-gone">Struck from the book</div>}
                   </div>
                 </Fragment>
               )
             }
-            const mine = m.pid === me
+            // Plain messages: name in robe colour, a robe-coloured rule down the side of each run.
             const grouped = !newDay && prev?.kind === 'msg' && prev.pid === m.pid && m.ts - prev.ts < GROUP_GAP
             return (
               <Fragment key={m.id}>
                 {day}
-                <div className={`msg${mine ? ' mine' : ''}${grouped ? ' cont' : ''}`}>
-                  <div className="gutter">{!grouped && <Avatar player={players[m.pid]} size="sm" />}</div>
-                  <div className="body">
-                    {!grouped && (
-                      <div className="head">
-                        {!mine && <span className="who">{nameOf(players, m.pid)}</span>}
-                        <span className="time">{timeLabel(m.ts)}</span>
-                      </div>
-                    )}
-                    <div className="bubble">{m.text}</div>
-                  </div>
+                <div className={`line${grouped ? ' cont' : ''}${m.pid === me ? ' mine' : ''}`} style={ink}>
+                  {!grouped && <div className="line-head">{who}<span className="time">{timeLabel(m.ts)}</span></div>}
+                  <p className="line-text">{m.text}</p>
                 </div>
               </Fragment>
             )

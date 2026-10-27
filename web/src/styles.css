@@ -120,28 +120,26 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.85em;bac
 .board-scrim{display:none}
 
 /* ---------- whispers (chat) ---------- */
-.feed{flex:1;min-height:0;overflow-y:auto;padding:6px 16px 12px;display:flex;flex-direction:column;gap:2px;overscroll-behavior:contain}
+.feed{flex:1;min-height:0;overflow-y:auto;padding:4px 18px 14px;display:flex;flex-direction:column;overscroll-behavior:contain}
+/* minimalist whispers: robe-coloured names and side rules, no bubbles */
+.line{margin-top:14px;padding:1px 0 1px 12px;border-left:2px solid color-mix(in srgb, var(--ink) 55%, transparent)}
+.line.cont{margin-top:0;padding-top:4px}
+.line-head{display:flex;align-items:baseline;gap:9px;margin-bottom:1px}
+.who{font-family:var(--display);font-weight:600;font-size:12px;letter-spacing:.06em;color:var(--ink)}
+.line-text{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--bone)}
+.line.mine .line-text{color:#fff8ea}
+.event-line{margin:12px 0 0;padding-left:14px;font-style:italic;font-size:13.5px;color:var(--dim)}
+.event-line .who{font-style:normal;font-size:11.5px}
+.rite-line{margin-top:12px}
+.rite-line .event-line{margin-top:0}
+.rite-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;padding:4px 0 2px 14px}
+.rite-title{font-family:var(--display);font-weight:600;font-size:14px;letter-spacing:.04em;color:var(--bone)}
+.rite-gone{font-style:italic;font-size:13px;color:var(--dim)}
+.votes.compact .vbtn{height:26px;padding:0 9px;font-size:10px;gap:6px}
+.votes.compact .vbtn .n{font-size:12px}
 .day{display:flex;align-items:center;gap:10px;padding:14px 0 6px;font-family:var(--display);font-size:10px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:var(--dim)}
 .day::before,.day::after{content:"";flex:1;height:1px;background:var(--line)}
-.event{align-self:center;display:flex;align-items:center;gap:7px;padding:8px 0;font-style:italic;font-size:13.5px;color:var(--ash);text-align:center}
-.msg{display:grid;grid-template-columns:32px minmax(0,1fr);gap:9px;padding-top:12px}
-.msg.cont{padding-top:3px}
-.msg .body{display:flex;flex-direction:column;align-items:flex-start;gap:3px;min-width:0;max-width:88%}
-.msg .head{display:flex;align-items:baseline;gap:8px;padding:0 4px}
-.who{font-family:var(--display);font-weight:600;font-size:11.5px;letter-spacing:.06em;color:var(--gold)}
 .time{font-size:11.5px;color:var(--dim);font-variant-numeric:tabular-nums}
-.bubble{max-width:100%;padding:8px 13px;border-radius:3px 14px 14px 14px;background:var(--stone-3);border:1px solid rgba(255,255,255,.04);white-space:pre-wrap;overflow-wrap:anywhere}
-.msg.cont .bubble{border-radius:14px}
-.msg.mine{grid-template-columns:minmax(0,1fr)}
-.msg.mine .gutter{display:none}
-.msg.mine .body{justify-self:end;align-items:flex-end}
-.msg.mine .bubble{background:linear-gradient(160deg,#6a1523,#4a0f1a);border-color:rgba(209,68,83,.35);border-radius:14px 3px 14px 14px}
-.msg.mine.cont .bubble{border-radius:14px}
-.suggest{align-self:center;width:min(100%,420px);margin:14px 0 4px;padding:12px 14px;border:1px solid var(--line-gold);border-radius:6px;
-  background:linear-gradient(180deg,rgba(201,165,92,.09),rgba(201,165,92,.03));display:flex;flex-direction:column;gap:8px}
-.suggest-head{display:flex;align-items:center;gap:7px;font-style:italic;font-size:13px;color:var(--ash)}
-.suggest-title{font-family:var(--display);font-weight:600;font-size:16.5px;letter-spacing:.04em;color:var(--bone);overflow-wrap:anywhere}
-.suggest-gone{font-style:italic;font-size:13px;color:var(--dim)}
 .empty-chat{margin:auto;max-width:300px;text-align:center;color:var(--ash);padding:26px 8px}
 .empty-chat .big{font-family:var(--display);font-weight:600;font-size:17px;letter-spacing:.08em;color:var(--gold);margin:0 0 6px}
 .empty-chat p{margin:0}
@@ -217,7 +215,6 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.85em;bac
 .rsvp-btn.maybe[aria-checked="true"]{background:var(--stone-3);border-color:var(--ash);color:var(--bone)}
 .rsvp-btn.no[aria-checked="true"]{background:linear-gradient(180deg,#b3313f,#741522);border-color:var(--blood-bright);color:var(--bone)}
 .rsvp-btn:disabled{opacity:.55;cursor:default}
-.event.rsvp-yes span{color:var(--gold)}
 
 /* ---------- the notice board ---------- */
 .board{display:flex;flex-direction:column}
