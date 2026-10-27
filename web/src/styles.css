@@ -125,15 +125,15 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.85em;bac
 .line{margin-top:14px;padding:1px 0 1px 12px;border-left:2px solid color-mix(in srgb, var(--ink) 55%, transparent)}
 .line.cont{margin-top:0;padding-top:4px}
 .line-head{display:flex;align-items:baseline;gap:9px;margin-bottom:1px}
-.who{font-family:var(--display);font-weight:600;font-size:12px;letter-spacing:.06em;color:var(--ink)}
-.line-text{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--bone)}
+.who{font-family:var(--display);font-weight:600;font-size:11.5px;letter-spacing:.06em;color:var(--ink)}
+.line-text{margin:0;font-size:14px;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--bone)}
 .line.mine .line-text{color:#fff8ea}
-.event-line{margin:12px 0 0;padding-left:14px;font-style:italic;font-size:13.5px;color:var(--dim)}
-.event-line .who{font-style:normal;font-size:11.5px}
+.event-line{margin:12px 0 0;padding-left:14px;font-style:italic;font-size:13px;color:var(--dim)}
+.event-line .who{font-style:normal;font-size:11px}
 .rite-line{margin-top:12px}
 .rite-line .event-line{margin-top:0}
 .rite-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;padding:4px 0 2px 14px}
-.rite-title{font-family:var(--display);font-weight:600;font-size:14px;letter-spacing:.04em;color:var(--bone)}
+.rite-title{font-family:var(--display);font-weight:600;font-size:13px;letter-spacing:.04em;color:var(--bone)}
 .rite-gone{font-style:italic;font-size:13px;color:var(--dim)}
 .votes.compact .vbtn{height:26px;padding:0 9px;font-size:10px;gap:6px}
 .votes.compact .vbtn .n{font-size:12px}
