@@ -1,10 +1,10 @@
-// Keep EMOJI and ROBES the same length as EMOJI_COUNT / COLOR_COUNT in app/store.py (49 and 16).
+// Keep EMOJI and ROBES the same length as EMOJI_COUNT / COLOR_COUNT in app/store.py (56 and 16).
 export const EMOJI = ['🦊','🐺','🐱','🦉','🐸','🐗','🐲','🦇','🐐','🐍','🐙','🦄','🐰','🐭','🐻','🐼','🐯','🦁','🐷','🐮','🐴','🦝','🐵','🐟',
   // added later; keep new ones at the end so existing members keep their familiar
   '🙈','🙊','🙉','💀','👻','🎃','👹','👺',
   '😈','🌚','👽','🐶','🐹','🐨','🦓','🐡',
   '🐠','🐳','🦀','🦑','🐞','🐝','🦋','🐌',
-  '🐔']
+  '🐔','🐧','🕊️','🦅','🦆','🦜','🦢','🦩']
 
 // Robe colours. `fill` is the cloth, `lit` the candlelit edge of the folds,
 // `ink` a readable tint for that person's name in the chat.

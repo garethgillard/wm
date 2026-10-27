@@ -13,7 +13,7 @@ import time
 
 log = logging.getLogger("wm.store")
 
-EMOJI_COUNT = 49   # must match EMOJI in web/src/lib/constants.js
+EMOJI_COUNT = 56   # must match EMOJI in web/src/lib/constants.js
 COLOR_COUNT = 16   # must match ROBES in web/src/lib/constants.js
 HISTORY = 300      # messages sent to a browser when it connects
 DEFAULT_WHEN = "Friday 30 October"   # shown until the organiser edits the summons
