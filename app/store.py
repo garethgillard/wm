@@ -187,6 +187,19 @@ class Store:
             row = self.db.execute("SELECT * FROM notices WHERE id = ?", (nid,)).fetchone()
         return self._notice(row)
 
+    def update_notice(self, nid: str, text: str):
+        with self.lock:
+            if self.db.execute("UPDATE notices SET text = ? WHERE id = ?", (text, nid)).rowcount == 0:
+                return None
+            row = self.db.execute("SELECT * FROM notices WHERE id = ?", (nid,)).fetchone()
+        return self._notice(row)
+
+    def rename_activity(self, aid: str, title: str) -> dict:
+        with self.lock:
+            self.db.execute("UPDATE activities SET title = ? WHERE id = ?", (title, aid))
+            row = self.db.execute("SELECT * FROM activities WHERE id = ?", (aid,)).fetchone()
+        return self._activity(row)
+
     def remove_notice(self, nid: str) -> bool:
         with self.lock:
             return self.db.execute("DELETE FROM notices WHERE id = ?", (nid,)).rowcount > 0

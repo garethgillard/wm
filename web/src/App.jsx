@@ -7,7 +7,7 @@ import { Header } from './components/Header'
 import { Chat } from './components/Chat'
 import { RitualTable } from './components/RitualTable'
 import { Board } from './components/Board'
-import { InfoSheet, JoinSheet, OrganiserSheet, PasscodeSheet } from './components/Sheets'
+import { JoinSheet, OrganiserSheet, PasscodeSheet } from './components/Sheets'
 import { Landing } from './components/Landing'
 
 function useMedia(query) {
@@ -57,7 +57,7 @@ function RollCall({ party }) {
 
 export default function App() {
   const [party, actions] = useParty()
-  const [sheet, setSheet] = useState(null) // 'join' | 'info' | 'organiser'
+  const [sheet, setSheet] = useState(null) // 'join' | 'organiser'
   const [boardOpen, setBoardOpen] = useState(false)
   const [entered, setEntered] = useState(() => lsGet('wm-entered') === '1') // the landing page shows once per browser
   const [toast, showToast] = useToast()
@@ -107,6 +107,8 @@ export default function App() {
   const vote = (aid, v) => { if (canAct()) actions.vote(aid, v).catch(e => showToast(errorText(e))) }
   const removeIdea = id => actions.removeIdea(id).catch(e => showToast(errorText(e)))
   const removeNotice = id => actions.removeNotice(id).catch(e => showToast(errorText(e)))
+  // Inline edits: the edit box shows any error itself, so these just pass the promise back.
+  const saveInfo = (field, text) => actions.saveInfo({ ...(party.info || {}), [field]: text })
   async function addNotice(text) {
     try { await actions.addNotice(text.trim().slice(0, 200)); return true } catch (e) { showToast(errorText(e)); return false }
   }
@@ -137,7 +139,8 @@ export default function App() {
         </section>
         <div className="board-wrap" id="board-panel">
           <Board party={party} canPropose={!notice} onPropose={propose} onVote={vote} onRemove={removeIdea}
-            onEditInfo={() => setSheet('info')} onAddNotice={addNotice} onRemoveNotice={removeNotice}
+            onRenameIdea={actions.renameIdea} onSaveInfo={saveInfo}
+            onAddNotice={addNotice} onEditNotice={actions.editNotice} onRemoveNotice={removeNotice}
             onOrganiser={() => setSheet('organiser')}
             onLeaveOrganiser={() => { actions.leaveAdmin(); showToast('Organiser mode is off') }}
             onClose={narrow ? () => setBoardOpen(false) : null} />
@@ -148,9 +151,6 @@ export default function App() {
 
       {sheet === 'join' && ready && (
         <JoinSheet current={players[me]} players={players} me={me} onSave={actions.join} onClose={() => setSheet(null)} />
-      )}
-      {sheet === 'info' && (
-        <InfoSheet info={party.info} onSave={async info => { await actions.saveInfo(info); showToast('The summons is updated') }} onClose={() => setSheet(null)} />
       )}
       {sheet === 'organiser' && (
         <OrganiserSheet hint={DEMO ? `In the demo the code is "${DEMO_ADMIN_CODE}".` : null}

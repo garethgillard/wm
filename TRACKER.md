@@ -7,6 +7,7 @@ One step at a time. Tick each box when it's done.
 - [x] Layout: chat left, ritual table centre, notice board right; phone drop-down board
 - [x] WM Cult Halloween theme (first pass)
 - [x] Rename to WM (Wiener Melange), coffee + salmon touches, WM landing page, longer phone chat
+- [x] Edit board text in place while live (summons, notices, rite titles)
 - [ ] Further tweaks from G
 - [ ] Final look over the demo on phone and desktop
 

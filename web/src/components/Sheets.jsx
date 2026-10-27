@@ -97,32 +97,6 @@ export function JoinSheet({ current, players, me, onSave, onClose }) {
   )
 }
 
-export function InfoSheet({ info, onSave, onClose }) {
-  const [name, setName] = useState(info?.name || 'The Halloween Conclave')
-  const [when, setWhen] = useState(info?.when || '')
-  const [where, setWhere] = useState(info?.where || '')
-  const { busy, error, run } = useSave(onSave, onClose)
-
-  return (
-    <Sheet
-      title="Edit the summons"
-      onSubmit={() => run({ name, when, where })}
-      onClose={onClose}
-      actions={<>
-        <button className="btn" type="button" onClick={onClose}>Cancel</button>
-        <button className="btn primary" type="submit" disabled={busy}>Save the summons</button>
-      </>}
-    >
-      <div className="stack-fields">
-        <div><label className="label" htmlFor="infoName">Name of the gathering</label><input className="field full" id="infoName" maxLength={40} value={name} onChange={e => setName(e.target.value)} /></div>
-        <div><label className="label" htmlFor="infoWhen">When</label><input className="field full" id="infoWhen" maxLength={60} placeholder="Fri 30 Oct, from 18:00" value={when} onChange={e => setWhen(e.target.value)} /></div>
-        <div><label className="label" htmlFor="infoWhere">Where</label><input className="field full" id="infoWhere" maxLength={60} placeholder="To be revealed" value={where} onChange={e => setWhere(e.target.value)} /></div>
-      </div>
-      {error && <p className="err">{error}</p>}
-    </Sheet>
-  )
-}
-
 export function OrganiserSheet({ hint, onUnlock, onClose }) {
   const [code, setCode] = useState('')
   const { busy, error, run } = useSave(

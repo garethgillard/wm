@@ -238,6 +238,21 @@ async def handle(conn: Conn, msg: dict) -> None:
         await hub.broadcast({"type": "message", "message": store.add_message(conn.pid, "suggest", title, act["id"])})
         return await ack(True, id=act["id"])
 
+    if kind == "edit_idea":
+        act = store.activity(str(msg.get("id", "")))
+        if not act:
+            return await ack(False, error="gone")
+        if act["pid"] != conn.pid and not conn.admin:
+            return await ack(False, error="forbidden")
+        title = clean(msg.get("title"), 80)
+        if not title:
+            return await ack(False, error="invalid")
+        dup = store.activity_by_title(title)
+        if dup and dup["id"] != act["id"]:
+            return await ack(False, error="duplicate", title=dup["title"])
+        await hub.broadcast({"type": "activity", "activity": store.rename_activity(act["id"], title)})
+        return await ack()
+
     if kind == "remove_idea":
         act = store.activity(str(msg.get("id", "")))
         if not act:
@@ -278,6 +293,18 @@ async def handle(conn: Conn, msg: dict) -> None:
         if store.notice_count() >= MAX_NOTICES:
             return await ack(False, error="full")
         await hub.broadcast({"type": "notice", "notice": store.add_notice(text)})
+        return await ack()
+
+    if kind == "edit_notice":
+        if not conn.admin:
+            return await ack(False, error="forbidden")
+        text = clean(msg.get("text"), 200)
+        if not text:
+            return await ack(False, error="invalid")
+        notice = store.update_notice(str(msg.get("id", "")), text)
+        if not notice:
+            return await ack(False, error="gone")
+        await hub.broadcast({"type": "notice", "notice": notice})
         return await ack()
 
     if kind == "remove_notice":

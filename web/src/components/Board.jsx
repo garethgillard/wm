@@ -2,11 +2,13 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Avatar, AvatarStack } from './Cult'
 import { VoteButtons } from './VoteButtons'
+import { EditableText } from './EditableText'
 import { IDEAS, roman } from '../lib/constants'
 import { nameOf, ranked, tally } from '../lib/format'
 
-export function Board({ party, canPropose, onPropose, onVote, onRemove, onEditInfo, onAddNotice, onRemoveNotice, onOrganiser, onLeaveOrganiser, onClose }) {
+export function Board({ party, canPropose, onPropose, onVote, onRemove, onRenameIdea, onSaveInfo, onAddNotice, onEditNotice, onRemoveNotice, onOrganiser, onLeaveOrganiser, onClose }) {
   const { info, notices, activities, votes, players, me, ready, locked, connected, isAdmin, hasAdmin } = party
+  const organiser = isAdmin && ready && connected // can edit the summons and notices
   const [idea, setIdea] = useState('')
   const [notice, setNotice] = useState('')
   const [armed, setArmed] = useState(null) // id waiting for a second tap to confirm removal
@@ -48,12 +50,20 @@ export function Board({ party, canPropose, onPropose, onVote, onRemove, onEditIn
 
       <section className="summons">
         <p className="kicker">You are summoned</p>
-        <h3>{info?.name || 'The Halloween Conclave'}</h3>
+        <div className="summons-name" role="heading" aria-level={3}>
+          <EditableText value={info?.name || 'The Halloween Conclave'} canEdit={organiser} label="the name of the gathering" maxLength={40}
+            onSave={text => onSaveInfo('name', text)} />
+        </div>
         <dl>
-          <div><dt>When</dt><dd>{info?.when || 'To be announced'}</dd></div>
-          <div><dt>Where</dt><dd>{info?.where || 'To be revealed'}</dd></div>
+          <div><dt>When</dt><dd>
+            <EditableText value={info?.when} placeholder="To be announced" canEdit={organiser} allowEmpty label="when" maxLength={60}
+              onSave={text => onSaveInfo('when', text)} />
+          </dd></div>
+          <div><dt>Where</dt><dd>
+            <EditableText value={info?.where} placeholder="To be revealed" canEdit={organiser} allowEmpty label="where" maxLength={60}
+              onSave={text => onSaveInfo('where', text)} />
+          </dd></div>
         </dl>
-        {isAdmin && ready && <button type="button" className="linkbtn" onClick={onEditInfo}>Edit the summons</button>}
       </section>
 
       <section className="notices">
@@ -63,7 +73,8 @@ export function Board({ party, canPropose, onPropose, onVote, onRemove, onEditIn
           {notices.map(n => (
             <li key={n.id} className="notice">
               <span className="seal" aria-hidden="true" />
-              <p>{n.text}</p>
+              <div className="notice-body"><EditableText value={n.text} canEdit={organiser} multiline label="this notice" maxLength={200}
+                onSave={text => onEditNotice(n.id, text)} /></div>
               {isAdmin && (
                 <button type="button" className={`del${armed === n.id ? ' armed' : ''}`} onClick={() => confirm(n.id, () => onRemoveNotice(n.id))}>
                   {armed === n.id ? 'Tap again' : 'Remove'}
@@ -109,7 +120,8 @@ export function Board({ party, canPropose, onPropose, onVote, onRemove, onEditIn
                 <span className="rank">{roman(i + 1)}</span>
                 <div className="act-main">
                   <div className="act-title">
-                    <span>{a.title}</span>
+                    <EditableText value={a.title} canEdit={connected && (a.pid === me || isAdmin)} label="this rite" maxLength={80}
+                      onSave={title => onRenameIdea(a.id, title)} />
                     {favoured && <span className="lead-chip">Favoured</span>}
                   </div>
                   <div className="act-by"><Avatar player={players[a.pid]} size="xs" /><span>proposed by {nameOf(players, a.pid)}</span></div>
@@ -139,7 +151,7 @@ export function Board({ party, canPropose, onPropose, onVote, onRemove, onEditIn
         <footer className="organiser">
           {isAdmin ? (
             <>
-              <span><strong>Organiser mode is on.</strong> You can edit the summons, post notices and remove any rite.</span>
+              <span><strong>Organiser mode is on.</strong> Tap any text on the board to change it: the summons, notices and rite titles. Changes show for everyone straight away.</span>
               <button type="button" className="linkbtn" onClick={onLeaveOrganiser}>Turn off</button>
             </>
           ) : (

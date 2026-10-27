@@ -56,14 +56,16 @@ function reducer(s, a) {
     case 'message':
       if (s.messages.some(m => m.id === a.message.id)) return s
       return { ...s, messages: [...s.messages, a.message].slice(-HISTORY) }
-    case 'activity':
-      if (s.activities.some(x => x.id === a.activity.id)) return s
-      return { ...s, activities: [...s.activities, a.activity] }
+    case 'activity': // new or renamed
+      return s.activities.some(x => x.id === a.activity.id)
+        ? { ...s, activities: s.activities.map(x => (x.id === a.activity.id ? a.activity : x)) }
+        : { ...s, activities: [...s.activities, a.activity] }
     case 'activity_removed':
       return { ...s, activities: s.activities.filter(x => x.id !== a.id) }
-    case 'notice':
-      if (s.notices.some(n => n.id === a.notice.id)) return s
-      return { ...s, notices: [...s.notices, a.notice] }
+    case 'notice': // new or edited
+      return s.notices.some(n => n.id === a.notice.id)
+        ? { ...s, notices: s.notices.map(n => (n.id === a.notice.id ? a.notice : n)) }
+        : { ...s, notices: [...s.notices, a.notice] }
     case 'notice_removed':
       return { ...s, notices: s.notices.filter(n => n.id !== a.id) }
     case 'vote':
@@ -142,6 +144,7 @@ export function useParty() {
     say: text => request('msg', { text }),
     propose: title => request('idea', { title }),
     removeIdea: id => request('remove_idea', { id }),
+    renameIdea: (id, title) => request('edit_idea', { id, title }),
     // Votes show instantly and roll back if the server refuses them.
     async vote(aid, v) {
       const { me, votes } = latest.current
@@ -152,6 +155,7 @@ export function useParty() {
     saveInfo: info => request('info', info),
     addNotice: text => request('notice', { text }),
     removeNotice: id => request('remove_notice', { id }),
+    editNotice: (id, text) => request('edit_notice', { id, text }),
     async unlockAdmin(code) {
       await request('admin', { code })
       lsSet(KEYS.admin, code)

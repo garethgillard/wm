@@ -221,6 +221,19 @@ export function connectDemo({ onOpen, onMessage, onClose }) {
         botSay(reactor, REACTIONS[rand(REACTIONS.length)].replace('{t}', title), 4000)
         return
       }
+      case 'edit_idea': {
+        const a = db.activities.find(x => x.id === m.id)
+        if (!a) return ack(false, { error: 'gone' })
+        if (a.pid !== me && !admin) return ack(false, { error: 'forbidden' })
+        const title = clean(m.title, 80)
+        if (!title) return ack(false, { error: 'invalid' })
+        const dup = db.activities.find(x => x.id !== a.id && x.title.toLowerCase() === title.toLowerCase())
+        if (dup) return ack(false, { error: 'duplicate', title: dup.title })
+        a.title = title
+        save()
+        emit({ type: 'activity', activity: a })
+        return ack(true)
+      }
       case 'remove_idea': {
         const a = db.activities.find(x => x.id === m.id)
         if (!a) return ack(false, { error: 'gone' })
@@ -242,6 +255,17 @@ export function connectDemo({ onOpen, onMessage, onClose }) {
         if (!text) return ack(false, { error: 'invalid' })
         const n = { id: 'n' + nextId(), text, ts: Date.now() }
         db.notices.push(n)
+        save()
+        emit({ type: 'notice', notice: n })
+        return ack(true)
+      }
+      case 'edit_notice': {
+        if (!admin) return ack(false, { error: 'forbidden' })
+        const n = db.notices.find(x => x.id === m.id)
+        const text = clean(m.text, 200)
+        if (!n) return ack(false, { error: 'gone' })
+        if (!text) return ack(false, { error: 'invalid' })
+        n.text = text
         save()
         emit({ type: 'notice', notice: n })
         return ack(true)

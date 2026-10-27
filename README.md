@@ -7,7 +7,7 @@ A live, Halloween-themed gathering room for planning a work party. First-time vi
 - **The notice board** (right): the summons (name, when, where), notices from the organiser, and the rites to vote on, ranked by ayes minus nays
 - Phones: table on top, chat below, and the board drops down from the header
 - Propose rites from the board or by typing `/idea Séance` in the chat
-- Optional password at the door; an organiser code for you to edit the summons, post notices and remove any rite
+- Optional password at the door; an organiser code for you to edit any board text in place (tap it, change it, save), post notices and remove any rite
 - Wiener Melange touches throughout: a coffee-bean pupil in the sigil, the founder's salmon portrait, a melange painting with a suspicious tail, and coffee beside the salmon on the table
 - Everything stays on your server: SQLite database, self-hosted fonts, no third-party requests
 
@@ -49,7 +49,7 @@ Tick these off in order. Commands run on the NREC instance unless noted.
 
   nginx: [`deploy/nginx.conf`](deploy/nginx.conf) · Apache: [`deploy/apache.conf`](deploy/apache.conf). Each file lists its exact commands, including `certbot` for HTTPS.
 - [ ] **8. Test it**: open the link on your phone and laptop, pick two codenames, send a message and vote. Both should update instantly.
-- [ ] **9. Unlock organiser mode**: notice board → *Enter organiser code* → paste your `ADMIN_CODE`. Then *Edit the summons* to set the name, date and place, and post your notices.
+- [ ] **9. Unlock organiser mode**: notice board → *Enter organiser code* → paste your `ADMIN_CODE`. Then tap any text on the board to change it (name, when, where, notices, rite titles) and post your notices. Edits show for everyone straight away.
 - [ ] **10. Share the link** (and the passcode, if you set one) with your colleagues.
 
 ### Updating
