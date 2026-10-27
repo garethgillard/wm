@@ -5,16 +5,17 @@
 import { rand } from './constants'
 
 export const DEMO_ADMIN_CODE = 'demo'
-const STORE_KEY = 'partyhq-demo-v3'
+const STORE_KEY = 'partyhq-demo-v4'
 
 const BOTS = [
-  { id: 'bot-hare', codename: 'Keeper Ashen Hare', emoji: 12, color: 1 },
-  { id: 'bot-owl', codename: 'The Veiled Owl', emoji: 3, color: 2 },
-  { id: 'bot-wolf', codename: 'Warden Hollow Wolf', emoji: 1, color: 0 },
-  { id: 'bot-toad', codename: 'Seer Crimson Toad', emoji: 4, color: 4 },
-  { id: 'bot-cat', codename: 'The Pale Oracle', emoji: 2, color: 6 },
-  { id: 'bot-goat', codename: 'Herald Ember Goat', emoji: 8, color: 7 },
-  { id: 'bot-fish', codename: 'Keeper of the Melange', emoji: 23, color: 3 },
+  { id: 'bot-hare', codename: 'Keeper Ashen Hare', emoji: 12, color: 1, rsvp: 'yes' },
+  { id: 'bot-owl', codename: 'The Veiled Owl', emoji: 3, color: 2, rsvp: 'yes' },
+  { id: 'bot-wolf', codename: 'Warden Hollow Wolf', emoji: 1, color: 0, rsvp: 'yes' },
+  { id: 'bot-toad', codename: 'Seer Crimson Toad', emoji: 4, color: 4, rsvp: 'maybe' },
+  { id: 'bot-cat', codename: 'The Pale Oracle', emoji: 2, color: 6, rsvp: 'yes' },
+  { id: 'bot-goat', codename: 'Herald Ember Goat', emoji: 8, color: 7, rsvp: 'yes' },
+  { id: 'bot-fish', codename: 'Keeper of the Melange', emoji: 23, color: 3, rsvp: 'maybe' },
+  { id: 'bot-bat', codename: 'Envoy Sable Bat', emoji: 7, color: 5, rsvp: 'no' },
 ]
 const LINES = [
   'The candles are ordered. Black, obviously.',
@@ -74,6 +75,8 @@ function seed() {
       msg('bot-cat', 'suggest', 'Tarot readings', 30, 'a3'),
       msg('bot-wolf', 'suggest', 'Horror film night', 21, 'a4'),
       msg('bot-goat', 'msg', 'I can bring the projector. And the fog machine.', 19),
+      msg('bot-bat', 'rsvp', 'no', 15),
+      msg('bot-bat', 'msg', "Alas, I'm at a conference that week. I shall haunt the chat instead.", 14),
     ],
     tokens: {}, // browser token → player id
     linesUsed: 0,
@@ -147,6 +150,14 @@ export function connectDemo({ onOpen, onMessage, onClose }) {
     } else if (roll < 0.8) {
       const open_ = db.activities.filter(a => !db.votes[bot]?.[a.id])
       if (open_.length) botVote(bot, open_[rand(open_.length)].id, 0)
+    } else if (roll < 0.86) {
+      const doubter = db.players.find(p => p.id.startsWith('bot-') && p.rsvp === 'maybe' && online.has(p.id))
+      if (doubter) {
+        doubter.rsvp = 'yes'
+        save()
+        emit({ type: 'player', player: doubter })
+        addMessage(doubter.id, 'rsvp', 'yes')
+      }
     } else if (db.botIdeasUsed < BOT_IDEAS.length && db.activities.length < 7) {
       const title = BOT_IDEAS[db.botIdeasUsed++]
       if (!db.activities.some(a => a.title.toLowerCase() === title.toLowerCase())) addActivity(bot, title)
@@ -186,14 +197,16 @@ export function connectDemo({ onOpen, onMessage, onClose }) {
         me = player.id
         db.tokens[myToken] = me
       }
-      Object.assign(player, { codename, emoji: m.emoji, color: m.color })
+      if (m.rsvp != null && !['yes', 'maybe', 'no'].includes(m.rsvp)) return ack(false, { error: 'invalid' })
+      const before = player.rsvp
+      Object.assign(player, { codename, emoji: m.emoji, color: m.color, rsvp: m.rsvp ?? player.rsvp ?? null })
       save()
       ack(true, { you: me })
       emit({ type: 'player', player })
       if (created) {
-        addMessage(me, 'join')
-        botSay('bot-hare', `Welcome, ${codename}. Your seat was waiting.`, 2500)
-      }
+        addMessage(me, 'join', player.rsvp || '')
+        botSay('bot-hare', player.rsvp === 'no' ? `A pity, ${codename}. Your seat will stay warm.` : `Welcome, ${codename}. Your seat was waiting.`, 2500)
+      } else if (m.rsvp && before !== m.rsvp) addMessage(me, 'rsvp', m.rsvp)
       presence()
       return
     }
@@ -201,6 +214,17 @@ export function connectDemo({ onOpen, onMessage, onClose }) {
     if (!me) return ack(false, { error: 'not_joined' })
 
     switch (m.type) {
+      case 'rsvp': {
+        if (!['yes', 'maybe', 'no'].includes(m.value)) return ack(false, { error: 'invalid' })
+        const player = db.players.find(p => p.id === me)
+        if (player.rsvp !== m.value) {
+          player.rsvp = m.value
+          save()
+          emit({ type: 'player', player })
+          addMessage(me, 'rsvp', m.value)
+        }
+        return ack(true)
+      }
       case 'msg': {
         const text = typeof m.text === 'string' ? m.text.trim().slice(0, 500) : ''
         if (!text) return ack(false, { error: 'invalid' })

@@ -3,12 +3,15 @@ import { useEffect, useMemo, useState } from 'react'
 import { Avatar, AvatarStack } from './Cult'
 import { VoteButtons } from './VoteButtons'
 import { EditableText } from './EditableText'
+import { RsvpChoice, rsvpCounts } from './Rsvp'
 import { IDEAS, roman } from '../lib/constants'
 import { nameOf, ranked, tally } from '../lib/format'
 
-export function Board({ party, canPropose, onPropose, onVote, onRemove, onRenameIdea, onSaveInfo, onAddNotice, onEditNotice, onRemoveNotice, onOrganiser, onLeaveOrganiser, onClose }) {
+export function Board({ party, canPropose, onRsvp, onJoin, onPropose, onVote, onRemove, onRenameIdea, onSaveInfo, onAddNotice, onEditNotice, onRemoveNotice, onOrganiser, onLeaveOrganiser, onClose }) {
   const { info, notices, activities, votes, players, me, ready, locked, connected, isAdmin, hasAdmin } = party
   const organiser = isAdmin && ready && connected // can edit the summons and notices
+  const attendance = rsvpCounts(players)
+  const myRsvp = players[me]?.rsvp ?? null
   const [idea, setIdea] = useState('')
   const [notice, setNotice] = useState('')
   const [armed, setArmed] = useState(null) // id waiting for a second tap to confirm removal
@@ -64,6 +67,15 @@ export function Board({ party, canPropose, onPropose, onVote, onRemove, onRename
               onSave={text => onSaveInfo('where', text)} />
           </dd></div>
         </dl>
+        {ready && (
+          <div className="rsvp">
+            <p className="rsvp-q">Will you attend?</p>
+            {players[me]
+              ? <RsvpChoice value={myRsvp} onChange={onRsvp} disabled={!connected} />
+              : <button type="button" className="btn primary small" onClick={onJoin}>Take your vows to answer</button>}
+            <p className="rsvp-counts">{attendance.yes} attending · {attendance.maybe} maybe · {attendance.no} not coming</p>
+          </div>
+        )}
       </section>
 
       <section className="notices">

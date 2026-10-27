@@ -28,7 +28,8 @@ CREATE TABLE IF NOT EXISTS players (
     codename TEXT NOT NULL,
     emoji INTEGER NOT NULL,
     color INTEGER NOT NULL,
-    joined_at INTEGER NOT NULL
+    joined_at INTEGER NOT NULL,
+    rsvp TEXT
 );
 CREATE TABLE IF NOT EXISTS messages (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -71,6 +72,10 @@ class Store:
             self.db.execute("PRAGMA journal_mode=WAL")
             self.db.execute("PRAGMA foreign_keys=ON")
             self.db.executescript(SCHEMA)
+            # Databases made before attendance existed get the new column.
+            cols = {r[1] for r in self.db.execute("PRAGMA table_info(players)")}
+            if "rsvp" not in cols:
+                self.db.execute("ALTER TABLE players ADD COLUMN rsvp TEXT")
 
     # ---------- reads ----------
     def snapshot(self) -> dict:
@@ -120,24 +125,31 @@ class Store:
         return self._activity(r) if r else None
 
     # ---------- writes ----------
-    def upsert_player(self, token_hash: str, codename: str, emoji: int, color: int) -> tuple[dict, bool]:
-        """Create or update the player bound to this browser token. Returns (player, created)."""
+    def upsert_player(self, token_hash: str, codename: str, emoji: int, color: int, rsvp: str | None = None) -> tuple[dict, bool]:
+        """Create or update the player bound to this browser token. Returns (player, created).
+        A missing rsvp leaves the current answer as it is."""
         with self.lock:
             r = self.db.execute("SELECT id FROM players WHERE token_hash = ?", (token_hash,)).fetchone()
             if r:
                 self.db.execute(
-                    "UPDATE players SET codename = ?, emoji = ?, color = ? WHERE id = ?",
-                    (codename, emoji, color, r["id"]),
+                    "UPDATE players SET codename = ?, emoji = ?, color = ?, rsvp = COALESCE(?, rsvp) WHERE id = ?",
+                    (codename, emoji, color, rsvp, r["id"]),
                 )
                 pid, created = r["id"], False
             else:
                 pid, created = secrets.token_urlsafe(8), True
                 self.db.execute(
-                    "INSERT INTO players (id, token_hash, codename, emoji, color, joined_at) VALUES (?, ?, ?, ?, ?, ?)",
-                    (pid, token_hash, codename, emoji, color, now_ms()),
+                    "INSERT INTO players (id, token_hash, codename, emoji, color, joined_at, rsvp) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                    (pid, token_hash, codename, emoji, color, now_ms(), rsvp),
                 )
             row = self.db.execute("SELECT * FROM players WHERE id = ?", (pid,)).fetchone()
         return self._player(row), created
+
+    def set_rsvp(self, pid: str, rsvp: str) -> dict:
+        with self.lock:
+            self.db.execute("UPDATE players SET rsvp = ? WHERE id = ?", (rsvp, pid))
+            row = self.db.execute("SELECT * FROM players WHERE id = ?", (pid,)).fetchone()
+        return self._player(row)
 
     def add_message(self, pid: str, kind: str, text: str = "", aid: str | None = None) -> dict:
         with self.lock:
@@ -225,7 +237,7 @@ class Store:
     # ---------- row shapes sent to browsers ----------
     @staticmethod
     def _player(r) -> dict:
-        return {"id": r["id"], "codename": r["codename"], "emoji": r["emoji"], "color": r["color"], "joinedAt": r["joined_at"]}
+        return {"id": r["id"], "codename": r["codename"], "emoji": r["emoji"], "color": r["color"], "joinedAt": r["joined_at"], "rsvp": r["rsvp"]}
 
     @staticmethod
     def _message(r) -> dict:

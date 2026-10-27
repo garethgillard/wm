@@ -169,6 +169,8 @@ h1{margin:2px 0 0;font-family:var(--display);font-weight:600;font-size:clamp(20p
 .seat:focus{outline:none}
 .seat:focus-visible .figure,.seat:hover .figure{filter:drop-shadow(0 0 6px rgba(236,202,126,.55))}
 .chair.empty{opacity:.55}
+.seat.shadow{opacity:.42;filter:saturate(.5) brightness(.7)}
+.seat.shadow.here{opacity:.62}
 .tag-text{font-family:var(--display);font-weight:600;font-size:11px;letter-spacing:.06em;fill:var(--bone)}
 .steam path{animation:steam 3.2s ease-in-out infinite}
 .steam path:nth-child(2){animation-delay:1.1s}
@@ -191,8 +193,24 @@ h1{margin:2px 0 0;font-family:var(--display);font-weight:600;font-size:clamp(20p
 .rollcall li{display:flex;align-items:center;gap:8px;min-width:0;font-size:14px}
 .rollcall .nm{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .rollcall .presence{margin-left:auto;font-style:italic;font-size:12.5px;color:var(--dim)}
-.rollcall li.here .presence{color:var(--gold)}
+.rollcall li.rsvp-yes .presence{color:var(--gold)}
+.rollcall li.rsvp-no .nm,.rollcall li.rsvp-no .presence{color:var(--dim)}
 .rollcall li.away .nm{color:var(--ash)}
+.rollcall .av-wrap{position:relative;display:inline-flex}
+.here-dot{position:absolute;right:-2px;bottom:-1px;width:8px;height:8px;border-radius:50%;background:var(--gold-bright);box-shadow:0 0 6px var(--gold-bright),0 0 0 1.5px var(--stone)}
+/* attendance */
+.rsvp{margin:14px auto 2px;max-width:340px;display:flex;flex-direction:column;align-items:center;gap:8px}
+.rsvp-q{margin:0;font-family:var(--display);font-weight:600;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--ash)}
+.rsvp-counts{margin:0;font-style:italic;font-size:13px;color:var(--dim)}
+.rsvp-choice{display:flex;gap:6px;width:100%}
+.rsvp-btn{flex:1;height:38px;border:1px solid var(--line);background:rgba(9,8,11,.5);border-radius:5px;color:var(--ash);cursor:pointer;
+  font-family:var(--display);font-weight:600;font-size:12px;letter-spacing:.14em;text-transform:uppercase}
+.rsvp-btn:hover{border-color:var(--line-gold);color:var(--bone)}
+.rsvp-btn.yes[aria-checked="true"]{background:linear-gradient(180deg,#e2bf74,#a8823d);border-color:#e2bf74;color:#1a1206}
+.rsvp-btn.maybe[aria-checked="true"]{background:var(--stone-3);border-color:var(--ash);color:var(--bone)}
+.rsvp-btn.no[aria-checked="true"]{background:linear-gradient(180deg,#b3313f,#741522);border-color:var(--blood-bright);color:var(--bone)}
+.rsvp-btn:disabled{opacity:.55;cursor:default}
+.event.rsvp-yes span{color:var(--gold)}
 
 /* ---------- the notice board ---------- */
 .board{display:flex;flex-direction:column}

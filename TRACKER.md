@@ -8,6 +8,7 @@ One step at a time. Tick each box when it's done.
 - [x] WM Cult Halloween theme (first pass)
 - [x] Rename to WM (Wiener Melange), coffee + salmon touches, WM landing page, longer phone chat
 - [x] Edit board text in place while live (summons, notices, rite titles)
+- [x] Attendance: Yes / Maybe / No (Yes sits at the table, Maybe in the shadows)
 - [ ] Further tweaks from G
 - [ ] Final look over the demo on phone and desktop
 

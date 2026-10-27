@@ -1,7 +1,7 @@
 import { Fragment, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Avatar } from './Cult'
 import { VoteButtons } from './VoteButtons'
-import { dayLabel, nameOf, sameDay, tally, timeLabel } from '../lib/format'
+import { RSVP, dayLabel, nameOf, sameDay, tally, timeLabel } from '../lib/format'
 
 const GROUP_GAP = 5 * 60 * 1000 // messages closer than this from one person are grouped
 
@@ -84,11 +84,16 @@ export function Chat({ party, notice, onSend, onVote, onTyping }) {
             const newDay = !prev || !sameDay(prev.ts, m.ts)
             const day = newDay && <div className="day">{dayLabel(m.ts)}</div>
 
-            if (m.kind === 'join') {
+            if (m.kind === 'join' || m.kind === 'rsvp') {
+              const line = m.kind === 'rsvp' ? RSVP[m.text]?.event
+                : m.text === 'maybe' ? 'joined the circle, and lurks in the shadows for now'
+                : m.text === 'no' ? "joined the whispers, but can't attend"
+                : 'took a seat at the table'
+              if (!line) return null
               return (
                 <Fragment key={m.id}>
                   {day}
-                  <div className="event"><Avatar player={players[m.pid]} size="xs" /><span>{nameOf(players, m.pid)} took a seat at the table</span></div>
+                  <div className={`event ${m.kind === 'rsvp' ? `rsvp-${m.text}` : ''}`}><Avatar player={players[m.pid]} size="xs" /><span>{nameOf(players, m.pid)} {line}</span></div>
                 </Fragment>
               )
             }

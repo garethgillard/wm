@@ -24,6 +24,7 @@ DB_PATH = os.environ.get("DB_PATH", "party.db")
 MAX_PLAYERS = int(os.environ.get("MAX_PLAYERS", "200"))
 MAX_CONNECTIONS = int(os.environ.get("MAX_CONNECTIONS", "500"))
 MAX_NOTICES = 20
+RSVP = ("yes", "maybe", "no")
 
 # The React build (web/dist). Run `npm run build` in web/ first, or use Docker.
 STATIC = Path(os.environ.get("WEB_DIST", Path(__file__).resolve().parent.parent / "web" / "dist"))
@@ -192,11 +193,15 @@ async def handle(conn: Conn, msg: dict) -> None:
         if len(codename) < 2 or not isinstance(emoji, int) or not isinstance(color, int) \
                 or not 0 <= emoji < EMOJI_COUNT or not 0 <= color < COLOR_COUNT:
             return await ack(False, error="invalid")
+        rsvp = msg.get("rsvp")
+        if rsvp is not None and rsvp not in RSVP:
+            return await ack(False, error="invalid")
         if store.codename_taken(codename, conn.pid):
             return await ack(False, error="taken")
         if conn.pid is None and store.player_count() >= MAX_PLAYERS:
             return await ack(False, error="full")
-        player, created = store.upsert_player(conn.token_hash, codename, emoji, color)
+        before = store.player_by_token(conn.token_hash)
+        player, created = store.upsert_player(conn.token_hash, codename, emoji, color, rsvp)
         conn.pid = player["id"]
         # Any other tabs from the same browser now belong to this player too.
         for other in hub.conns:
@@ -205,12 +210,28 @@ async def handle(conn: Conn, msg: dict) -> None:
         await ack(True, you=conn.pid)
         await hub.broadcast({"type": "player", "player": player})
         if created:
-            await hub.broadcast({"type": "message", "message": store.add_message(conn.pid, "join")})
+            # The join line remembers how they answered: seated, in the shadows, or regrets.
+            await hub.broadcast({"type": "message", "message": store.add_message(conn.pid, "join", rsvp or "")})
+        elif rsvp and before and before["rsvp"] != rsvp:
+            await hub.broadcast({"type": "message", "message": store.add_message(conn.pid, "rsvp", rsvp)})
         await hub.presence()
         return
 
     if conn.pid is None:
         return await ack(False, error="not_joined")
+
+    if kind == "rsvp":
+        value = msg.get("value")
+        if value not in RSVP:
+            return await ack(False, error="invalid")
+        player = store.player_by_token(conn.token_hash)
+        if player and player["rsvp"] == value:
+            return await ack()
+        if not conn.spend(1):
+            return await ack(False, error="slow")
+        await hub.broadcast({"type": "player", "player": store.set_rsvp(conn.pid, value)})
+        await hub.broadcast({"type": "message", "message": store.add_message(conn.pid, "rsvp", value)})
+        return await ack()
 
     if kind == "msg":
         text = msg.get("text")

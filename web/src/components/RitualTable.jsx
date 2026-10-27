@@ -161,13 +161,24 @@ export function RitualTable({ party }) {
     () => Object.values(players).sort((a, b) => a.joinedAt - b.joinedAt || a.id.localeCompare(b.id)),
     [players],
   )
+  // Only those who said yes sit at the table.
   const seats = useMemo(() => {
-    const layout = seatLayout(members.length)
+    const attending = members.filter(p => p.rsvp === 'yes')
+    const layout = seatLayout(attending.length)
     const taken = new Map()
-    members.forEach((p, i) => taken.set(Math.round((i * layout.length) / members.length), p))
+    attending.forEach((p, i) => taken.set(Math.round((i * layout.length) / attending.length), p))
     return layout.map(seat => ({ ...seat, player: taken.get(seat.k) || null })).sort((a, b) => a.y - b.y)
   }, [members])
 
+  // Maybes and the undecided stand in the shadows along the back wall, unseated.
+  const shadows = useMemo(() => {
+    const lurkers = members.filter(p => p.rsvp !== 'yes' && p.rsvp !== 'no')
+    const n = lurkers.length
+    const scale = n <= 8 ? 0.5 : Math.max(0.32, 0.5 * Math.sqrt(8 / n))
+    return lurkers.map((p, i) => ({ k: `shadow-${p.id}`, x: 70 + (660 * (i + 0.5)) / n, y: 214 + (i % 2) * 8, scale, player: p, shadow: true }))
+  }, [members])
+
+  const attendingCount = seats.filter(s => s.player).length
   const here = members.filter(p => online.includes(p.id)).length
 
   function renderSeat(seat) {
@@ -177,15 +188,16 @@ export function RitualTable({ party }) {
       return <g key={`empty-${seat.k}`} className="seat" style={{ transform }}><Chair empty /></g>
     }
     const isHere = online.includes(p.id)
+    const status = seat.shadow ? (p.rsvp === 'maybe' ? ', maybe attending' : ', undecided') : ', attending'
     return (
-      <g key={p.id} className={`seat${isHere ? ' here' : ' away'}${p.id === me ? ' mine' : ''}`} style={{ transform }}
-        role="button" tabIndex={0} aria-label={`${nameOf(players, p.id)}${p.id === me ? ' (you)' : ''}${isHere ? ', here now' : ''}`}
+      <g key={p.id} className={`seat${isHere ? ' here' : ' away'}${p.id === me ? ' mine' : ''}${seat.shadow ? ' shadow' : ''}`} style={{ transform }}
+        role="button" tabIndex={0} aria-label={`${nameOf(players, p.id)}${p.id === me ? ' (you)' : ''}${status}${isHere ? ', here now' : ''}`}
         onClick={() => setSelected(selected === p.id ? null : p.id)}
         onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelected(selected === p.id ? null : p.id) } }}>
         <title>{nameOf(players, p.id)}</title>
-        <Chair />
+        {!seat.shadow && <Chair />}
         {p.id === me && <ellipse cx="0" cy="2" rx="44" ry="10" fill="none" stroke="url(#gold)" strokeWidth="2.5" />}
-        <Figure player={p} lit={isHere} />
+        <Figure player={p} lit={isHere && !seat.shadow} />
       </g>
     )
   }
@@ -274,6 +286,7 @@ export function RitualTable({ party }) {
         <path d="M400 210 L60 500 M400 210 L250 500 M400 210 L550 500 M400 210 L740 500 M0 330 H800 M0 410 H800" stroke="#fff" strokeOpacity="0.03" />
         <ellipse cx={CX} cy={CY + 40} rx="380" ry="170" fill="url(#light-pool)" />
 
+        {shadows.map(renderSeat)}
         {back.map(renderSeat)}
 
         {/* the table */}
@@ -295,15 +308,20 @@ export function RitualTable({ party }) {
         <g className="fog fog-2"><ellipse cx="600" cy="480" rx="280" ry="30" fill="#8a8095" opacity="0.1" filter="url(#fog-blur)" /></g>
         <rect width="800" height="500" fill="url(#vignette)" pointerEvents="none" />
 
-        {seats.map(renderTag)}
+        {[...shadows, ...seats].map(renderTag)}
       </svg>
       <figcaption>
-        {members.length ? (
+        {attendingCount ? (
           <>
-            <span className="count-roman" aria-hidden="true">{roman(members.length)}</span>
-            <span>{members.length === 1 ? 'One has taken a seat' : `${members.length} have taken a seat`} · {here} in the chamber now<span className="hint"> · tap a figure for their name</span></span>
+            <span className="count-roman" aria-hidden="true">{roman(attendingCount)}</span>
+            <span>
+              {attendingCount} attending
+              {shadows.length > 0 && ` · ${shadows.length} in the shadows`}
+              {` · ${here} here now`}
+              <span className="hint"> · tap a figure for their name</span>
+            </span>
           </>
-        ) : <span>The table is empty. Take the first seat.</span>}
+        ) : <span>{members.length ? 'No one has said yes yet. The table waits.' : 'The table is empty. Take the first seat.'}</span>}
       </figcaption>
     </figure>
   )

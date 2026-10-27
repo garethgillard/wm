@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { DEMO, lsGet, lsSet, useParty } from './lib/useParty'
 import { DEMO_ADMIN_CODE } from './lib/demoServer'
-import { errorText, nameOf } from './lib/format'
+import { RSVP, errorText, nameOf } from './lib/format'
 import { Avatar, SvgDefs } from './components/Cult'
 import { Header } from './components/Header'
 import { Chat } from './components/Chat'
@@ -32,24 +32,32 @@ function useToast() {
   return [message, show]
 }
 
-// Everyone at the table, those here now first.
+// Everyone who has joined: attending first, then maybe, undecided and not coming.
+const RSVP_ORDER = { yes: 0, maybe: 1, no: 3 }
 function RollCall({ party }) {
   const { players, online, me } = party
+  const order = id => RSVP_ORDER[players[id].rsvp] ?? 2
   const ids = Object.keys(players).sort((a, b) =>
-    (online.includes(b) - online.includes(a)) || nameOf(players, a).localeCompare(nameOf(players, b)))
+    order(a) - order(b) || (online.includes(b) - online.includes(a)) || nameOf(players, a).localeCompare(nameOf(players, b)))
   if (!ids.length) return null
   return (
     <section className="rollcall" aria-label="Members">
       <h3 className="section-title">The faithful</h3>
       <ul>
-        {ids.map(id => (
-          <li key={id} className={online.includes(id) ? 'here' : 'away'}>
-            <Avatar player={players[id]} size="xs" />
-            <span className="nm">{nameOf(players, id)}</span>
-            {id === me && <span className="you">You</span>}
-            <span className="presence">{online.includes(id) ? 'here' : 'away'}</span>
-          </li>
-        ))}
+        {ids.map(id => {
+          const rsvp = players[id].rsvp
+          return (
+            <li key={id} className={`${online.includes(id) ? 'here' : 'away'} rsvp-${rsvp || 'none'}`}>
+              <span className="av-wrap">
+                <Avatar player={players[id]} size="xs" />
+                {online.includes(id) && <span className="here-dot" title="Here now" />}
+              </span>
+              <span className="nm">{nameOf(players, id)}</span>
+              {id === me && <span className="you">You</span>}
+              <span className="presence">{RSVP[rsvp]?.short || 'undecided'}</span>
+            </li>
+          )
+        })}
       </ul>
     </section>
   )
@@ -66,7 +74,8 @@ export default function App() {
 
   const { ready, connected, locked, me, players, activities, votes } = party
   const joined = !!(me && players[me])
-  const unvoted = joined ? activities.filter(a => !votes[me]?.[a.id]).length : 0
+  // Things waiting for you on the board: rites you haven't voted on, and your attendance answer.
+  const unvoted = joined ? activities.filter(a => !votes[me]?.[a.id]).length + (players[me].rsvp ? 0 : 1) : 0
 
   // Ask newcomers to take their vows once they're through the door and the data has loaded.
   useEffect(() => {
@@ -104,6 +113,7 @@ export default function App() {
     try { await actions.say(text.slice(0, 500)) } catch (e) { showToast(errorText(e)); throw e }
   }
 
+  const answer = value => { if (canAct()) actions.rsvp(value).catch(e => showToast(errorText(e))) }
   const vote = (aid, v) => { if (canAct()) actions.vote(aid, v).catch(e => showToast(errorText(e))) }
   const removeIdea = id => actions.removeIdea(id).catch(e => showToast(errorText(e)))
   const removeNotice = id => actions.removeNotice(id).catch(e => showToast(errorText(e)))
@@ -138,7 +148,7 @@ export default function App() {
           {!narrow && <RollCall party={party} />}
         </section>
         <div className="board-wrap" id="board-panel">
-          <Board party={party} canPropose={!notice} onPropose={propose} onVote={vote} onRemove={removeIdea}
+          <Board party={party} canPropose={!notice} onRsvp={answer} onJoin={() => setSheet('join')} onPropose={propose} onVote={vote} onRemove={removeIdea}
             onRenameIdea={actions.renameIdea} onSaveInfo={saveInfo}
             onAddNotice={addNotice} onEditNotice={actions.editNotice} onRemoveNotice={removeNotice}
             onOrganiser={() => setSheet('organiser')}

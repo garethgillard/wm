@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Chair, Figure } from './Cult'
+import { RsvpChoice } from './Rsvp'
 import { EMOJI, ROBES, rand, randomName } from '../lib/constants'
 import { errorText } from '../lib/format'
 
@@ -40,13 +41,16 @@ export function JoinSheet({ current, players, me, onSave, onClose }) {
   const [codename, setCodename] = useState(() => current?.codename ?? randomName())
   const [emoji, setEmoji] = useState(() => current?.emoji ?? rand(EMOJI.length))
   const [color, setColor] = useState(() => current?.color ?? rand(ROBES.length))
+  const [rsvp, setRsvp] = useState(() => current?.rsvp ?? null)
   const { busy, error, setError, run } = useSave(onSave, onClose)
+  const primary = current ? 'Save' : rsvp === 'maybe' ? 'Lurk in the shadows' : rsvp === 'no' ? 'Send your regrets' : 'Take a seat'
 
   function submit() {
     const name = codename.trim().replace(/\s+/g, ' ').slice(0, 28)
     if (name.length < 2) return setError('Your secret name needs at least 2 characters.')
     if (Object.values(players).some(p => p.id !== me && p.codename.toLowerCase() === name.toLowerCase())) return setError(errorText({ error: 'taken' }))
-    run(name, emoji, color)
+    if (!rsvp) return setError('Tell the circle whether you will attend.')
+    run(name, emoji, color, rsvp)
   }
 
   return (
@@ -56,15 +60,15 @@ export function JoinSheet({ current, players, me, onSave, onClose }) {
       onSubmit={submit}
       onClose={onClose}
       actions={<>
-        <button className="btn" type="button" onClick={onClose}>{current ? 'Cancel' : 'Watch from the shadows'}</button>
-        <button className="btn primary" type="submit" disabled={busy}>{current ? 'Save' : 'Take a seat'}</button>
+        <button className="btn" type="button" onClick={onClose}>{current ? 'Cancel' : 'Just looking'}</button>
+        <button className="btn primary" type="submit" disabled={busy}>{primary}</button>
       </>}
     >
       <div className="preview">
         <svg className="preview-figure" viewBox="-62 -156 124 166" aria-hidden="true">
           <ellipse cx="0" cy="2" rx="52" ry="9" fill="#000" opacity="0.5" />
           <Chair />
-          <Figure player={{ emoji, color }} lit />
+          <Figure player={{ emoji, color }} lit={rsvp !== 'no'} />
         </svg>
         <span className="preview-name">{codename.trim() || 'Your secret name'}</span>
       </div>
@@ -91,6 +95,10 @@ export function JoinSheet({ current, players, me, onSave, onClose }) {
               style={{ '--robe': r.fill, '--robe-lit': r.lit }} onClick={() => setColor(i)} />
           ))}
         </div>
+      </div>
+      <div>
+        <span className="label">Will you attend the gathering?</span>
+        <RsvpChoice value={rsvp} onChange={v => { setRsvp(v); setError('') }} />
       </div>
       {error && <p className="err">{error}</p>}
     </Sheet>

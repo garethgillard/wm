@@ -88,11 +88,14 @@ async def run(url: str):
     r = await a.request("msg", text="hi")
     check("posting before picking a codename is refused", r["ok"] is False and r["error"] == "not_joined")
 
-    r = await a.request("join", codename="Agent Test Puffin", emoji=3, color=4)
+    r = await a.request("join", codename="Agent Test Puffin", emoji=3, color=4, rsvp="perhaps")
+    check("an unknown attendance answer is refused", r["ok"] is False and r["error"] == "invalid")
+    r = await a.request("join", codename="Agent Test Puffin", emoji=3, color=4, rsvp="yes")
     check("A joins with a codename", r["ok"] and isinstance(r["you"], str))
     a_id = r["you"]
     p = await b.expect("player", lambda m: m["player"]["id"] == a_id)
     check("B sees A's codename live", p["player"]["codename"] == "Agent Test Puffin")
+    check("A's attendance is yes", p["player"]["rsvp"] == "yes")
     await b.expect("message", lambda m: m["message"]["kind"] == "join")
 
     r = await b.request("join", codename="agent test puffin", emoji=1, color=1)
@@ -150,6 +153,12 @@ async def run(url: str):
     gone = await b.expect("notice_removed")
     check("organiser removes the notice", gone["id"] == n["notice"]["id"])
 
+    r = await b.request("rsvp", value="maybe")
+    check("B answers maybe", r["ok"] is True)
+    pm = await a.expect("player", lambda m: m["player"]["id"] == b_id and m["player"]["rsvp"] == "maybe")
+    ev = await a.expect("message", lambda m: m["message"]["kind"] == "rsvp")
+    check("A sees B's answer live, with a chat line", pm["player"]["rsvp"] == "maybe" and ev["message"]["text"] == "maybe")
+
     await b.send(type="typing", on=True)
     pr = await a.expect("presence", lambda m: b_id in m["typing"])
     check("typing indicator reaches A", a_id in pr["online"] and b_id in pr["online"])
@@ -165,6 +174,7 @@ async def run(url: str):
     check("reconnecting keeps your codename", w["you"] == a_id)
     check("history is kept", any(m["text"] == "Who is ready to plan?" for m in st["messages"]))
     check("votes are kept", st["votes"].get(b_id, {}).get(aid) == 1)
+    check("attendance is kept", {p["id"]: p["rsvp"] for p in st["players"]}.get(b_id) == "maybe")
     await a2.close()
     await b.close()
 

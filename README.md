@@ -3,7 +3,8 @@
 A live, Halloween-themed gathering room for planning a work party. First-time visitors land on a black page with the WM letters and an Enter button. Everyone takes their vows with a **secret name**, an animal **familiar** and a **robe**, whispers in the chat, and votes **Aye** or **Nay** on the proposed rites. No accounts: people open the link, pick a name and take a seat.
 
 - **Whispers** (left): live chat with "is whispering…" and day separators
-- **The ritual table** (centre): a candlelit dungeon round table where every member sits as a robed, masked figure. Their candle is lit while they are here; empty chairs wait for newcomers. Tap a figure to see its name
+- **Attendance**: everyone answers Yes, Maybe or No when they join, and can change it on the board any time
+- **The ritual table** (centre): a candlelit dungeon round table. Everyone who said Yes sits there as a robed, masked figure; Maybes and the undecided stand in the shadows by the back wall; No stays out of the picture. Candles are lit while people are here, empty chairs wait for more. Tap a figure to see its name
 - **The notice board** (right): the summons (name, when, where), notices from the organiser, and the rites to vote on, ranked by ayes minus nays
 - Phones: table on top, chat below, and the board drops down from the header
 - Propose rites from the board or by typing `/idea Séance` in the chat

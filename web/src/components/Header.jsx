@@ -21,7 +21,7 @@ export function Header({ party, boardOpen, unvoted, onToggleBoard, onIdentity })
       <div className="masthead-actions">
         <button type="button" className={`board-toggle${boardOpen ? ' open' : ''}`} onClick={onToggleBoard} aria-expanded={boardOpen} aria-controls="board-panel" aria-label="Notices and votes">
           <span className="board-label">Board</span>
-          {unvoted > 0 && <span className="badge" aria-label={`${unvoted} rites waiting for your vote`}>{unvoted}</span>}
+          {unvoted > 0 && <span className="badge" aria-label={`${unvoted} things waiting for your answer`}>{unvoted}</span>}
           <svg className="chevron" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 4.5 L6 8.5 L10 4.5" fill="none" stroke="currentColor" strokeWidth="1.6" /></svg>
         </button>
         {joined ? (

@@ -137,11 +137,12 @@ export function useParty() {
   })
 
   const actions = useMemo(() => ({
-    async join(codename, emoji, color) {
-      const r = await request('join', { codename, emoji, color })
+    async join(codename, emoji, color, rsvp) {
+      const r = await request('join', { codename, emoji, color, rsvp })
       dispatch({ type: 'me', id: r.you })
     },
     say: text => request('msg', { text }),
+    rsvp: value => request('rsvp', { value }),
     propose: title => request('idea', { title }),
     removeIdea: id => request('remove_idea', { id }),
     renameIdea: (id, title) => request('edit_idea', { id, title }),
