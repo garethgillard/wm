@@ -77,7 +77,14 @@ export function JoinSheet({ current, players, me, onSave, onClose }) {
           <label className="label" htmlFor="codename">Secret name</label>
           <div className="row">
             <input className="field" id="codename" maxLength={28} required value={codename} onChange={e => setCodename(e.target.value)} />
-            <button className="btn" type="button" onClick={() => setCodename(randomName())} aria-label="Suggest a secret name">Divine one</button>
+            <button className="btn dice-btn" type="button" onClick={e => { setCodename(randomName()); e.currentTarget.animate([{ transform: 'rotate(0)' }, { transform: 'rotate(360deg)' }], { duration: 400, easing: 'ease-out' }) }}
+              aria-label="Suggest a secret name" title="Suggest a secret name">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="3" y="3" width="18" height="18" rx="4" fill="none" stroke="currentColor" strokeWidth="1.6" />
+                <circle cx="8" cy="8" r="1.6" fill="currentColor" /><circle cx="16" cy="8" r="1.6" fill="currentColor" /><circle cx="12" cy="12" r="1.6" fill="currentColor" />
+                <circle cx="8" cy="16" r="1.6" fill="currentColor" /><circle cx="16" cy="16" r="1.6" fill="currentColor" />
+              </svg>
+            </button>
           </div>
         </div>
       )}
