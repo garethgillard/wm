@@ -12,6 +12,8 @@ import time
 EMOJI_COUNT = 24   # must match EMOJI in web/src/lib/constants.js
 COLOR_COUNT = 16   # must match ROBES in web/src/lib/constants.js
 HISTORY = 300      # messages sent to a browser when it connects
+DEFAULT_WHEN = "Friday 30 October"   # shown until the organiser edits the summons
+DEFAULT_WHERE = "CIGENE"
 KEEP = 2000        # messages kept in the database
 
 SCHEMA = """
@@ -212,6 +214,22 @@ class Store:
             row = self.db.execute("SELECT * FROM activities WHERE id = ?", (aid,)).fetchone()
         return self._activity(row)
 
+    def delete_player(self, pid: str):
+        """Remove a member and their votes. Their whispers stay, unattributed. Returns their name, or None."""
+        with self.lock:
+            r = self.db.execute("SELECT codename FROM players WHERE id = ?", (pid,)).fetchone()
+            if not r:
+                return None
+            self.db.execute("DELETE FROM players WHERE id = ?", (pid,))
+            self.db.execute("DELETE FROM votes WHERE pid = ?", (pid,))
+        return r["codename"]
+
+    def delete_message(self, mid: str) -> bool:
+        if not mid.isdigit():
+            return False
+        with self.lock:
+            return self.db.execute("DELETE FROM messages WHERE id = ?", (int(mid),)).rowcount > 0
+
     def remove_notice(self, nid: str) -> bool:
         with self.lock:
             return self.db.execute("DELETE FROM notices WHERE id = ?", (nid,)).rowcount > 0
@@ -254,5 +272,5 @@ class Store:
     @staticmethod
     def _info(r) -> dict:
         if not r:
-            return {"name": "", "when": "", "where": ""}
+            return {"name": "", "when": DEFAULT_WHEN, "where": DEFAULT_WHERE}
         return {"name": r["name"], "when": r["when_text"], "where": r["where_text"]}

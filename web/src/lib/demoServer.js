@@ -5,7 +5,7 @@
 import { rand } from './constants'
 
 export const DEMO_ADMIN_CODE = 'demo'
-const STORE_KEY = 'partyhq-demo-v5'
+const STORE_KEY = 'partyhq-demo-v6'
 
 const BOTS = [
   { id: 'bot-hare', codename: 'Keeper Ashen Hare', emoji: 12, color: 1, rsvp: 'yes' },
@@ -47,7 +47,7 @@ function seed() {
   ]
   return {
     nextId: 100,
-    info: { name: 'The Melange Conclave', when: 'Fri 30 Oct, from 18:00', where: 'The basement. Follow the candles.' },
+    info: { name: 'The Melange Conclave', when: 'Friday 30 October', where: 'CIGENE' },
     notices: [
       { id: 'n1', text: 'Dress code: a dark robe and a mask. Animal ears encouraged.', ts: now - 70 * min },
       { id: 'n2', text: 'Bring something for the offering table. Snacks count.', ts: now - 65 * min },
@@ -214,7 +214,42 @@ export function connectDemo({ onOpen, onMessage, onClose }) {
 
     if (!me) return ack(false, { error: 'not_joined' })
 
+    // Remove a member and their votes; their whispers stay, unattributed.
+    function removePlayer(pid, kind) {
+      const p = db.players.find(x => x.id === pid)
+      if (!p) return false
+      db.players = db.players.filter(x => x.id !== pid)
+      delete db.votes[pid]
+      for (const [t, id] of Object.entries(db.tokens)) if (id === pid) delete db.tokens[t]
+      save()
+      emit({ type: 'player_removed', id: pid })
+      addMessage(pid, kind, p.codename)
+      return true
+    }
+
     switch (m.type) {
+      case 'leave': {
+        const pid = me
+        me = null
+        removePlayer(pid, 'leave')
+        presence()
+        return ack(true)
+      }
+      case 'kick': {
+        if (!admin) return ack(false, { error: 'forbidden' })
+        if (m.id === me) return ack(false, { error: 'invalid' })
+        if (!removePlayer(m.id, 'kick')) return ack(false, { error: 'gone' })
+        online.delete(m.id)
+        presence()
+        return ack(true)
+      }
+      case 'delete_message': {
+        if (!admin) return ack(false, { error: 'forbidden' })
+        db.messages = db.messages.filter(x => x.id !== m.id)
+        save()
+        emit({ type: 'message_removed', id: m.id })
+        return ack(true)
+      }
       case 'rsvp': {
         if (!['yes', 'maybe', 'no'].includes(m.value)) return ack(false, { error: 'invalid' })
         const player = db.players.find(p => p.id === me)

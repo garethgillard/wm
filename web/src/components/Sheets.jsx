@@ -37,7 +37,8 @@ function useSave(save, onDone) {
   return { busy, error, setError, run }
 }
 
-export function JoinSheet({ current, players, me, onSave, onClose }) {
+export function JoinSheet({ current, players, me, onSave, onLeave, onClose }) {
+  const [renouncing, setRenouncing] = useState(false)
   const [codename, setCodename] = useState(() => current?.codename ?? randomName())
   const [emoji, setEmoji] = useState(() => current?.emoji ?? rand(EMOJI.length))
   const [color, setColor] = useState(() => current?.color ?? rand(ROBES.length))
@@ -110,6 +111,19 @@ export function JoinSheet({ current, players, me, onSave, onClose }) {
         <RsvpChoice value={rsvp} onChange={v => { setRsvp(v); setError('') }} />
       </div>
       {error && <p className="err">{error}</p>}
+      {current && onLeave && (
+        <div className="renounce">
+          {renouncing ? (
+            <>
+              <span>Your character will be gone for good. Start again?</span>
+              <button type="button" className="btn danger small" onClick={onLeave}>Renounce</button>
+              <button type="button" className="linkbtn" onClick={() => setRenouncing(false)}>Keep it</button>
+            </>
+          ) : (
+            <button type="button" className="linkbtn danger-link" onClick={() => setRenouncing(true)}>Renounce your vows and start again</button>
+          )}
+        </div>
+      )}
     </Sheet>
   )
 }

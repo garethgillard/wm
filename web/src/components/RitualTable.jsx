@@ -27,6 +27,19 @@ function seatLayout(count) {
   })
 }
 
+// Each member gets their own steady rhythm, so the room never moves in lockstep.
+function motion(id) {
+  let h = 0
+  for (const c of id) h = (h * 31 + c.charCodeAt(0)) >>> 0
+  const r = n => ((h >>> n) % 1000) / 1000
+  return {
+    '--sway': `${3.2 + r(1) * 2.6}s`,
+    '--tilt': `${5 + r(4) * 5}s`,
+    '--pace': `${9 + r(7) * 8}s`,
+    '--delay': `${-r(10) * 8}s`,
+  }
+}
+
 const TABLE_ITEMS = [
   ...[{ a: -150, h: 34 }, { a: -90, h: 46 }, { a: -30, h: 30 }, { a: 30, h: 40 }, { a: 150, h: 36 }, { a: 90, h: 28 }].map(c => {
     const r = (c.a * Math.PI) / 180
@@ -154,7 +167,24 @@ function Banner({ x }) {
 }
 
 export function RitualTable({ party }) {
-  const { players, online, typing, me } = party
+  const { players, online, typing, me, messages } = party
+
+  // Whoever just whispered hops in their seat for a moment.
+  const [speaking, setSpeaking] = useState(() => new Set())
+  const lastMsg = useRef(undefined)
+  const hopTimers = useRef({})
+  useEffect(() => {
+    const last = messages[messages.length - 1]
+    const firstLoad = lastMsg.current === undefined
+    if (!last || last.id === lastMsg.current) return
+    lastMsg.current = last.id
+    if (firstLoad || last.kind !== 'msg') return
+    const pid = last.pid
+    setSpeaking(s => new Set(s).add(pid))
+    clearTimeout(hopTimers.current[pid])
+    hopTimers.current[pid] = setTimeout(() => setSpeaking(s => { const n = new Set(s); n.delete(pid); return n }), 1500)
+  }, [messages])
+  useEffect(() => () => Object.values(hopTimers.current).forEach(clearTimeout), [])
   const [selected, setSelected] = useState(null)
   const [expanded, setExpanded] = useState(false) // the big view of the chamber
   const lightbox = useRef(null)
@@ -208,7 +238,11 @@ export function RitualTable({ party }) {
         <title>{nameOf(players, p.id)}</title>
         {!seat.shadow && <Chair />}
         {p.id === me && <ellipse cx="0" cy="2" rx="44" ry="10" fill="none" stroke="url(#gold)" strokeWidth="2.5" />}
-        <Figure player={p} lit={isHere && !seat.shadow} />
+        <g className="actor" style={motion(p.id)}>
+          <g className={`hop${speaking.has(p.id) ? ' speaking' : ''}`}>
+            <Figure player={p} lit={isHere && !seat.shadow} />
+          </g>
+        </g>
       </g>
     )
   }

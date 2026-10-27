@@ -221,6 +221,45 @@ async def handle(conn: Conn, msg: dict) -> None:
     if conn.pid is None:
         return await ack(False, error="not_joined")
 
+    if kind == "leave":
+        # Renounce your vows: your character goes, so you can start again with a new name.
+        pid = conn.pid
+        name = store.delete_player(pid)
+        for other in hub.conns:
+            if other.pid == pid:
+                other.pid, other.typing = None, False
+        await ack()
+        if name:
+            await hub.broadcast({"type": "player_removed", "id": pid})
+            await hub.broadcast({"type": "message", "message": store.add_message(pid, "leave", name)})
+        await hub.presence()
+        return
+
+    if kind == "kick":
+        if not conn.admin:
+            return await ack(False, error="forbidden")
+        target = str(msg.get("id", ""))
+        if target == conn.pid:
+            return await ack(False, error="invalid")
+        name = store.delete_player(target)
+        if not name:
+            return await ack(False, error="gone")
+        for other in hub.conns:
+            if other.pid == target:
+                other.pid, other.typing = None, False
+        await hub.broadcast({"type": "player_removed", "id": target})
+        await hub.broadcast({"type": "message", "message": store.add_message(target, "kick", name)})
+        await hub.presence()
+        return await ack()
+
+    if kind == "delete_message":
+        if not conn.admin:
+            return await ack(False, error="forbidden")
+        mid = str(msg.get("id", ""))
+        if store.delete_message(mid):
+            await hub.broadcast({"type": "message_removed", "id": mid})
+        return await ack()
+
     if kind == "rsvp":
         value = msg.get("value")
         if value not in RSVP:

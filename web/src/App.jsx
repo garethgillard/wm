@@ -34,8 +34,12 @@ function useToast() {
 
 // Everyone who has joined, grouped by their answer.
 const GROUPS = [['yes', 'At the table'], ['maybe', 'In the shadows'], ['none', 'Undecided'], ['no', 'Absent']]
-function RollCall({ party }) {
-  const { players, online, me } = party
+function RollCall({ party, onKick }) {
+  const { players, online, me, isAdmin, connected } = party
+  const [armed, setArmed] = useState(null)
+  function kick(id) {
+    if (armed === id) { setArmed(null); onKick(id) } else { setArmed(id); setTimeout(() => setArmed(a => (a === id ? null : a)), 3000) }
+  }
   const ids = Object.keys(players).sort((a, b) =>
     (online.includes(b) - online.includes(a)) || nameOf(players, a).localeCompare(nameOf(players, b)))
   if (!ids.length) return null
@@ -57,6 +61,11 @@ function RollCall({ party }) {
                   </span>
                   <span className="nm">{nameOf(players, id)}</span>
                   {id === me && <span className="you">You</span>}
+                  {isAdmin && connected && id !== me && (
+                    <button type="button" className={`mod-kick${armed === id ? ' armed' : ''}`} onClick={() => kick(id)}>
+                      {armed === id ? 'Cast out?' : 'Cast out'}
+                    </button>
+                  )}
                 </li>
               ))}
             </ul>
@@ -77,6 +86,13 @@ export default function App() {
   const prompted = useRef(false)
 
   const { ready, connected, locked, me, players, activities, votes } = party
+
+  // When your character goes (you renounced, or were cast out), offer the vows again.
+  const hadMe = useRef(false)
+  useEffect(() => {
+    if (me) hadMe.current = true
+    else if (hadMe.current) { hadMe.current = false; prompted.current = false; setSheet(null) }
+  }, [me])
   const joined = !!(me && players[me])
   // Things waiting for you on the board: rites you haven't voted on, and your attendance answer.
   const unvoted = joined ? activities.filter(a => !votes[me]?.[a.id]).length + (players[me].rsvp ? 0 : 1) : 0
@@ -120,6 +136,11 @@ export default function App() {
   const answer = value => { if (canAct()) actions.rsvp(value).catch(e => showToast(errorText(e))) }
   const vote = (aid, v) => { if (canAct()) actions.vote(aid, v).catch(e => showToast(errorText(e))) }
   const removeIdea = id => actions.removeIdea(id).catch(e => showToast(errorText(e)))
+  const kick = id => actions.kick(id).catch(e => showToast(errorText(e)))
+  const deleteMessage = id => actions.deleteMessage(id).catch(e => showToast(errorText(e)))
+  async function leave() {
+    try { await actions.leave(); setSheet(null); showToast('Your vows are renounced. Take new ones when ready.') } catch (e) { showToast(errorText(e)) }
+  }
   const removeNotice = id => actions.removeNotice(id).catch(e => showToast(errorText(e)))
   // Inline edits: the edit box shows any error itself, so these just pass the promise back.
   const saveInfo = (field, text) => actions.saveInfo({ ...(party.info || {}), [field]: text })
@@ -146,10 +167,10 @@ export default function App() {
         onToggleBoard={() => setBoardOpen(o => !o)} onIdentity={() => setSheet('join')} />
 
       <main className="chamber">
-        <Chat party={party} notice={notice} onSend={send} onVote={vote} onTyping={actions.typing} />
+        <Chat party={party} notice={notice} onSend={send} onVote={vote} onTyping={actions.typing} onDelete={deleteMessage} />
         <section className="panel circle" aria-label="The ritual table">
           <RitualTable party={party} />
-          {!narrow && <RollCall party={party} />}
+          {!narrow && <RollCall party={party} onKick={kick} />}
         </section>
         <div className="board-wrap" id="board-panel">
           <Board party={party} canPropose={!notice} onRsvp={answer} onJoin={() => setSheet('join')} onPropose={propose} onVote={vote} onRemove={removeIdea}
@@ -158,13 +179,13 @@ export default function App() {
             onOrganiser={() => setSheet('organiser')}
             onLeaveOrganiser={() => { actions.leaveAdmin(); showToast('Organiser mode is off') }}
             onClose={narrow ? () => setBoardOpen(false) : null} />
-          {narrow && <RollCall party={party} />}
+          {narrow && <RollCall party={party} onKick={kick} />}
         </div>
         {narrow && boardOpen && <button type="button" className="board-scrim" aria-label="Close the notice board" onClick={() => setBoardOpen(false)} />}
       </main>
 
       {sheet === 'join' && ready && (
-        <JoinSheet current={players[me]} players={players} me={me} onSave={actions.join} onClose={() => setSheet(null)} />
+        <JoinSheet current={players[me]} players={players} me={me} onSave={actions.join} onLeave={leave} onClose={() => setSheet(null)} />
       )}
       {sheet === 'organiser' && (
         <OrganiserSheet hint={DEMO ? `In the demo the code is "${DEMO_ADMIN_CODE}".` : null}

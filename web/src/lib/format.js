@@ -45,7 +45,7 @@ export function errorText(e) {
   }
 }
 
-export const nameOf = (players, pid) => players[pid]?.codename || 'Mystery guest'
+export const nameOf = (players, pid) => players[pid]?.codename || 'A departed soul'
 
 // Attendance answers, as shown on buttons and in the chat.
 export const RSVP = {

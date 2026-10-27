@@ -53,6 +53,15 @@ function reducer(s, a) {
     }
     case 'player':
       return { ...s, players: { ...s.players, [a.player.id]: a.player } }
+    case 'player_removed': { // renounced their vows, or cast out
+      const players = { ...s.players }
+      const votes = { ...s.votes }
+      delete players[a.id]
+      delete votes[a.id]
+      return { ...s, players, votes, me: s.me === a.id ? null : s.me }
+    }
+    case 'message_removed':
+      return { ...s, messages: s.messages.filter(m => m.id !== a.id) }
     case 'message':
       if (s.messages.some(m => m.id === a.message.id)) return s
       return { ...s, messages: [...s.messages, a.message].slice(-HISTORY) }
@@ -143,6 +152,9 @@ export function useParty() {
     },
     say: text => request('msg', { text }),
     rsvp: value => request('rsvp', { value }),
+    leave: () => request('leave'),
+    kick: id => request('kick', { id }),
+    deleteMessage: id => request('delete_message', { id }),
     propose: title => request('idea', { title }),
     removeIdea: id => request('remove_idea', { id }),
     renameIdea: (id, title) => request('edit_idea', { id, title }),

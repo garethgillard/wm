@@ -164,6 +164,17 @@ async def run(url: str):
     ev = await a.expect("message", lambda m: m["message"]["kind"] == "rsvp")
     check("A sees B's answer live, with a chat line", pm["player"]["rsvp"] == "maybe" and ev["message"]["text"] == "maybe")
 
+    # moderation
+    r = await b.request("delete_message", id="1")
+    check("only the organiser can delete whispers", r["ok"] is False and r["error"] == "forbidden")
+    await b.request("msg", text="something silly")
+    silly = await a.expect("message", lambda m: m["message"]["text"] == "something silly")
+    await a.request("delete_message", id=silly["message"]["id"])
+    gone = await b.expect("message_removed")
+    check("organiser deletes a whisper for everyone", gone["id"] == silly["message"]["id"])
+    r = await b.request("kick", id=a_id)
+    check("only the organiser can cast someone out", r["ok"] is False and r["error"] == "forbidden")
+
     await b.send(type="typing", on=True)
     pr = await a.expect("presence", lambda m: b_id in m["typing"])
     check("typing indicator reaches A", a_id in pr["online"] and b_id in pr["online"])
@@ -180,6 +191,23 @@ async def run(url: str):
     check("history is kept", any(m["text"] == "Who is ready to plan?" for m in st["messages"]))
     check("votes are kept", st["votes"].get(b_id, {}).get(aid) == 1)
     check("attendance is kept", {p["id"]: p["rsvp"] for p in st["players"]}.get(b_id) == "maybe")
+
+    # B renounces their vows and starts again with a new name
+    r = await b.request("leave")
+    check("B can delete their own character", r["ok"] is True)
+    rm = await a2.expect("player_removed")
+    check("everyone sees B leave", rm["id"] == b_id)
+    r = await b.request("msg", text="still here?")
+    check("after leaving, B must take vows again", r["ok"] is False and r["error"] == "not_joined")
+    r = await b.request("join", codename="Neon Herring Reborn", emoji=1, color=1, rsvp="yes")
+    check("B starts over with a new name", r["ok"] and r["you"] != b_id)
+    b2_id = r["you"]
+    await a2.send(type="admin", rid=999, code=ADMIN)
+    await a2.expect("ack", lambda m: m.get("rid") == 999)
+    r = await a2.request("kick", id=b2_id)
+    check("organiser casts out a member", r["ok"] is True)
+    ev = await b.expect("message", lambda m: m["message"]["kind"] == "kick")
+    check("the circle sees who was cast out", ev["message"]["text"] == "Neon Herring Reborn")
     await a2.close()
     await b.close()
 

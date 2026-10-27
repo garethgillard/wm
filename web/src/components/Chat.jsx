@@ -5,8 +5,13 @@ import { RSVP, dayLabel, nameOf, sameDay, tally, timeLabel } from '../lib/format
 
 const GROUP_GAP = 5 * 60 * 1000 // messages closer than this from one person are grouped
 
-export function Chat({ party, notice, onSend, onVote, onTyping }) {
-  const { messages, players, activities, votes, me, typing, ready, locked, connected } = party
+export function Chat({ party, notice, onSend, onVote, onTyping, onDelete }) {
+  const { messages, players, activities, votes, me, typing, ready, locked, connected, isAdmin } = party
+  const [armed, setArmed] = useState(null) // whisper waiting for a second tap to delete
+  const moderate = isAdmin && connected
+  function del(id) {
+    if (armed === id) { setArmed(null); onDelete(id) } else { setArmed(id); setTimeout(() => setArmed(a => (a === id ? null : a)), 3000) }
+  }
   const [text, setText] = useState('')
   const feed = useRef(null)
   const nearBottom = useRef(true)
@@ -86,6 +91,14 @@ export function Chat({ party, notice, onSend, onVote, onTyping }) {
             const ink = { '--ink': ROBES[p?.color ?? 0].ink }
             const who = <span className="who">{nameOf(players, m.pid)}</span>
 
+            if (m.kind === 'leave' || m.kind === 'kick') {
+              return (
+                <Fragment key={m.id}>
+                  {day}
+                  <p className="event-line departed"><span className="who">{m.text}</span> {m.kind === 'kick' ? 'is cast out of the circle' : 'renounces their vows'}</p>
+                </Fragment>
+              )
+            }
             if (m.kind === 'join' || m.kind === 'rsvp') {
               const line = m.kind === 'rsvp' ? RSVP[m.text]?.event
                 : m.text === 'yes' ? 'joins and takes a seat'
@@ -125,6 +138,11 @@ export function Chat({ party, notice, onSend, onVote, onTyping }) {
                 <div className={`line${grouped ? ' cont' : ''}${m.pid === me ? ' mine' : ''}`} style={ink}>
                   {!grouped && <div className="line-head">{who}<span className="time">{timeLabel(m.ts)}</span></div>}
                   <p className="line-text">{m.text}</p>
+                  {moderate && (
+                    <button type="button" className={`mod-del${armed === m.id ? ' armed' : ''}`} onClick={() => del(m.id)} aria-label="Delete this whisper">
+                      {armed === m.id ? 'Delete?' : '✕'}
+                    </button>
+                  )}
                 </div>
               </Fragment>
             )

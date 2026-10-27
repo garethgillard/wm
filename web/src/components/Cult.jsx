@@ -102,7 +102,7 @@ export function Figure({ player, lit = false }) {
           <path d="M0 -55 C3 -50 3 -46 0 -43 C-3 -46 -3 -50 0 -55 Z" fill="#ffd27a" />
         </g>
       )}
-      <Head player={player} />
+      <g className="head"><Head player={player} /></g>
     </g>
   )
 }
