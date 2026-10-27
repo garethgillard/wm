@@ -4,9 +4,11 @@ import { VoteButtons } from './VoteButtons'
 import { RSVP, dayLabel, nameOf, sameDay, tally, timeLabel } from '../lib/format'
 
 const GROUP_GAP = 5 * 60 * 1000 // messages closer than this from one person are grouped
+const SHOWN = new Set(['msg', 'suggest']) // whispers and proposed rites; joins, leaves and attendance stay off the chat
 
 export function Chat({ party, notice, onSend, onVote, onTyping, onDelete }) {
-  const { messages, players, activities, votes, me, typing, ready, locked, connected, isAdmin } = party
+  const { players, activities, votes, me, typing, ready, locked, connected, isAdmin } = party
+  const messages = useMemo(() => party.messages.filter(m => SHOWN.has(m.kind)), [party.messages])
   const [armed, setArmed] = useState(null) // whisper waiting for a second tap to delete
   const moderate = isAdmin && connected
   function del(id) {
