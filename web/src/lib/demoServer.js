@@ -5,15 +5,15 @@
 import { rand } from './constants'
 
 export const DEMO_ADMIN_CODE = 'demo'
-const STORE_KEY = 'partyhq-demo-v4'
+const STORE_KEY = 'partyhq-demo-v5'
 
 const BOTS = [
   { id: 'bot-hare', codename: 'Keeper Ashen Hare', emoji: 12, color: 1, rsvp: 'yes' },
-  { id: 'bot-owl', codename: 'The Veiled Owl', emoji: 3, color: 2, rsvp: 'yes' },
+  { id: 'bot-owl', codename: 'Oracle of the Ribosome', emoji: 3, color: 2, rsvp: 'yes' },
   { id: 'bot-wolf', codename: 'Warden Hollow Wolf', emoji: 1, color: 0, rsvp: 'yes' },
-  { id: 'bot-toad', codename: 'Seer Crimson Toad', emoji: 4, color: 4, rsvp: 'maybe' },
+  { id: 'bot-toad', codename: 'The Methylated Toad', emoji: 4, color: 4, rsvp: 'maybe' },
   { id: 'bot-cat', codename: 'The Pale Oracle', emoji: 2, color: 6, rsvp: 'yes' },
-  { id: 'bot-goat', codename: 'Herald Ember Goat', emoji: 8, color: 7, rsvp: 'yes' },
+  { id: 'bot-goat', codename: 'Herald of the Genome', emoji: 8, color: 7, rsvp: 'yes' },
   { id: 'bot-fish', codename: 'Keeper of the Melange', emoji: 23, color: 3, rsvp: 'maybe' },
   { id: 'bot-bat', codename: 'Envoy Sable Bat', emoji: 7, color: 5, rsvp: 'no' },
 ]
@@ -47,7 +47,7 @@ function seed() {
   ]
   return {
     nextId: 100,
-    info: { name: 'The Halloween Conclave', when: 'Fri 30 Oct, from 18:00', where: 'The basement. Follow the candles.' },
+    info: { name: 'The Melange Conclave', when: 'Fri 30 Oct, from 18:00', where: 'The basement. Follow the candles.' },
     notices: [
       { id: 'n1', text: 'Dress code: a dark robe and a mask. Animal ears encouraged.', ts: now - 70 * min },
       { id: 'n2', text: 'Bring something for the offering table. Snacks count.', ts: now - 65 * min },
@@ -303,7 +303,7 @@ export function connectDemo({ onOpen, onMessage, onClose }) {
       }
       case 'info': {
         if (!admin) return ack(false, { error: 'forbidden' })
-        db.info = { name: clean(m.name, 40) || 'The Halloween Conclave', when: clean(m.when, 60), where: clean(m.where, 60) }
+        db.info = { name: clean(m.name, 40) || 'The Melange Conclave', when: clean(m.when, 60), where: clean(m.where, 60) }
         save()
         emit({ type: 'info', info: db.info })
         return ack(true)

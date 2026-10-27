@@ -298,7 +298,7 @@ async def handle(conn: Conn, msg: dict) -> None:
         if not conn.admin:
             return await ack(False, error="forbidden")
         info = store.set_info(
-            clean(msg.get("name"), 40) or "The Halloween Conclave",
+            clean(msg.get("name"), 40) or "The Melange Conclave",
             clean(msg.get("when"), 60),
             clean(msg.get("where"), 60),
         )

@@ -32,33 +32,37 @@ function useToast() {
   return [message, show]
 }
 
-// Everyone who has joined: attending first, then maybe, undecided and not coming.
-const RSVP_ORDER = { yes: 0, maybe: 1, no: 3 }
+// Everyone who has joined, grouped by their answer.
+const GROUPS = [['yes', 'At the table'], ['maybe', 'In the shadows'], ['none', 'Undecided'], ['no', 'Absent']]
 function RollCall({ party }) {
   const { players, online, me } = party
-  const order = id => RSVP_ORDER[players[id].rsvp] ?? 2
   const ids = Object.keys(players).sort((a, b) =>
-    order(a) - order(b) || (online.includes(b) - online.includes(a)) || nameOf(players, a).localeCompare(nameOf(players, b)))
+    (online.includes(b) - online.includes(a)) || nameOf(players, a).localeCompare(nameOf(players, b)))
   if (!ids.length) return null
+  const answer = id => (players[id].rsvp in RSVP ? players[id].rsvp : 'none')
   return (
     <section className="rollcall" aria-label="Members">
-      <h3 className="section-title">The faithful</h3>
-      <ul>
-        {ids.map(id => {
-          const rsvp = players[id].rsvp
-          return (
-            <li key={id} className={`${online.includes(id) ? 'here' : 'away'} rsvp-${rsvp || 'none'}`}>
-              <span className="av-wrap">
-                <Avatar player={players[id]} size="xs" />
-                {online.includes(id) && <span className="here-dot" title="Here now" />}
-              </span>
-              <span className="nm">{nameOf(players, id)}</span>
-              {id === me && <span className="you">You</span>}
-              <span className="presence">{RSVP[rsvp]?.short || 'undecided'}</span>
-            </li>
-          )
-        })}
-      </ul>
+      {GROUPS.map(([key, label]) => {
+        const group = ids.filter(id => answer(id) === key)
+        if (!group.length) return null
+        return (
+          <div key={key} className={`rollcall-group rsvp-${key}`}>
+            <h3 className="section-title">{label} <span className="group-count">{group.length}</span></h3>
+            <ul>
+              {group.map(id => (
+                <li key={id} className={online.includes(id) ? 'here' : 'away'}>
+                  <span className="av-wrap">
+                    <Avatar player={players[id]} size="xs" />
+                    {online.includes(id) && <span className="here-dot" title="Here now" />}
+                  </span>
+                  <span className="nm">{nameOf(players, id)}</span>
+                  {id === me && <span className="you">You</span>}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )
+      })}
     </section>
   )
 }
@@ -138,7 +142,7 @@ export default function App() {
           <button type="button" className="linkbtn" onClick={() => { actions.resetDemo(); prompted.current = false; lsSet('wm-entered', null); setEntered(false) }}>Reset demo</button>
         </div>
       )}
-      <Header party={party} boardOpen={boardOpen} unvoted={unvoted}
+      <Header party={party} boardOpen={boardOpen} unvoted={unvoted} onSaveName={text => saveInfo('name', text)}
         onToggleBoard={() => setBoardOpen(o => !o)} onIdentity={() => setSheet('join')} />
 
       <main className="chamber">

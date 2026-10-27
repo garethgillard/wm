@@ -65,7 +65,6 @@ export function Chat({ party, notice, onSend, onVote, onTyping }) {
     <section className="panel chat" aria-label="Chat">
       <div className="panel-head">
         <h2>Whispers</h2>
-        <span className="sub">the chat</span>
       </div>
       <div className="feed" ref={feed} onScroll={onScroll} aria-live="polite">
         {!ready ? (
@@ -86,9 +85,10 @@ export function Chat({ party, notice, onSend, onVote, onTyping }) {
 
             if (m.kind === 'join' || m.kind === 'rsvp') {
               const line = m.kind === 'rsvp' ? RSVP[m.text]?.event
-                : m.text === 'maybe' ? 'joined the circle, and lurks in the shadows for now'
-                : m.text === 'no' ? "joined the whispers, but can't attend"
-                : 'took a seat at the table'
+                : m.text === 'yes' ? 'joins and takes a seat'
+                : m.text === 'maybe' ? 'joins, lurking in the shadows'
+                : m.text === 'no' ? 'joins, but sends regrets'
+                : 'joins the circle'
               if (!line) return null
               return (
                 <Fragment key={m.id}>
@@ -105,7 +105,7 @@ export function Chat({ party, notice, onSend, onVote, onTyping }) {
                   <div className="suggest">
                     <div className="suggest-head">
                       <Avatar player={players[m.pid]} size="xs" />
-                      <span>{nameOf(players, m.pid)} proposed a rite · {timeLabel(m.ts)}</span>
+                      <span>{nameOf(players, m.pid)} proposes a rite · {timeLabel(m.ts)}</span>
                     </div>
                     <div className="suggest-title">{a ? a.title : m.text}</div>
                     {a
@@ -144,7 +144,7 @@ export function Chat({ party, notice, onSend, onVote, onTyping }) {
         <form className="composer" onSubmit={submit} autoComplete="off">
           <input className="field" id="msgInput" maxLength={500} placeholder="Whisper to the circle…" aria-label="Message"
             value={text} onChange={e => { setText(e.target.value); ping(!!e.target.value.trim()) }} />
-          <button className="btn primary" type="submit">Send</button>
+          <button className="btn primary" type="submit">Whisper</button>
         </form>
       )}
     </section>

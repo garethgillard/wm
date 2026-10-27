@@ -1,22 +1,29 @@
 import { useEffect } from 'react'
 import { Avatar, Sigil } from './Cult'
+import { EditableText } from './EditableText'
+import { DEFAULT_NAME } from '../lib/constants'
 import { nameOf } from '../lib/format'
 
-export function Header({ party, boardOpen, unvoted, onToggleBoard, onIdentity }) {
-  const { info, players, me, ready, connected, locked } = party
-  const name = info?.name || 'The Halloween Conclave'
-  const meta = [info?.when, info?.where].filter(Boolean).join(' · ')
+export function Header({ party, boardOpen, unvoted, onToggleBoard, onIdentity, onSaveName }) {
+  const { info, players, me, ready, connected, locked, isAdmin } = party
+  const name = info?.name || DEFAULT_NAME
   const joined = !!players[me]
 
   useEffect(() => { document.title = `${name} · The WM Cult` }, [name])
 
   return (
     <header className="masthead">
-      <Sigil className="masthead-sigil" />
-      <div className="masthead-title">
-        <p className="eyebrow">The WM Cult {!connected && ready && <span className="offline">· reconnecting…</span>}</p>
-        <h1>{name}</h1>
-        {meta && <p className="meta">{meta}</p>}
+      <div className="lockup">
+        <Sigil className="masthead-sigil" title="The WM sigil" />
+        <div className="masthead-title">
+          <p className="eyebrow">
+            The WM Cult<span className="eyebrow-extra"> · All Hallows&rsquo; Eve</span>
+            {!connected && ready && <span className="offline"> · reconnecting…</span>}
+          </p>
+          <div className="title" role="heading" aria-level={1}>
+            <EditableText value={name} canEdit={isAdmin && ready && connected} label="the name of the gathering" maxLength={40} onSave={onSaveName} />
+          </div>
+        </div>
       </div>
       <div className="masthead-actions">
         <button type="button" className={`board-toggle${boardOpen ? ' open' : ''}`} onClick={onToggleBoard} aria-expanded={boardOpen} aria-controls="board-panel" aria-label="Notices and votes">

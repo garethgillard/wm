@@ -16,18 +16,29 @@ export const ROBES = [
 export const IDEAS = ['Costume contest', 'Tarot readings', 'Pumpkin carving', 'Murder mystery', 'Horror film night', 'Ghost story circle', 'Melange tasting', 'Séance']
 
 export const HISTORY = 300 // messages kept in the browser
+export const DEFAULT_NAME = 'The Melange Conclave'
 
-const TITLES = ['Acolyte', 'Oracle', 'Keeper', 'Warden', 'Seer', 'Herald', 'Archivist', 'Envoy']
-const ADJ = ['Velvet', 'Hollow', 'Ashen', 'Gilded', 'Silent', 'Crimson', 'Veiled', 'Waning', 'Moonlit', 'Obsidian', 'Shrouded', 'Pale', 'Ember', 'Midnight', 'Sable', 'Roasted']
-const NOUN = ['Moth', 'Raven', 'Owl', 'Fox', 'Serpent', 'Hare', 'Toad', 'Bat', 'Lynx', 'Stag', 'Goat', 'Wolf', 'Spider', 'Crow', 'Elk', 'Salmon']
+// Secret names mix three worlds: gothic cult, animals, and the lab.
+const TITLES = ['Acolyte', 'Oracle', 'Keeper', 'Warden', 'Seer', 'Herald', 'Archivist', 'Envoy', 'Sexton', 'Curate']
+const GOTHIC = ['Velvet', 'Hollow', 'Ashen', 'Gilded', 'Silent', 'Crimson', 'Veiled', 'Waning', 'Moonlit', 'Obsidian', 'Shrouded', 'Pale', 'Sable', 'Spectral', 'Roasted']
+const LAB = ['Mutant', 'Recessive', 'Cloned', 'Diploid', 'Polyploid', 'Transgenic', 'Fermented', 'Spliced', 'Methylated', 'Duplicated', 'Isotopic', 'Centrifuged']
+const ANIMALS = ['Moth', 'Raven', 'Owl', 'Salmon', 'Axolotl', 'Tardigrade', 'Zebrafish', 'Lamprey', 'Newt', 'Bat', 'Toad', 'Octopus', 'Mole Rat', 'Hagfish', 'Nematode', 'Wolf', 'Goat', 'Jellyfish']
+const RELICS = ['Genome', 'Helix', 'Ribosome', 'Codon', 'Enzyme', 'Plasmid', 'Petri Dish', 'Centrifuge', 'Isotope', 'Ohnolog', 'Mitochondria', 'Pipette', 'Sequencer', 'Melange']
 
 export const rand = n => Math.floor(Math.random() * n)
 const pick = list => list[rand(list.length)]
 
+const PATTERNS = [
+  () => `${pick(TITLES)} ${pick(GOTHIC)} ${pick(ANIMALS)}`,    // Acolyte Ashen Axolotl
+  () => `${pick(TITLES)} of the ${pick(RELICS)}`,               // Oracle of the Ribosome
+  () => `The ${pick(LAB)} ${pick(ANIMALS)}`,                    // The Methylated Moth
+  () => `${pick(GOTHIC)} ${pick(ANIMALS)} of the ${pick(RELICS)}`, // Pale Newt of the Helix
+  () => `${pick(TITLES)} ${pick(LAB)} ${pick(ANIMALS)}`,        // Seer Spliced Salmon
+]
+
 export function randomName() {
   for (;;) {
-    const base = `${pick(ADJ)} ${pick(NOUN)}`
-    const name = Math.random() < 0.6 ? `${pick(TITLES)} ${base}` : `The ${base}`
+    const name = pick(PATTERNS)()
     if (name.length <= 28) return name
   }
 }
@@ -39,3 +50,6 @@ export function roman(n) {
   for (const [v, s] of table) while (n >= v) { out += s; n -= v }
   return out
 }
+
+// House style: every V in a numeral becomes VM (5 → VM, 4 → IVM, 6 → VMI).
+export const cultNumeral = n => roman(n).replace(/V/g, 'VM')

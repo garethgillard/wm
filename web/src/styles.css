@@ -88,13 +88,16 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.85em;bac
 
 /* ---------- masthead ---------- */
 .masthead{flex:none;display:flex;align-items:center;gap:14px;padding:4px 2px}
-.masthead-sigil{flex:none;width:52px;height:52px;color:var(--gold);filter:drop-shadow(0 0 10px rgba(201,165,92,.35))}
+.lockup{flex:1;min-width:0;display:flex;align-items:center;gap:16px}
+.masthead-sigil{flex:none;width:64px;height:64px;color:var(--gold-bright);filter:drop-shadow(0 0 12px rgba(236,202,126,.45));animation:sigil-glow 6s ease-in-out infinite}
+@keyframes sigil-glow{0%,100%{filter:drop-shadow(0 0 8px rgba(236,202,126,.3))}50%{filter:drop-shadow(0 0 18px rgba(236,202,126,.6))}}
+.title .inline-edit{max-width:520px}
+.title .inline-field{font-family:var(--display);font-size:18px}
 .masthead-title{flex:1;min-width:0}
 .eyebrow{margin:0;font-family:var(--display);font-weight:600;font-size:11px;letter-spacing:.34em;text-transform:uppercase;color:var(--ash)}
 .eyebrow .offline{color:var(--blood-bright);letter-spacing:.1em}
-h1{margin:2px 0 0;font-family:var(--display);font-weight:600;font-size:clamp(20px,2.6vw,30px);line-height:1.1;letter-spacing:.06em;color:var(--gold-bright);
+.title{margin:2px 0 0;font-family:var(--display);font-weight:600;font-size:clamp(20px,2.6vw,30px);line-height:1.1;letter-spacing:.06em;color:var(--gold-bright);
   text-shadow:0 0 22px rgba(236,202,126,.25);text-wrap:balance;overflow-wrap:break-word}
-.meta{margin:3px 0 0;font-style:italic;color:var(--ash);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .masthead-actions{flex:none;display:flex;align-items:center;gap:10px}
 .me-btn{display:flex;align-items:center;gap:9px;max-width:240px;border:1px solid var(--line-gold);background:rgba(20,17,23,.8);border-radius:999px;padding:4px 14px 4px 4px;cursor:pointer}
 .me-name{font-family:var(--display);font-weight:600;font-size:12px;letter-spacing:.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
@@ -188,7 +191,11 @@ h1{margin:2px 0 0;font-family:var(--display);font-weight:600;font-size:clamp(20p
 @keyframes steam{0%{opacity:0;transform:translateY(4px)}40%{opacity:.7}100%{opacity:0;transform:translateY(-6px)}}
 @keyframes whisper{0%,100%{opacity:.25}50%{opacity:1}}
 
-.rollcall{padding:14px 18px 18px;border-top:1px solid var(--line)}
+.rollcall{padding:14px 18px 18px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:14px}
+.rollcall .section-title{margin-bottom:8px}
+.group-count{font-family:var(--body);font-size:12px;letter-spacing:0;color:var(--dim)}
+.rollcall-group.rsvp-yes .section-title{color:var(--gold)}
+.rollcall-group.rsvp-no li{opacity:.6}
 .rollcall ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:6px 14px}
 .rollcall li{display:flex;align-items:center;gap:8px;min-width:0;font-size:14px}
 .rollcall .nm{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -219,7 +226,7 @@ h1{margin:2px 0 0;font-family:var(--display);font-weight:600;font-size:clamp(20p
 .board > section:last-of-type{border-bottom:0}
 .summons{text-align:center;background:radial-gradient(ellipse at 50% 0%,rgba(122,23,38,.22),transparent 70%)}
 .kicker{margin:0;font-family:var(--display);font-weight:600;font-size:10px;letter-spacing:.32em;text-transform:uppercase;color:var(--ash)}
-.summons-name{margin:6px 0 12px;font-family:var(--display);font-weight:600;font-size:21px;letter-spacing:.05em;line-height:1.2;color:var(--gold-bright);text-wrap:balance}
+.summons .kicker{margin-bottom:12px}
 .summons dl{margin:0 auto 10px;display:grid;gap:8px;max-width:340px}
 .summons dl div{display:grid;grid-template-columns:62px minmax(0,1fr);gap:10px;text-align:left;align-items:baseline}
 .summons dt{font-family:var(--display);font-weight:600;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);text-align:right}
@@ -231,7 +238,6 @@ h1{margin:2px 0 0;font-family:var(--display);font-weight:600;font-size:clamp(20p
 .seal{width:20px;height:20px;margin-top:2px;border-radius:50%;transform:rotate(-12deg);
   background:radial-gradient(circle at 38% 35%,#d14453,#7a1726 55%,#4a0d17);box-shadow:0 1px 2px rgba(0,0,0,.6),inset 0 0 0 3px rgba(0,0,0,.18)}
 .ideas{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:10px}
-.ideas-label{font-style:italic;font-size:13px;color:var(--dim);margin-right:2px}
 .chip{border:1px dashed var(--line-gold);background:transparent;border-radius:999px;padding:4px 11px;font-size:13.5px;color:var(--ash);cursor:pointer}
 .chip:hover{color:var(--gold-bright);border-style:solid}
 .acts{list-style:none;margin:12px 0 0;padding:0;display:flex;flex-direction:column;gap:8px}
@@ -266,7 +272,6 @@ h1{margin:2px 0 0;font-family:var(--display);font-weight:600;font-size:clamp(20p
 input.inline-field{height:40px;padding:0 11px}
 .inline-actions{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
 .btn.small{height:32px;padding:0 12px;font-size:10.5px}
-.summons-name .inline-field{font-family:var(--display);font-size:17px}
 
 /* ---------- pop-up sheets ---------- */
 .layer{position:fixed;inset:0;z-index:30;display:grid;place-items:center;overflow-y:auto;background:rgba(5,4,7,.78);backdrop-filter:blur(3px);
@@ -320,10 +325,11 @@ input.inline-field{height:40px;padding:0 11px}
 @media (max-width: 759px){
   .app{gap:10px;padding-block:10px}
   .masthead{gap:10px}
-  .masthead-sigil{width:36px;height:36px}
+  .lockup{gap:10px}
+  .masthead-sigil{width:42px;height:42px}
+  .eyebrow-extra{display:none}
   .eyebrow{font-size:9.5px;letter-spacing:.26em}
-  h1{font-size:15.5px;letter-spacing:.03em}
-  .meta{font-size:12.5px}
+  .title{font-size:16px;letter-spacing:.03em}
   .masthead-actions{gap:8px}
   .board-toggle{padding:0 10px;gap:6px}
   .ritual .hint{display:none}
@@ -335,7 +341,6 @@ input.inline-field{height:40px;padding:0 11px}
   .board-toggle{display:inline-flex}
     .join-btn{height:40px;padding:0 12px}
   .chamber{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);grid-template-areas:"circle" "chat";gap:10px}
-  .meta{display:none}
   .scene{max-height:22vh}
   .ritual figcaption{flex-wrap:nowrap;justify-content:flex-start;gap:8px;padding:5px 12px 6px;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .ritual figcaption > span:last-child{overflow:hidden;text-overflow:ellipsis}

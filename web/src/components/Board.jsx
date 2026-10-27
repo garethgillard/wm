@@ -4,7 +4,7 @@ import { Avatar, AvatarStack } from './Cult'
 import { VoteButtons } from './VoteButtons'
 import { EditableText } from './EditableText'
 import { RsvpChoice, rsvpCounts } from './Rsvp'
-import { IDEAS, roman } from '../lib/constants'
+import { IDEAS, cultNumeral } from '../lib/constants'
 import { nameOf, ranked, tally } from '../lib/format'
 
 export function Board({ party, canPropose, onRsvp, onJoin, onPropose, onVote, onRemove, onRenameIdea, onSaveInfo, onAddNotice, onEditNotice, onRemoveNotice, onOrganiser, onLeaveOrganiser, onClose }) {
@@ -53,10 +53,6 @@ export function Board({ party, canPropose, onRsvp, onJoin, onPropose, onVote, on
 
       <section className="summons">
         <p className="kicker">You are summoned</p>
-        <div className="summons-name" role="heading" aria-level={3}>
-          <EditableText value={info?.name || 'The Halloween Conclave'} canEdit={organiser} label="the name of the gathering" maxLength={40}
-            onSave={text => onSaveInfo('name', text)} />
-        </div>
         <dl>
           <div><dt>When</dt><dd>
             <EditableText value={info?.when} placeholder="To be announced" canEdit={organiser} allowEmpty label="when" maxLength={60}
@@ -97,7 +93,7 @@ export function Board({ party, canPropose, onRsvp, onJoin, onPropose, onVote, on
         </ul>
         {isAdmin && connected && (
           <form className="add" onSubmit={submitNotice} autoComplete="off">
-            <input className="field" id="noticeInput" maxLength={200} placeholder="Post a notice, e.g. Masks on at the door" aria-label="New notice"
+            <input className="field" id="noticeInput" maxLength={200} placeholder="New notice…" aria-label="New notice"
               value={notice} onChange={e => setNotice(e.target.value)} />
             <button className="btn" type="submit">Post</button>
           </form>
@@ -105,7 +101,7 @@ export function Board({ party, canPropose, onRsvp, onJoin, onPropose, onVote, on
       </section>
 
       <section className="rites">
-        <h3 className="section-title">Rites to vote on <span className="sub">ranked by ayes minus nays</span></h3>
+        <h3 className="section-title">Rites to vote on</h3>
         {canPropose && (
           <form className="add" onSubmit={submitIdea} autoComplete="off">
             <input className="field" id="ideaInput" maxLength={80} placeholder="Propose a rite" aria-label="Propose an activity"
@@ -115,7 +111,6 @@ export function Board({ party, canPropose, onRsvp, onJoin, onPropose, onVote, on
         )}
         {canPropose && activities.length < 4 && spare.length > 0 && (
           <div className="ideas">
-            <span className="ideas-label">Or tap one:</span>
             {spare.map(i => <button key={i} type="button" className="chip" onClick={() => onPropose(i)}>{i}</button>)}
           </div>
         )}
@@ -129,14 +124,14 @@ export function Board({ party, canPropose, onRsvp, onJoin, onPropose, onVote, on
             const canRemove = connected && (a.pid === me || isAdmin)
             return (
               <li key={a.id} className={`act${favoured ? ' favoured' : ''}`}>
-                <span className="rank">{roman(i + 1)}</span>
+                <span className="rank">{cultNumeral(i + 1)}</span>
                 <div className="act-main">
                   <div className="act-title">
                     <EditableText value={a.title} canEdit={connected && (a.pid === me || isAdmin)} label="this rite" maxLength={80}
                       onSave={title => onRenameIdea(a.id, title)} />
                     {favoured && <span className="lead-chip">Favoured</span>}
                   </div>
-                  <div className="act-by"><Avatar player={players[a.pid]} size="xs" /><span>proposed by {nameOf(players, a.pid)}</span></div>
+                  <div className="act-by"><Avatar player={players[a.pid]} size="xs" /><span>{nameOf(players, a.pid)}</span></div>
                   {total > 0 && (
                     <div className="bar" aria-hidden="true">
                       <span className="g" style={{ width: `${(100 * c.go.length) / total}%` }} />
@@ -163,13 +158,12 @@ export function Board({ party, canPropose, onRsvp, onJoin, onPropose, onVote, on
         <footer className="organiser">
           {isAdmin ? (
             <>
-              <span><strong>Organiser mode is on.</strong> Tap any text on the board to change it: the summons, notices and rite titles. Changes show for everyone straight away.</span>
-              <button type="button" className="linkbtn" onClick={onLeaveOrganiser}>Turn off</button>
+              <span><strong>Organiser mode.</strong> Tap any text to edit it.</span>
+              <button type="button" className="linkbtn" onClick={onLeaveOrganiser}>Leave</button>
             </>
           ) : (
             <>
-              <span>Organising this gathering?</span>
-              <button type="button" className="linkbtn" onClick={onOrganiser}>Enter organiser code</button>
+              <button type="button" className="linkbtn" onClick={onOrganiser}>Organiser&rsquo;s entrance</button>
             </>
           )}
         </footer>

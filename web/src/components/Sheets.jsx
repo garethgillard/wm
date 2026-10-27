@@ -56,7 +56,7 @@ export function JoinSheet({ current, players, me, onSave, onClose }) {
   return (
     <Sheet
       title={current ? 'Change your disguise' : 'Take your vows'}
-      lede={current ? null : 'Members of the WM Cult are known only by their secret names. Choose yours, then your familiar and your robe.'}
+      lede={current ? null : 'In the WM Cult you are known only by your secret name.'}
       onSubmit={submit}
       onClose={onClose}
       actions={<>
@@ -97,7 +97,7 @@ export function JoinSheet({ current, players, me, onSave, onClose }) {
         </div>
       </div>
       <div>
-        <span className="label">Will you attend the gathering?</span>
+        <span className="label">Will you attend?</span>
         <RsvpChoice value={rsvp} onChange={v => { setRsvp(v); setError('') }} />
       </div>
       {error && <p className="err">{error}</p>}
@@ -113,8 +113,8 @@ export function OrganiserSheet({ hint, onUnlock, onClose }) {
   )
   return (
     <Sheet
-      title="Organiser mode"
-      lede="The organiser code lets you edit the summons, post notices and remove any rite."
+      title="Organiser’s entrance"
+      lede="Speak the organiser code to edit the board and post notices."
       onSubmit={() => code.trim() && run(code.trim())}
       onClose={onClose}
       actions={<>
