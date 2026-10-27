@@ -27,9 +27,9 @@ Tick these off in order. Commands run on the NREC instance unless noted.
 - [ ] **4. Clone and start it** (one command does the rest: makes `.env` with a fresh organiser code, builds, starts, checks it answers)
   ```bash
   git clone https://github.com/garethgillard/wm.git ~/wm && cd ~/wm
-  PARTY_PASSCODE=pick-a-door-password ./scripts/setup.sh
+  ./scripts/setup.sh
   ```
-  Leave out `PARTY_PASSCODE=…` for no door password. If port 8080 is taken on the instance, add `PARTY_PORT=8090` (and use that port in step 5). The script prints your organiser code at the end.
+  No door password by default: anyone with the link can enter, so share it personally (a QR code works well). The organiser code still keeps editing to you. If port 8080 is taken on the instance, run `PARTY_PORT=8090 ./scripts/setup.sh` instead (and use that port in step 5). The script prints your organiser code at the end.
 - [ ] **5. Put it behind your web server with HTTPS.** Use whichever server the instance already runs. Each file has two options:
   - **Option A, its own hostname** (e.g. `party.example.org`): needs a DNS name pointing at the instance's public IP.
   - **Option B, a sub-path on a site you already have** (e.g. `https://<your-snp-portal-host>/party/`): no new DNS or certificate needed.
