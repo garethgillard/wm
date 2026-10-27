@@ -221,6 +221,8 @@ async def run(url: str):
     check("the summons is back to its defaults", st["info"]["when"] == "Friday 30 October" and st["info"]["where"] == "CIGENE")
     r = await a2.request("msg", text="anyone?")
     check("after a reset everyone takes vows again", r["ok"] is False and r["error"] == "not_joined")
+    r = await a2.request("notice", text="Posted before taking a seat")
+    check("the organiser can moderate without taking a seat", r["ok"] is True)
     r = await a2.request("join", codename="Agent Test Puffin", emoji=3, color=4, rsvp="yes")
     check("old names are free again after a reset", r["ok"] is True)
     await a2.close()

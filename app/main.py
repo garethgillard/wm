@@ -27,6 +27,7 @@ MAX_PLAYERS = int(os.environ.get("MAX_PLAYERS", "200"))
 MAX_CONNECTIONS = int(os.environ.get("MAX_CONNECTIONS", "500"))
 MAX_NOTICES = 20
 RSVP = ("yes", "maybe", "no")
+ORGANISER_ANYTIME = {"kick", "delete_message", "edit_idea", "remove_idea", "info", "notice", "edit_notice", "remove_notice"}
 
 # The React build (web/dist). Run `npm run build` in web/ first, or use Docker.
 STATIC = Path(os.environ.get("WEB_DIST", Path(__file__).resolve().parent.parent / "web" / "dist"))
@@ -234,7 +235,8 @@ async def handle(conn: Conn, msg: dict) -> None:
         await hub.presence()
         return
 
-    if conn.pid is None:
+    # Members must take their vows first; the organiser can moderate without a seat.
+    if conn.pid is None and not (conn.admin and kind in ORGANISER_ANYTIME):
         return await ack(False, error="not_joined")
 
     if kind == "leave":
