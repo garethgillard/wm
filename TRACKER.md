@@ -12,6 +12,8 @@ One step at a time. Tick each box when it's done.
 - [x] Cult title with sigil lockup and sigil tab icon, leaner text, gothic + animal + lab name suggestions
 - [x] Minimalist chat: robe-coloured names and side rules
 - [x] No masks, names fixed once taken, tap the room for a big view, no subtitle
+- [x] Renounce vows, organiser moderation (delete whispers, cast out), animated figures, Friday 30 October at CIGENE
+- [ ] G: post the starting notices and rites in organiser mode before sharing the link
 - [ ] Further tweaks from G
 - [ ] Final look over the demo on phone and desktop
 

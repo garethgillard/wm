@@ -41,7 +41,7 @@ function motion(id) {
 }
 
 const TABLE_ITEMS = [
-  ...[{ a: -150, h: 34 }, { a: -90, h: 46 }, { a: -30, h: 30 }, { a: 30, h: 40 }, { a: 150, h: 36 }, { a: 90, h: 28 }].map(c => {
+  ...[{ a: -150, h: 34 }, { a: -118, h: 46 }, { a: -30, h: 30 }, { a: 30, h: 40 }, { a: 150, h: 36 }, { a: 90, h: 28 }].map(c => {
     const r = (c.a * Math.PI) / 180
     return { kind: 'candle', x: CX + 150 * Math.cos(r), y: CY + 54 * Math.sin(r), h: c.h, delay: (Math.abs(c.a) % 7) / 10 }
   }),
