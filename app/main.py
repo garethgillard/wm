@@ -11,6 +11,7 @@ import time
 from pathlib import Path
 
 from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
+from starlette.websockets import WebSocketDisconnected  # raised when the browser left mid-send
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -37,7 +38,7 @@ CSP = (
     "frame-ancestors 'none'; object-src 'none'"
 )
 
-store = Store(DB_PATH)
+store = Store(DB_PATH, os.environ.get("DATABASE_URL", "").strip())
 app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
 
 
@@ -146,7 +147,7 @@ async def ws_endpoint(ws: WebSocket):
                 continue
             if isinstance(msg, dict):
                 await handle(conn, msg)
-    except WebSocketDisconnect:
+    except (WebSocketDisconnect, WebSocketDisconnected):
         pass
     except Exception:
         log.exception("connection error")
@@ -215,6 +216,20 @@ async def handle(conn: Conn, msg: dict) -> None:
             await hub.broadcast({"type": "message", "message": store.add_message(conn.pid, "join", rsvp or "")})
         elif rsvp and before and before["rsvp"] != rsvp:
             await hub.broadcast({"type": "message", "message": store.add_message(conn.pid, "rsvp", rsvp)})
+        await hub.presence()
+        return
+
+    if kind == "reset":
+        # Organiser only: wipe the whole gathering and start from a clean chamber.
+        if not conn.admin:
+            return await ack(False, error="forbidden")
+        if msg.get("confirm") != "RESET":
+            return await ack(False, error="invalid")
+        store.reset()
+        for other in hub.conns:
+            other.pid, other.typing = None, False
+        await ack()
+        await hub.broadcast({"type": "reset", "state": store.snapshot()})
         await hub.presence()
         return
 

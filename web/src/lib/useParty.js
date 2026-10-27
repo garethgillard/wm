@@ -51,6 +51,8 @@ function reducer(s, a) {
         votes: st.votes || {},
       }
     }
+    case 'reset': // the organiser wiped everything; everyone starts again with new vows
+      return reducer(s, { type: 'welcome', you: null, admin: s.isAdmin, hasAdmin: s.hasAdmin, state: a.state })
     case 'player':
       return { ...s, players: { ...s.players, [a.player.id]: a.player } }
     case 'player_removed': { // renounced their vows, or cast out
@@ -154,6 +156,7 @@ export function useParty() {
     rsvp: value => request('rsvp', { value }),
     leave: () => request('leave'),
     kick: id => request('kick', { id }),
+    resetAll: () => request('reset', { confirm: 'RESET' }),
     deleteMessage: id => request('delete_message', { id }),
     propose: title => request('idea', { title }),
     removeIdea: id => request('remove_idea', { id }),

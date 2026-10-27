@@ -21,6 +21,13 @@ One step at a time. Tick each box when it's done.
 - [x] Run `tests/smoke_test.py` against the final build
 - [x] Push the repo to GitHub: https://github.com/garethgillard/wm (public)
 
+## 2b. Render (free tier) — what's live now
+- [x] Organiser "Reset everything" button
+- [x] Postgres storage so data survives Render's sleeps and redeploys
+- [ ] Render: create a free Postgres, set `DATABASE_URL` and `ADMIN_CODE` on the web service (README, "Running it on Render's free tier")
+- [ ] Optional: UptimeRobot ping of /healthz every 5 min so it never sleeps
+- [ ] Organiser mode → post notices and rites → Reset everything first if there is test data
+
 ## 3. Deploy on NREC (README checklist, steps 2–10)
 - [ ] Ports 80/443 open
 - [ ] `./scripts/setup.sh` (makes `.env`, builds, starts)

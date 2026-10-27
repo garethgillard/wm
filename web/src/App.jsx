@@ -178,6 +178,7 @@ export default function App() {
             onAddNotice={addNotice} onEditNotice={actions.editNotice} onRemoveNotice={removeNotice}
             onOrganiser={() => setSheet('organiser')}
             onLeaveOrganiser={() => { actions.leaveAdmin(); showToast('Organiser mode is off') }}
+            onResetAll={() => actions.resetAll().then(() => showToast('The chamber is wiped clean.'), e => showToast(errorText(e)))}
             onClose={narrow ? () => setBoardOpen(false) : null} />
           {narrow && <RollCall party={party} onKick={kick} />}
         </div>

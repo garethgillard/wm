@@ -302,6 +302,9 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.85em;bac
 .act-votes .stack{margin-left:auto}
 .organiser{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;font-size:13.5px;color:var(--ash)}
 .organiser strong{color:var(--bone);font-weight:600}
+.organiser .wipe{margin-left:auto}
+.wipe-confirm{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;padding:12px;border:1px solid var(--blood-bright);border-radius:6px;background:rgba(122,23,38,.18)}
+.wipe-confirm p{margin:0;flex:1 1 100%;color:var(--bone);line-height:1.45}
 
 /* ---------- editing text in place (organiser) ---------- */
 .editable{display:inline;}

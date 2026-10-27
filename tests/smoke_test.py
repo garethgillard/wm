@@ -208,6 +208,21 @@ async def run(url: str):
     check("organiser casts out a member", r["ok"] is True)
     ev = await b.expect("message", lambda m: m["message"]["kind"] == "kick")
     check("the circle sees who was cast out", ev["message"]["text"] == "Neon Herring Reborn")
+    # Reset everything
+    r = await b.request("reset", confirm="RESET")
+    check("only the organiser can reset", r["ok"] is False and r["error"] == "forbidden")
+    r = await a2.request("reset")
+    check("a reset needs the confirm word", r["ok"] is False and r["error"] == "invalid")
+    r = await a2.request("reset", confirm="RESET")
+    check("organiser resets everything", r["ok"] is True)
+    ev = await b.expect("reset")
+    st = ev["state"]
+    check("after a reset the chamber is empty", not st["players"] and not st["messages"] and not st["activities"] and not st["notices"] and not st["votes"])
+    check("the summons is back to its defaults", st["info"]["when"] == "Friday 30 October" and st["info"]["where"] == "CIGENE")
+    r = await a2.request("msg", text="anyone?")
+    check("after a reset everyone takes vows again", r["ok"] is False and r["error"] == "not_joined")
+    r = await a2.request("join", codename="Agent Test Puffin", emoji=3, color=4, rsvp="yes")
+    check("old names are free again after a reset", r["ok"] is True)
     await a2.close()
     await b.close()
 

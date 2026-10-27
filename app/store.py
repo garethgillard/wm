@@ -1,13 +1,17 @@
-"""SQLite storage for Party HQ.
+"""Storage for the WM gathering: SQLite by default, or Postgres when DATABASE_URL is set.
 
-Everything lives in one small database file. Calls are short and run under a
-lock, which is plenty for a party-sized crowd (tens of people).
+SQLite keeps everything in one small file (fine on a server with a disk that lasts).
+Postgres is for hosts whose disk is wiped on restart, such as Render's free tier.
+Calls are short and run under a lock, which is plenty for a party-sized crowd.
 """
 
+import logging
 import secrets
 import sqlite3
 import threading
 import time
+
+log = logging.getLogger("wm.store")
 
 EMOJI_COUNT = 24   # must match EMOJI in web/src/lib/constants.js
 COLOR_COUNT = 16   # must match ROBES in web/src/lib/constants.js
@@ -61,23 +65,60 @@ CREATE TABLE IF NOT EXISTS votes (
 """
 
 
+class _Postgres:
+    """A Postgres connection that takes SQLite-style `?` placeholders and reconnects if the server restarts."""
+
+    def __init__(self, url: str):
+        import psycopg
+        from psycopg.rows import dict_row
+        self.psycopg, self.dict_row, self.url = psycopg, dict_row, url
+        self.conn = None
+
+    def _connect(self):
+        self.conn = self.psycopg.connect(self.url, autocommit=True, row_factory=self.dict_row, connect_timeout=15)
+
+    def execute(self, sql: str, params=()):
+        sql = sql.replace("?", "%s")
+        for attempt in (1, 2):
+            try:
+                if self.conn is None or self.conn.closed:
+                    self._connect()
+                return self.conn.execute(sql, params or None)
+            except (self.psycopg.OperationalError, self.psycopg.InterfaceError):
+                if attempt == 2:
+                    raise
+                log.warning("database connection lost; reconnecting")
+                self.conn = None
+
+    def executescript(self, sql: str):
+        self.execute(sql)
+
+
 def now_ms() -> int:
     return int(time.time() * 1000)
 
 
 class Store:
-    def __init__(self, path: str):
-        self.db = sqlite3.connect(path, check_same_thread=False, isolation_level=None)
-        self.db.row_factory = sqlite3.Row
+    def __init__(self, path: str, database_url: str = ""):
         self.lock = threading.Lock()
+        self.postgres = bool(database_url)
         with self.lock:
-            self.db.execute("PRAGMA journal_mode=WAL")
-            self.db.execute("PRAGMA foreign_keys=ON")
-            self.db.executescript(SCHEMA)
-            # Databases made before attendance existed get the new column.
-            cols = {r[1] for r in self.db.execute("PRAGMA table_info(players)")}
-            if "rsvp" not in cols:
-                self.db.execute("ALTER TABLE players ADD COLUMN rsvp TEXT")
+            if self.postgres:
+                self.db = _Postgres(database_url)
+                # Millisecond timestamps need 64-bit integers in Postgres.
+                schema = SCHEMA.replace("INTEGER PRIMARY KEY AUTOINCREMENT", "BIGSERIAL PRIMARY KEY").replace("INTEGER", "BIGINT")
+                self.db.executescript(schema)
+                self.db.execute("ALTER TABLE players ADD COLUMN IF NOT EXISTS rsvp TEXT")
+            else:
+                self.db = sqlite3.connect(path, check_same_thread=False, isolation_level=None)
+                self.db.row_factory = sqlite3.Row
+                self.db.execute("PRAGMA journal_mode=WAL")
+                self.db.execute("PRAGMA foreign_keys=ON")
+                self.db.executescript(SCHEMA)
+                # Databases made before attendance existed get the new column.
+                cols = {r[1] for r in self.db.execute("PRAGMA table_info(players)")}
+                if "rsvp" not in cols:
+                    self.db.execute("ALTER TABLE players ADD COLUMN rsvp TEXT")
 
     # ---------- reads ----------
     def snapshot(self) -> dict:
@@ -106,13 +147,13 @@ class Store:
 
     def player_count(self) -> int:
         with self.lock:
-            return self.db.execute("SELECT COUNT(*) FROM players").fetchone()[0]
+            return self.db.execute("SELECT COUNT(*) AS n FROM players").fetchone()["n"]
 
     def codename_taken(self, codename: str, exclude_pid: str | None) -> bool:
         with self.lock:
             r = self.db.execute(
-                "SELECT 1 FROM players WHERE lower(codename) = lower(?) AND id IS NOT ?",
-                (codename, exclude_pid),
+                "SELECT 1 FROM players WHERE lower(codename) = lower(?) AND (CAST(? AS TEXT) IS NULL OR id <> ?)",
+                (codename, exclude_pid, exclude_pid),
             ).fetchone()
         return r is not None
 
@@ -155,13 +196,12 @@ class Store:
 
     def add_message(self, pid: str, kind: str, text: str = "", aid: str | None = None) -> dict:
         with self.lock:
-            cur = self.db.execute(
-                "INSERT INTO messages (pid, kind, text, aid, ts) VALUES (?, ?, ?, ?, ?)",
+            row = self.db.execute(
+                "INSERT INTO messages (pid, kind, text, aid, ts) VALUES (?, ?, ?, ?, ?) RETURNING *",
                 (pid, kind, text, aid, now_ms()),
-            )
-            row = self.db.execute("SELECT * FROM messages WHERE id = ?", (cur.lastrowid,)).fetchone()
-            if cur.lastrowid % 100 == 0:
-                self.db.execute("DELETE FROM messages WHERE id <= ?", (cur.lastrowid - KEEP,))
+            ).fetchone()
+            if row["id"] % 100 == 0:
+                self.db.execute("DELETE FROM messages WHERE id <= ?", (row["id"] - KEEP,))
         return self._message(row)
 
     def add_activity(self, title: str, pid: str) -> dict:
@@ -192,7 +232,7 @@ class Store:
 
     def notice_count(self) -> int:
         with self.lock:
-            return self.db.execute("SELECT COUNT(*) FROM notices").fetchone()[0]
+            return self.db.execute("SELECT COUNT(*) AS n FROM notices").fetchone()["n"]
 
     def add_notice(self, text: str) -> dict:
         nid = secrets.token_urlsafe(8)
@@ -245,7 +285,15 @@ class Store:
             row = self.db.execute("SELECT name, when_text, where_text FROM info WHERE id = 1").fetchone()
         return self._info(row)
 
+    def reset(self) -> None:
+        """Wipe everything: members, whispers, rites, votes, notices, and the summons back to its defaults."""
+        with self.lock:
+            for table in ("votes", "messages", "activities", "notices", "players", "info"):
+                self.db.execute(f"DELETE FROM {table}")
+
     def backup(self, dest: str) -> None:
+        if self.postgres:
+            raise SystemExit("This copy uses Postgres. Back it up with pg_dump, or from your host's dashboard.")
         with self.lock:
             target = sqlite3.connect(dest)
             with target:

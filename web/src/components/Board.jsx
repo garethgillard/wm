@@ -7,7 +7,7 @@ import { RsvpChoice, rsvpCounts } from './Rsvp'
 import { IDEAS, roman } from '../lib/constants'
 import { nameOf, ranked, tally } from '../lib/format'
 
-export function Board({ party, canPropose, onRsvp, onJoin, onPropose, onVote, onRemove, onRenameIdea, onSaveInfo, onAddNotice, onEditNotice, onRemoveNotice, onOrganiser, onLeaveOrganiser, onClose }) {
+export function Board({ party, canPropose, onRsvp, onJoin, onPropose, onVote, onRemove, onRenameIdea, onSaveInfo, onAddNotice, onEditNotice, onRemoveNotice, onOrganiser, onLeaveOrganiser, onResetAll, onClose }) {
   const { info, notices, activities, votes, players, me, ready, locked, connected, isAdmin, hasAdmin } = party
   const organiser = isAdmin && ready && connected // can edit the summons and notices
   const attendance = rsvpCounts(players)
@@ -15,6 +15,7 @@ export function Board({ party, canPropose, onRsvp, onJoin, onPropose, onVote, on
   const [idea, setIdea] = useState('')
   const [notice, setNotice] = useState('')
   const [armed, setArmed] = useState(null) // id waiting for a second tap to confirm removal
+  const [wiping, setWiping] = useState(false) // organiser is confirming a full reset
 
   const counts = useMemo(() => tally(activities, votes), [activities, votes])
   const list = useMemo(() => ranked(activities, counts), [activities, counts])
@@ -158,8 +159,19 @@ export function Board({ party, canPropose, onRsvp, onJoin, onPropose, onVote, on
         <footer className="organiser">
           {isAdmin ? (
             <>
-              <span><strong>Organiser mode.</strong> Tap any text to edit it.</span>
-              <button type="button" className="linkbtn" onClick={onLeaveOrganiser}>Leave</button>
+              {wiping ? (
+                <div className="wipe-confirm" role="alertdialog" aria-label="Reset everything">
+                  <p><strong>Wipe everything?</strong> All members, whispers, rites, votes and notices go, and the summons returns to its defaults. This can&rsquo;t be undone.</p>
+                  <button type="button" className="btn danger" onClick={() => { setWiping(false); onResetAll() }}>Yes, wipe it all</button>
+                  <button type="button" className="linkbtn" onClick={() => setWiping(false)}>Cancel</button>
+                </div>
+              ) : (
+                <>
+                  <span><strong>Organiser mode.</strong> Tap any text to edit it.</span>
+                  <button type="button" className="linkbtn" onClick={onLeaveOrganiser}>Leave</button>
+                  <button type="button" className="linkbtn danger-link wipe" onClick={() => setWiping(true)}>Reset everything</button>
+                </>
+              )}
             </>
           ) : (
             <>

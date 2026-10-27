@@ -243,6 +243,15 @@ export function connectDemo({ onOpen, onMessage, onClose }) {
         presence()
         return ack(true)
       }
+      case 'reset': {
+        if (!admin) return ack(false, { error: 'forbidden' })
+        if (m.confirm !== 'RESET') return ack(false, { error: 'invalid' })
+        db = seed(); me = null; typing.clear(); save() // the demo starts over with its sample members
+        ack(true)
+        emit({ type: 'reset', state: snapshot() })
+        presence()
+        return
+      }
       case 'delete_message': {
         if (!admin) return ack(false, { error: 'forbidden' })
         db.messages = db.messages.filter(x => x.id !== m.id)
