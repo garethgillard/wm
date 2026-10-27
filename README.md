@@ -36,7 +36,7 @@ Tick these off in order. Commands run on the NREC instance unless noted.
 
   nginx: [`deploy/nginx.conf`](deploy/nginx.conf) · Apache: [`deploy/apache.conf`](deploy/apache.conf). Each file lists its exact commands, including `certbot` for HTTPS.
 - [ ] **6. Test it**: open the link on your phone and laptop, pick two codenames, send a message and vote. Both should update instantly.
-- [ ] **7. Unlock organiser mode**: notice board → *Enter organiser code* → paste the organiser code the setup script printed (it's also in `.env` as `ADMIN_CODE`). The summons starts as *Friday 30 October* at *CIGENE*; tap any text on the board to change it (name, when, where, notices, rite titles), then post your starting notices and propose the starting rites. Edits show for everyone straight away.
+- [ ] **7. Unlock organiser mode**: notice board → *Enter organiser code* → enter `salmosalar` (or your own `ADMIN_CODE` if you set one). The summons starts as *Friday 30 October* at *CIGENE*; tap any text on the board to change it (name, when, where, notices, rite titles), then post your starting notices and propose the starting rites. Edits show for everyone straight away.
 - [ ] **8. Share the link** (and the passcode, if you set one) with your colleagues.
 
 ### Updating
@@ -109,7 +109,7 @@ Starts a throwaway server with a temporary database and checks the password, joi
 | Setting | What it does | Default |
 |---|---|---|
 | `PARTY_PASSCODE` | Password needed at the door. Empty means anyone with the link gets in. | empty |
-| `ADMIN_CODE` | Organiser code. Empty disables organiser mode. | empty |
+| `ADMIN_CODE` | Organiser code. Empty uses the built-in code `salmosalar`. | `salmosalar` |
 | `PARTY_PORT` | Port on the instance's localhost that the web server forwards to. | `8080` |
 | `MAX_PLAYERS` | Maximum number of codenames. | `200` |
 
