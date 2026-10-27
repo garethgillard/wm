@@ -52,7 +52,7 @@ export function JoinSheet({ current, players, me, onSave, onClose }) {
   return (
     <Sheet
       title={current ? 'Change your disguise' : 'Take your vows'}
-      lede={current ? null : 'Members of the VM Cult are known only by their secret names. Choose yours, then your familiar and your robe.'}
+      lede={current ? null : 'Members of the WM Cult are known only by their secret names. Choose yours, then your familiar and your robe.'}
       onSubmit={submit}
       onClose={onClose}
       actions={<>

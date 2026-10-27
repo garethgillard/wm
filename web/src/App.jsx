@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { DEMO, useParty } from './lib/useParty'
+import { DEMO, lsGet, lsSet, useParty } from './lib/useParty'
 import { DEMO_ADMIN_CODE } from './lib/demoServer'
 import { errorText, nameOf } from './lib/format'
 import { Avatar, SvgDefs } from './components/Cult'
@@ -8,6 +8,7 @@ import { Chat } from './components/Chat'
 import { RitualTable } from './components/RitualTable'
 import { Board } from './components/Board'
 import { InfoSheet, JoinSheet, OrganiserSheet, PasscodeSheet } from './components/Sheets'
+import { Landing } from './components/Landing'
 
 function useMedia(query) {
   const [match, setMatch] = useState(() => window.matchMedia(query).matches)
@@ -58,6 +59,7 @@ export default function App() {
   const [party, actions] = useParty()
   const [sheet, setSheet] = useState(null) // 'join' | 'info' | 'organiser'
   const [boardOpen, setBoardOpen] = useState(false)
+  const [entered, setEntered] = useState(() => lsGet('wm-entered') === '1') // the landing page shows once per browser
   const [toast, showToast] = useToast()
   const narrow = useMedia('(max-width: 759px)')
   const prompted = useRef(false)
@@ -66,10 +68,12 @@ export default function App() {
   const joined = !!(me && players[me])
   const unvoted = joined ? activities.filter(a => !votes[me]?.[a.id]).length : 0
 
-  // Ask newcomers to take their vows once, as soon as the data has loaded.
+  // Ask newcomers to take their vows once they're through the door and the data has loaded.
   useEffect(() => {
-    if (ready && connected && !joined && !prompted.current) { prompted.current = true; setSheet('join') }
-  }, [ready, connected, joined])
+    if (entered && ready && connected && !joined && !prompted.current) { prompted.current = true; setSheet('join') }
+  }, [entered, ready, connected, joined])
+
+  function enter() { lsSet('wm-entered', '1'); setEntered(true) }
 
   useEffect(() => {
     if (!narrow || !boardOpen) return
@@ -119,7 +123,7 @@ export default function App() {
       {DEMO && (
         <div className="demo-bar">
           <span><strong>Demo.</strong> Everyone else is simulated. Organiser code <code>{DEMO_ADMIN_CODE}</code></span>
-          <button type="button" className="linkbtn" onClick={() => { actions.resetDemo(); prompted.current = false }}>Reset demo</button>
+          <button type="button" className="linkbtn" onClick={() => { actions.resetDemo(); prompted.current = false; lsSet('wm-entered', null); setEntered(false) }}>Reset demo</button>
         </div>
       )}
       <Header party={party} boardOpen={boardOpen} unvoted={unvoted}
@@ -152,7 +156,8 @@ export default function App() {
         <OrganiserSheet hint={DEMO ? `In the demo the code is "${DEMO_ADMIN_CODE}".` : null}
           onUnlock={async code => { await actions.unlockAdmin(code); showToast('Organiser mode is on') }} onClose={() => setSheet(null)} />
       )}
-      {locked && <PasscodeSheet wrong={party.passWrong} onSubmit={actions.enterPasscode} />}
+      {locked && entered && <PasscodeSheet wrong={party.passWrong} onSubmit={actions.enterPasscode} />}
+      {!entered && <Landing onEnter={enter} />}
       {toast && <div className="toast" role="status">{toast}</div>}
     </div>
   )

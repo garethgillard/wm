@@ -27,12 +27,89 @@ function seatLayout(count) {
   })
 }
 
-const TABLE_CANDLES = [
-  { a: -150, h: 34 }, { a: -90, h: 46 }, { a: -30, h: 30 }, { a: 30, h: 40 }, { a: 150, h: 36 }, { a: 90, h: 28 },
-].map(c => {
-  const r = (c.a * Math.PI) / 180
-  return { x: CX + 150 * Math.cos(r), y: CY + 54 * Math.sin(r), h: c.h, delay: (Math.abs(c.a) % 7) / 10 }
-}).sort((a, b) => a.y - b.y)
+const TABLE_ITEMS = [
+  ...[{ a: -150, h: 34 }, { a: -90, h: 46 }, { a: -30, h: 30 }, { a: 30, h: 40 }, { a: 150, h: 36 }, { a: 90, h: 28 }].map(c => {
+    const r = (c.a * Math.PI) / 180
+    return { kind: 'candle', x: CX + 150 * Math.cos(r), y: CY + 54 * Math.sin(r), h: c.h, delay: (Math.abs(c.a) % 7) / 10 }
+  }),
+  { kind: 'cup', x: CX + 66, y: CY - 32 },
+  { kind: 'platter', x: CX - 72, y: CY - 30 },
+].sort((a, b) => a.y - b.y)
+
+// A salmon in profile, facing right, centred on (0, 0).
+function Salmon() {
+  return (
+    <g>
+      <path d="M-25 0 L-37 -9 L-33 0 L-37 9 Z" fill="#c25d48" />
+      <path d="M-26 0 C-18 -9 8 -10 20 -3 C24 -1 24 1 20 3 C8 10 -18 9 -26 0 Z" fill="#e8866c" />
+      <path d="M-24 -1.5 C-14 -7.5 8 -8.5 19 -3" fill="none" stroke="#9c4535" strokeWidth="2.4" strokeLinecap="round" />
+      <path d="M-5 -7.5 L1 -12.5 L4 -7 Z" fill="#c25d48" />
+      <path d="M-14 1 C-6 3 6 3 14 1" fill="none" stroke="#f6c2ae" strokeWidth="1.1" strokeLinecap="round" opacity="0.8" />
+      <circle cx="-8" cy="-4" r="0.9" fill="#5e2a20" /><circle cx="-2" cy="-5" r="0.9" fill="#5e2a20" /><circle cx="4" cy="-4.5" r="0.9" fill="#5e2a20" />
+      <circle cx="15" cy="-1.6" r="1.5" fill="#1d1414" />
+    </g>
+  )
+}
+
+// A cup of melange: coffee under milk foam, on a saucer. `tail` adds the secret ingredient.
+function Melange({ tail = false, steam = true }) {
+  return (
+    <g>
+      <ellipse cx="0" cy="0" rx="20" ry="5" fill="#e7e0d2" />
+      <ellipse cx="0" cy="-0.8" rx="13" ry="3" fill="#cfc6b4" />
+      <path d="M12 -16 C21 -16 21 -6 10 -6" fill="none" stroke="#f3eee4" strokeWidth="3" />
+      <path d="M-13 -20 L13 -20 L10 -3 Q0 1.5 -10 -3 Z" fill="#f3eee4" />
+      <path d="M-13 -20 L13 -20 L12.2 -16 Q0 -13 -12.2 -16 Z" fill="#d9d0bf" opacity="0.6" />
+      <ellipse cx="0" cy="-20" rx="13" ry="3.6" fill="#6b3f22" />
+      <ellipse cx="0" cy="-20.4" rx="11" ry="2.7" fill="#f4e4c4" />
+      {tail && <path d="M-1.5 -21 C-2.5 -26 -1 -30 0.5 -32 L-5 -39 L1.5 -36 L6 -40.5 L3.6 -32 C4.6 -28 3.8 -24.5 2.8 -21 Z" fill="#e8866c" stroke="#9c4535" strokeWidth="0.6" />}
+      {steam && (
+        <g className="steam" fill="none" stroke="#efe6d4" strokeWidth="1.4" strokeLinecap="round" opacity="0.55">
+          <path d="M-5 -26 C-8 -31 -2 -34 -5 -39" />
+          <path d="M5 -27 C2 -32 8 -35 5 -41" />
+        </g>
+      )}
+    </g>
+  )
+}
+
+function Platter() {
+  return (
+    <g>
+      <ellipse cx="0" cy="2" rx="34" ry="9" fill="#000" opacity="0.4" />
+      <ellipse cx="0" cy="0" rx="32" ry="8.5" fill="url(#silver)" />
+      <ellipse cx="0" cy="-0.5" rx="26" ry="6.2" fill="none" stroke="#f1f3f5" strokeOpacity="0.35" />
+      <g transform="translate(0 -3) scale(0.78 0.6)"><Salmon /></g>
+      <path d="M-20 3 l-4 -3 M-20 3 l-1 -4 M18 4 l4 -2 M18 4 l1 -4" stroke="#5f7d3a" strokeWidth="1.2" strokeLinecap="round" />
+    </g>
+  )
+}
+
+function SalmonPortrait({ x, y }) {
+  return (
+    <g transform={`translate(${x} ${y})`}>
+      <ellipse rx="37" ry="47" fill="#000" opacity="0.5" transform="translate(3 4)" />
+      <ellipse rx="36" ry="46" fill="url(#gold)" />
+      <ellipse rx="31" ry="41" fill="none" stroke="#3b2a10" strokeWidth="1.5" />
+      <ellipse rx="29" ry="39" fill="url(#canvas)" />
+      <g transform="rotate(-32) scale(0.92)"><Salmon /></g>
+      <rect x="-13" y="49" width="26" height="7" rx="1" fill="url(#gold)" />
+    </g>
+  )
+}
+
+function MelangePainting({ x, y }) {
+  return (
+    <g transform={`translate(${x} ${y})`}>
+      <rect x="-33" y="-41" width="70" height="86" fill="#000" opacity="0.5" />
+      <rect x="-36" y="-44" width="72" height="88" fill="url(#gold)" />
+      <rect x="-31" y="-39" width="62" height="78" fill="none" stroke="#3b2a10" strokeWidth="1.5" />
+      <rect x="-29" y="-37" width="58" height="74" fill="url(#canvas)" />
+      <g transform="translate(0 22) scale(1.25)"><Melange tail steam={false} /></g>
+      <rect x="-13" y="47" width="26" height="7" rx="1" fill="url(#gold)" />
+    </g>
+  )
+}
 
 function Candle({ x, y, h, delay }) {
   return (
@@ -71,7 +148,7 @@ function Banner({ x }) {
       <circle cx="38" cy="34" r="4" fill="url(#gold)" />
       <path d="M-30 36 H30 V188 L0 168 L-30 188 Z" fill="url(#banner)" />
       <path d="M-24 40 V176 M24 40 V176" stroke="#c9a55c" strokeOpacity="0.35" />
-      <g color="#c9a55c" opacity="0.85"><use href="#vm-sigil" x="-20" y="80" width="40" height="40" /></g>
+      <g color="#c9a55c" opacity="0.85"><use href="#wm-sigil" x="-20" y="80" width="40" height="40" /></g>
     </g>
   )
 }
@@ -169,6 +246,12 @@ export function RitualTable({ party }) {
           <radialGradient id="vignette" cx="0.5" cy="0.48" r="0.75">
             <stop offset="0.55" stopColor="#000" stopOpacity="0" /><stop offset="1" stopColor="#000" stopOpacity="0.85" />
           </radialGradient>
+          <radialGradient id="canvas" cx="0.45" cy="0.35" r="0.8">
+            <stop offset="0" stopColor="#3a2b1f" /><stop offset="1" stopColor="#120d0a" />
+          </radialGradient>
+          <linearGradient id="silver" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="#d9dde2" /><stop offset="1" stopColor="#7d838b" />
+          </linearGradient>
           <filter id="fog-blur" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="14" /></filter>
         </defs>
 
@@ -180,8 +263,10 @@ export function RitualTable({ party }) {
         <path d="M322 250 V120 Q322 58 400 36 Q478 58 478 120 V250" fill="none" stroke="#2c2431" strokeWidth="6" />
         <Banner x={248} />
         <Banner x={552} />
-        <Torch x={120} />
-        <Torch x={680} />
+        <Torch x={80} />
+        <Torch x={720} />
+        <SalmonPortrait x={165} y={112} />
+        <MelangePainting x={635} y={112} />
         <rect x="0" y="0" width="34" height="500" fill="#0c0a0e" />
         <rect x="766" y="0" width="34" height="500" fill="#0c0a0e" />
         <path d="M34 0 V500 M766 0 V500" stroke="#2c2431" strokeWidth="2" />
@@ -198,9 +283,11 @@ export function RitualTable({ party }) {
         <ellipse cx={CX} cy={CY} rx={TABLE.rx * 0.9} ry={TABLE.ry * 0.9} fill="none" stroke="url(#gold)" strokeOpacity="0.55" strokeWidth="1.6" />
         <ellipse cx={CX} cy={CY} rx={TABLE.rx * 0.84} ry={TABLE.ry * 0.84} fill="none" stroke="#c9a55c" strokeOpacity="0.25" strokeDasharray="2 7" />
         <g className="table-sigil" color="#d0453a" transform={`translate(${CX} ${CY}) scale(1 0.37)`}>
-          <use href="#vm-sigil" x="-92" y="-92" width="184" height="184" filter="url(#soft-glow)" />
+          <use href="#wm-sigil" x="-92" y="-92" width="184" height="184" filter="url(#soft-glow)" />
         </g>
-        {TABLE_CANDLES.map((c, i) => <Candle key={i} {...c} />)}
+        {TABLE_ITEMS.map((item, i) =>
+          item.kind === 'candle' ? <Candle key={i} {...item} />
+            : <g key={i} transform={`translate(${item.x} ${item.y})`}>{item.kind === 'cup' ? <Melange /> : <Platter />}</g>)}
 
         {front.map(renderSeat)}
 

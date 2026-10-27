@@ -13,13 +13,13 @@ export const ROBES = [
   { name: 'Gilt', fill: '#6e531f', lit: '#b38a3c' },
 ]
 
-export const IDEAS = ['Costume contest', 'Tarot readings', 'Pumpkin carving', 'Murder mystery', 'Horror film night', 'Ghost story circle', 'Candlelit dinner', 'Séance']
+export const IDEAS = ['Costume contest', 'Tarot readings', 'Pumpkin carving', 'Murder mystery', 'Horror film night', 'Ghost story circle', 'Melange tasting', 'Séance']
 
 export const HISTORY = 300 // messages kept in the browser
 
 const TITLES = ['Acolyte', 'Oracle', 'Keeper', 'Warden', 'Seer', 'Herald', 'Archivist', 'Envoy']
-const ADJ = ['Velvet', 'Hollow', 'Ashen', 'Gilded', 'Silent', 'Crimson', 'Veiled', 'Waning', 'Moonlit', 'Obsidian', 'Shrouded', 'Pale', 'Ember', 'Midnight', 'Sable', 'Wandering']
-const NOUN = ['Moth', 'Raven', 'Owl', 'Fox', 'Serpent', 'Hare', 'Toad', 'Bat', 'Lynx', 'Stag', 'Goat', 'Wolf', 'Spider', 'Crow', 'Elk', 'Newt']
+const ADJ = ['Velvet', 'Hollow', 'Ashen', 'Gilded', 'Silent', 'Crimson', 'Veiled', 'Waning', 'Moonlit', 'Obsidian', 'Shrouded', 'Pale', 'Ember', 'Midnight', 'Sable', 'Roasted']
+const NOUN = ['Moth', 'Raven', 'Owl', 'Fox', 'Serpent', 'Hare', 'Toad', 'Bat', 'Lynx', 'Stag', 'Goat', 'Wolf', 'Spider', 'Crow', 'Elk', 'Salmon']
 
 export const rand = n => Math.floor(Math.random() * n)
 const pick = list => list[rand(list.length)]

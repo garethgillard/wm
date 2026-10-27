@@ -1,4 +1,4 @@
-// Shared drawings: the VM sigil, robed and masked figures, chairs and small avatars.
+// Shared drawings: the WM sigil, robed and masked figures, chairs and small avatars.
 // Every drawing uses local coordinates with the seat point at (0, 0) and the hood tip near y = -118.
 import { EMOJI, ROBES } from '../lib/constants'
 
@@ -34,7 +34,7 @@ export function SvgDefs() {
           <feGaussianBlur stdDeviation="3" result="b" />
           <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
         </filter>
-        <symbol id="vm-sigil" viewBox="-50 -50 100 100">
+        <symbol id="wm-sigil" viewBox="-50 -50 100 100">
           <g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
             <circle r="46" strokeWidth="2.2" />
             <circle r="40.5" strokeWidth="0.9" />
@@ -43,8 +43,12 @@ export function SvgDefs() {
             ))}
             <path d="M0 -36 L31.2 18 L-31.2 18 Z" strokeWidth="1.8" />
             <path d="M-15 -4 Q0 -16 15 -4 Q0 8 -15 -4 Z" strokeWidth="1.6" />
-            <circle cy="-4" r="4.2" fill="currentColor" stroke="none" />
-            <path d="M-14 26 L-9 38 L-4 26 M2 38 L2 26 L7 33 L12 26 L12 38" strokeWidth="1.6" />
+            {/* the pupil is a coffee bean */}
+            <g transform="translate(0 -4) rotate(28) scale(0.72) translate(0 4)" fill="currentColor" stroke="none">
+              <path d="M-0.7 -9.6 C-5.4 -8.6 -5.4 0.6 -0.7 1.6 C-2.6 -1.6 -2.6 -6.4 -0.7 -9.6 Z" />
+              <path d="M0.7 -9.6 C5.4 -8.6 5.4 0.6 0.7 1.6 C2.6 -1.6 2.6 -6.4 0.7 -9.6 Z" />
+            </g>
+            <path d="M-14.5 26 L-11.5 38 L-8.5 30 L-5.5 38 L-2.5 26 M3.5 38 L3.5 26 L9 33 L14.5 26 L14.5 38" strokeWidth="1.6" />
           </g>
         </symbol>
       </defs>
@@ -55,7 +59,7 @@ export function SvgDefs() {
 export function Sigil({ className, title }) {
   return (
     <svg className={className} viewBox="-50 -50 100 100" role={title ? 'img' : undefined} aria-label={title} aria-hidden={title ? undefined : 'true'}>
-      <use href="#vm-sigil" x="-50" y="-50" width="100" height="100" />
+      <use href="#wm-sigil" x="-50" y="-50" width="100" height="100" />
     </svg>
   )
 }

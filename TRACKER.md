@@ -5,8 +5,9 @@ One step at a time. Tick each box when it's done.
 ## 1. Shape it in the demo
 - [x] Rebuild the page in React with a demo mode (simulated colleagues)
 - [x] Layout: chat left, ritual table centre, notice board right; phone drop-down board
-- [x] VM Cult Halloween theme (first pass)
-- [ ] Theme details and tweaks from G
+- [x] WM Cult Halloween theme (first pass)
+- [x] Rename to WM (Wiener Melange), coffee + salmon touches, WM landing page, longer phone chat
+- [ ] Further tweaks from G
 - [ ] Final look over the demo on phone and desktop
 
 ## 2. Get it ready

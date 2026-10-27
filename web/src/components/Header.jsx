@@ -8,13 +8,13 @@ export function Header({ party, boardOpen, unvoted, onToggleBoard, onIdentity })
   const meta = [info?.when, info?.where].filter(Boolean).join(' · ')
   const joined = !!players[me]
 
-  useEffect(() => { document.title = `${name} · The VM Cult` }, [name])
+  useEffect(() => { document.title = `${name} · The WM Cult` }, [name])
 
   return (
     <header className="masthead">
       <Sigil className="masthead-sigil" />
       <div className="masthead-title">
-        <p className="eyebrow">The VM Cult {!connected && ready && <span className="offline">· reconnecting…</span>}</p>
+        <p className="eyebrow">The WM Cult {!connected && ready && <span className="offline">· reconnecting…</span>}</p>
         <h1>{name}</h1>
         {meta && <p className="meta">{meta}</p>}
       </div>

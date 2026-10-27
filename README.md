@@ -1,6 +1,6 @@
-# Party HQ: The VM Cult
+# Party HQ: The WM Cult
 
-A live, Halloween-themed gathering room for planning a work party. Everyone takes their vows with a **secret name**, an animal **familiar** and a **robe**, whispers in the chat, and votes **Aye** or **Nay** on the proposed rites. No accounts: people open the link, pick a name and take a seat.
+A live, Halloween-themed gathering room for planning a work party. First-time visitors land on a black page with the WM letters and an Enter button. Everyone takes their vows with a **secret name**, an animal **familiar** and a **robe**, whispers in the chat, and votes **Aye** or **Nay** on the proposed rites. No accounts: people open the link, pick a name and take a seat.
 
 - **Whispers** (left): live chat with "is whispering…" and day separators
 - **The ritual table** (centre): a candlelit dungeon round table where every member sits as a robed, masked figure. Their candle is lit while they are here; empty chairs wait for newcomers. Tap a figure to see its name
@@ -8,6 +8,7 @@ A live, Halloween-themed gathering room for planning a work party. Everyone take
 - Phones: table on top, chat below, and the board drops down from the header
 - Propose rites from the board or by typing `/idea Séance` in the chat
 - Optional password at the door; an organiser code for you to edit the summons, post notices and remove any rite
+- Wiener Melange touches throughout: a coffee-bean pupil in the sigil, the founder's salmon portrait, a melange painting with a suspicious tail, and coffee beside the salmon on the table
 - Everything stays on your server: SQLite database, self-hosted fonts, no third-party requests
 
 **Stack:** React 19 + Vite for the page, Python 3.12 + FastAPI + WebSockets for the server, SQLite for storage. Docker builds both into one container.

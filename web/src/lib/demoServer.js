@@ -5,7 +5,7 @@
 import { rand } from './constants'
 
 export const DEMO_ADMIN_CODE = 'demo'
-const STORE_KEY = 'partyhq-demo-v2'
+const STORE_KEY = 'partyhq-demo-v3'
 
 const BOTS = [
   { id: 'bot-hare', codename: 'Keeper Ashen Hare', emoji: 12, color: 1 },
@@ -14,7 +14,7 @@ const BOTS = [
   { id: 'bot-toad', codename: 'Seer Crimson Toad', emoji: 4, color: 4 },
   { id: 'bot-cat', codename: 'The Pale Oracle', emoji: 2, color: 6 },
   { id: 'bot-goat', codename: 'Herald Ember Goat', emoji: 8, color: 7 },
-  { id: 'bot-octo', codename: 'Archivist of the Deep', emoji: 10, color: 3 },
+  { id: 'bot-fish', codename: 'Keeper of the Melange', emoji: 23, color: 3 },
 ]
 const LINES = [
   'The candles are ordered. Black, obviously.',
@@ -27,8 +27,10 @@ const LINES = [
   'Masks on at the door, I assume?',
   "I'll book whichever rite wins by Friday.",
   'The basement room by the freezers has excellent acoustics for chanting.',
+  'Why does the coffee smell faintly of the fjord?',
+  'Second cup of melange. I feel strangely like swimming upstream.',
 ]
-const BOT_IDEAS = ['Pumpkin carving', 'Ghost story circle', 'Candlelit dinner']
+const BOT_IDEAS = ['Salmon and coffee pairing', 'Pumpkin carving', 'Ghost story circle']
 const REACTIONS = ['{t}? The circle approves.', '{t} could work.', '{t}. Intriguing.', 'Not sure about {t}, but I will honour the vote.']
 
 function seed() {
@@ -48,7 +50,8 @@ function seed() {
     notices: [
       { id: 'n1', text: 'Dress code: a dark robe and a mask. Animal ears encouraged.', ts: now - 70 * min },
       { id: 'n2', text: 'Bring something for the offering table. Snacks count.', ts: now - 65 * min },
-      { id: 'n3', text: 'Cast your votes by Wednesday so the rites can be booked.', ts: now - 60 * min },
+      { id: 'n3', text: 'The sacred melange will be served. Do not ask what is in it.', ts: now - 62 * min },
+      { id: 'n4', text: 'Cast your votes by Wednesday so the rites can be booked.', ts: now - 60 * min },
     ],
     players: BOTS.map((b, i) => ({ ...b, joinedAt: now - (90 - i * 8) * min })),
     activities: acts,
@@ -64,6 +67,7 @@ function seed() {
       msg('bot-hare', 'join', '', 90),
       msg('bot-hare', 'msg', 'The circle gathers on Friday. Robes are mandatory.', 72),
       msg('bot-owl', 'msg', 'Finally. I have had the mask ready since August.', 70),
+      msg('bot-fish', 'msg', 'The melange will be brewed to the old recipe. You know the one.', 55),
       msg('bot-owl', 'suggest', 'Murder mystery', 44, 'a1'),
       msg('bot-toad', 'suggest', 'Séance in the basement', 38, 'a2'),
       msg('bot-wolf', 'msg', 'A séance in the basement with the freezers humming would be properly unsettling.', 36),
@@ -150,7 +154,7 @@ export function connectDemo({ onOpen, onMessage, onClose }) {
     later(tick, 9000 + rand(9000))
   }
   function churn() {
-    if (online.has('bot-octo')) online.delete('bot-octo'); else online.add('bot-octo')
+    if (online.has('bot-fish')) online.delete('bot-fish'); else online.add('bot-fish')
     presence()
     later(churn, 35000 + rand(30000))
   }
