@@ -27,7 +27,7 @@ MAX_PLAYERS = int(os.environ.get("MAX_PLAYERS", "200"))
 MAX_CONNECTIONS = int(os.environ.get("MAX_CONNECTIONS", "500"))
 MAX_NOTICES = 20
 RSVP = ("yes", "maybe", "no")
-EMOTE_COUNT = 9  # must match EMOTES in web/src/lib/constants.js
+EMOTE_COUNT = 18  # must match EMOTES in web/src/lib/constants.js
 ORGANISER_ANYTIME = {"kick", "delete_message", "edit_idea", "remove_idea", "info", "notice", "edit_notice", "remove_notice"}
 
 # The React build (web/dist). Run `npm run build` in web/ first, or use Docker.

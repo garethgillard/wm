@@ -400,7 +400,7 @@ input.inline-field{height:40px;padding:0 11px}
 .emote-btn.open span{font-size:16px}
 .emote-say{font-family:var(--display);font-weight:600;font-size:13px;letter-spacing:.05em;fill:#f1d58f}
 .emote-btn.open{background:rgba(20,17,23,.94);color:var(--bone);border-color:var(--line-gold)}
-.emote-tray{display:grid;grid-template-columns:repeat(3,44px);gap:4px;padding:6px;border:1px solid var(--line-gold);border-radius:14px;background:rgba(20,17,23,.95);
+.emote-tray{display:grid;grid-template-columns:repeat(6,44px);gap:4px;padding:6px;border:1px solid var(--line-gold);border-radius:14px;background:rgba(20,17,23,.95);
   box-shadow:var(--shadow);animation:fade-in .15s ease}
 .emote-tray button{width:44px;height:44px;border:0;border-radius:10px;background:none;font-size:23px;line-height:1;cursor:pointer;transition:transform .12s,background .12s}
 .emote-tray button:hover{background:rgba(255,255,255,.08);transform:scale(1.15)}

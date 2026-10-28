@@ -35,11 +35,16 @@ export const HISTORY = 300 // messages kept in the browser
 export const REACTIONS = ['👍', '❤️', '😂', '😮', '💀', '🔥', '☕', '🐟']
 
 // Emotes at the table: pop up over your figure for everyone watching. `say` is shown under the emoji.
-// Keep the count equal to EMOTE_COUNT in app/main.py (9).
+// Keep the count equal to EMOTE_COUNT in app/main.py (18).
 export const EMOTES = [
   { emoji: '👋', label: 'Wave' }, { emoji: '😂', label: 'Laugh' }, { emoji: '🙌', label: 'Hail', say: 'Hail!' }, { emoji: '❤️', label: 'Love' },
-  { emoji: '🔥', label: 'Fire' }, { emoji: '💀', label: 'Dead' }, { emoji: '☕', label: 'Toast the Melange', say: 'Wiener Melange!' }, { emoji: '🔮', label: 'Prophesy' },
+  { emoji: '🔥', label: 'Fire', say: 'Burn it all!' }, { emoji: '💀', label: 'Dead', say: 'Death to NMBU!' }, { emoji: '☕', label: 'Toast the Melange', say: 'Wiener Melange!' }, { emoji: '🔮', label: 'Prophesy' },
   { emoji: '🐟', label: 'Salmon', say: 'Salmo salar!' },
+  // the science row
+  { emoji: '🧬', label: 'DNA', say: 'ATGCGTACGTTAGC' }, { emoji: '👯', label: 'Duplicate', say: 'Whole genome duplication!' },
+  { emoji: '📈', label: 'Significant', say: 'p < 0.05!' }, { emoji: '🦠', label: 'Alive', say: "It's alive!" },
+  { emoji: '🔬', label: 'Peer review', say: 'Peer review this!' }, { emoji: '🥂', label: 'Cheers', say: 'Skål!' },
+  { emoji: '👏', label: 'Clap' }, { emoji: '😱', label: 'Scream' }, { emoji: '🎃', label: 'Pumpkin' },
 ]
 export const DEFAULT_NAME = 'The Melange Conclave'
 

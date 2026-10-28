@@ -432,7 +432,8 @@ export function RitualTable({ party, onOpenMembers, onEmote }) {
           if (!seat) return null
           const emote = EMOTES[bubble.e]
           if (!emote) return null
-          const width = emote.say ? emote.say.length * 8.4 + 22 : 0
+          // capitals are wider than small letters in this font
+          const width = emote.say ? [...emote.say].reduce((w, ch) => w + (/[A-Z]/.test(ch) ? 11 : 8.4), 22) : 0
           // keep the caption inside the picture near the side walls
           const x = Math.min(Math.max(seat.x, 40 + width / 2), 760 - width / 2)
           return (
