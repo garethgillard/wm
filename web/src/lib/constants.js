@@ -38,7 +38,7 @@ export const REACTIONS = ['👍', '❤️', '😂', '😮', '💀', '🔥', '☕
 // Keep the count equal to EMOTE_COUNT in app/main.py (18).
 export const EMOTES = [
   { emoji: '👋', label: 'Wave' }, { emoji: '😂', label: 'Laugh' }, { emoji: '🙌', label: 'Hail', say: 'Hail!' }, { emoji: '❤️', label: 'Love' },
-  { emoji: '🔥', label: 'Fire', say: 'Burn it all!' }, { emoji: '💀', label: 'Dead', say: 'Death to NMBU!' }, { emoji: '☕', label: 'Toast the Melange', say: 'Wiener Melange!' }, { emoji: '🔮', label: 'Prophesy' },
+  { emoji: '🔥', label: 'Fire', say: 'Burn it all!' }, { emoji: '💀', label: 'Dead', say: 'Death to NMBU!' }, { emoji: '☕', label: 'Toast the Melange', say: 'Wiener Melange!' }, { emoji: '🔮', label: 'Chant', say: '*chanting sounds*' },
   { emoji: '🐟', label: 'Salmon', say: 'Salmo salar!' },
   // the science row
   { emoji: '🧬', label: 'DNA', say: 'ATGCGTACGTTAGC' }, { emoji: '👯', label: 'Duplicate', say: 'Whole genome duplication!' },
