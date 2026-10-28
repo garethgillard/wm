@@ -8,8 +8,11 @@ import { EMOJI, EMOTES, ROBES, roman } from '../lib/constants'
 import { RSVP, nameOf } from '../lib/format'
 
 const CX = 400
-const CY = 292
-const TABLE = { rx: 228, ry: 84 }
+// The table sits low and a little narrower than the room, so the back row stays clear of the
+// paintings and banners and the side seats stay inside the frame.
+const CY = 318
+const TABLE = { rx: 200, ry: 74 }
+const SEAT = { rx: 258, ry: 80, dip: 30 } // the ring of chairs round the table
 
 // Seats sit on an ellipse round the table. The back row is pulled down so the table hides
 // their laps, and figures shrink a little with distance and as the circle fills up.
@@ -21,8 +24,8 @@ function seatLayout(count) {
     const s = Math.sin(angle)
     return {
       k,
-      x: CX + 292 * Math.cos(angle),
-      y: CY + 92 * s + 34 * s * s,
+      x: CX + SEAT.rx * Math.cos(angle),
+      y: CY + SEAT.ry * s + SEAT.dip * s * s,
       back: s < -0.05,
       scale: crowd * (0.76 + 0.4 * ((s + 1) / 2)), // nearer figures are bigger
     }
@@ -45,10 +48,10 @@ function motion(id) {
 const TABLE_ITEMS = [
   ...[{ a: -150, h: 34 }, { a: -118, h: 46 }, { a: -30, h: 30 }, { a: 30, h: 40 }, { a: 150, h: 36 }, { a: 90, h: 28 }].map(c => {
     const r = (c.a * Math.PI) / 180
-    return { kind: 'candle', x: CX + 150 * Math.cos(r), y: CY + 54 * Math.sin(r), h: c.h, delay: (Math.abs(c.a) % 7) / 10 }
+    return { kind: 'candle', x: CX + 132 * Math.cos(r), y: CY + 47 * Math.sin(r), h: c.h, delay: (Math.abs(c.a) % 7) / 10 }
   }),
-  { kind: 'cup', x: CX + 66, y: CY - 32 },
-  { kind: 'platter', x: CX - 72, y: CY - 30 },
+  { kind: 'cup', x: CX + 58, y: CY - 27 },
+  { kind: 'platter', x: CX - 63, y: CY - 25 },
 ].sort((a, b) => a.y - b.y)
 
 // A salmon in profile, facing right, centred on (0, 0).
@@ -414,7 +417,7 @@ export function RitualTable({ party, onOpenMembers, onEmote, tight = false }) {
         <ellipse cx={CX} cy={CY} rx={TABLE.rx * 0.9} ry={TABLE.ry * 0.9} fill="none" stroke="url(#gold)" strokeOpacity="0.55" strokeWidth="1.6" />
         <ellipse cx={CX} cy={CY} rx={TABLE.rx * 0.84} ry={TABLE.ry * 0.84} fill="none" stroke="#c9a55c" strokeOpacity="0.25" strokeDasharray="2 7" />
         <g className="table-sigil" color="#d0453a" transform={`translate(${CX} ${CY}) scale(1 0.37)`}>
-          <use href="#wm-sigil" x="-92" y="-92" width="184" height="184" filter="url(#soft-glow)" />
+          <use href="#wm-sigil" x="-80" y="-80" width="160" height="160" filter="url(#soft-glow)" />
         </g>
         {TABLE_ITEMS.map((item, i) =>
           item.kind === 'candle' ? <Candle key={i} {...item} />
