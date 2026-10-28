@@ -46,7 +46,7 @@ export const EMOTES = [
   { emoji: '🐟', label: 'Salmon', say: 'Salmo salar!' }, { emoji: '🔮', label: 'Chant', say: '*chanting sounds*' },
   { emoji: '🧬', label: 'DNA', say: 'ATGCGTACGTTAGC' }, { emoji: '👯', label: 'Duplicate', say: 'Whole genome duplication!' },
   { emoji: '📈', label: 'Significant', say: 'p < 0.05!' }, { emoji: '🦠', label: 'Alive', say: "It's alive!" },
-  { emoji: '🔬', label: 'Peer review', say: 'Peer review this!' },
+  { emoji: '💻', label: 'Laptop', say: 'Death to Orion!' },
 ]
 export const DEFAULT_NAME = 'The Melange Conclave'
 
