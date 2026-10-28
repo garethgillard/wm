@@ -193,8 +193,9 @@ async def handle(conn: Conn, msg: dict) -> None:
         if not conn.spend(1):
             return await ack(False, error="slow")
         before = store.player_by_token(conn.token_hash)
-        # A secret name is fixed once taken; only the familiar, robe and attendance can change.
-        codename = before["codename"] if before else clean(msg.get("codename"), 28)
+        # Members can rename themselves. Old whispers show the new name (they point at the member,
+        # not the name) and no chat line is posted. A page that sends no name keeps the current one.
+        codename = clean(msg.get("codename"), 28) or (before["codename"] if before else "")
         emoji, color = msg.get("emoji"), msg.get("color")
         if len(codename) < 2 or not isinstance(emoji, int) or not isinstance(color, int) \
                 or not 0 <= emoji < EMOJI_COUNT or not 0 <= color < COLOR_COUNT:
@@ -202,7 +203,7 @@ async def handle(conn: Conn, msg: dict) -> None:
         rsvp = msg.get("rsvp")
         if rsvp is not None and rsvp not in RSVP:
             return await ack(False, error="invalid")
-        if not before and store.codename_taken(codename, None):
+        if store.codename_taken(codename, before["id"] if before else None):
             return await ack(False, error="taken")
         if not before and store.player_count() >= MAX_PLAYERS:
             return await ack(False, error="full")

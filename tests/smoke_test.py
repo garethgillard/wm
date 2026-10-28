@@ -107,7 +107,21 @@ async def run(url: str):
     check("a robe beyond the 16 colours is refused", r["ok"] is False and r["error"] == "invalid")
     r = await b.request("join", codename="Someone Else Entirely", emoji=5, color=2)
     p = await a.expect("player", lambda m: m["player"]["id"] == b_id and m["player"]["emoji"] == 5)
-    check("names are fixed: B changes familiar and robe but keeps the name", r["ok"] and p["player"]["codename"] == "Neon Herring" and p["player"]["color"] == 2)
+    check("B can rename themselves and change familiar and robe", r["ok"] and r["you"] == b_id and p["player"]["codename"] == "Someone Else Entirely" and p["player"]["color"] == 2)
+    r = await b.request("join", codename="agent test PUFFIN", emoji=5, color=2)
+    check("renaming to someone else's name is refused", r["ok"] is False and r["error"] == "taken")
+    r = await b.request("join", codename="someone else ENTIRELY", emoji=5, color=2)
+    check("changing only the capitals of your own name is fine", r["ok"] is True)
+    r = await b.request("join", emoji=5, color=2)
+    check("a page that sends no name keeps the current one", r["ok"] is True)
+    r = await b.request("join", codename="Neon Herring", emoji=5, color=2)
+    p = await a.expect("player", lambda m: m["player"]["id"] == b_id and m["player"]["codename"] == "Neon Herring")
+    peek = Client(url, "peek"); await peek.open()
+    await peek.send(type="hello", token=peek.token, passcode=PASS)
+    st = (await peek.expect("welcome"))["state"]
+    await peek.close()
+    check("renaming posts nothing in the chat", not any(m["pid"] == b_id and m["kind"] not in ("join",) for m in st["messages"]))
+    await asyncio.sleep(3)  # let B's rate-limit allowance refill after all those renames
 
     await a.request("msg", text="Who is ready to plan?")
     m = await b.expect("message", lambda m: m["message"]["kind"] == "msg")

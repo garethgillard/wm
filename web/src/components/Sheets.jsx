@@ -47,9 +47,9 @@ export function JoinSheet({ current, players, me, onSave, onLeave, onClose }) {
   const primary = current ? 'Save' : 'Join'
 
   function submit() {
-    const name = current ? current.codename : codename.trim().replace(/\s+/g, ' ').slice(0, 28)
+    const name = codename.trim().replace(/\s+/g, ' ').slice(0, 28)
     if (name.length < 2) return setError('Your secret name needs at least 2 characters.')
-    if (!current && Object.values(players).some(p => p.codename.toLowerCase() === name.toLowerCase())) return setError(errorText({ error: 'taken' }))
+    if (Object.values(players).some(p => p.id !== me && p.codename.toLowerCase() === name.toLowerCase())) return setError(errorText({ error: 'taken' }))
     if (!rsvp) return setError('Tell the circle whether you will attend.')
     run(name, emoji, color, rsvp)
   }
@@ -57,7 +57,7 @@ export function JoinSheet({ current, players, me, onSave, onLeave, onClose }) {
   return (
     <Sheet
       title={current ? 'Change your disguise' : 'Take your vows'}
-      lede={current ? 'Your secret name is yours for good. The rest can change.' : 'In the WM Cult you are known only by your secret name. Choose well: it cannot be changed.'}
+      lede={current ? 'Change your name, familiar or robe. Your past whispers will carry your new name.' : 'In the WM Cult you are known only by your secret name.'}
       onSubmit={submit}
       onClose={onClose}
       actions={<>
@@ -73,8 +73,7 @@ export function JoinSheet({ current, players, me, onSave, onLeave, onClose }) {
         </svg>
         <span className="preview-name">{codename.trim() || 'Your secret name'}</span>
       </div>
-      {!current && (
-        <div>
+      <div>
           <label className="label" htmlFor="codename">Secret name</label>
           <div className="row">
             <input className="field" id="codename" maxLength={28} required value={codename} onChange={e => setCodename(e.target.value)} />
@@ -88,7 +87,6 @@ export function JoinSheet({ current, players, me, onSave, onLeave, onClose }) {
             </button>
           </div>
         </div>
-      )}
       <div>
         <span className="label">Your familiar</span>
         <div className="emojis">

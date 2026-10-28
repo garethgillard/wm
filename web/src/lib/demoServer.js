@@ -188,10 +188,10 @@ export function connectDemo({ onOpen, onMessage, onClose }) {
 
     if (m.type === 'join') {
       let player = db.players.find(p => p.id === me)
-      // A secret name is fixed once taken; only the familiar, robe and attendance can change.
-      const codename = player ? player.codename : clean(m.codename, 28)
+      // Members can rename themselves; old whispers follow the new name.
+      const codename = clean(m.codename, 28) || (player ? player.codename : '')
       if (codename.length < 2) return ack(false, { error: 'invalid' })
-      if (!player && db.players.some(p => p.codename.toLowerCase() === codename.toLowerCase())) return ack(false, { error: 'taken' })
+      if (db.players.some(p => p.id !== player?.id && p.codename.toLowerCase() === codename.toLowerCase())) return ack(false, { error: 'taken' })
       const created = !player
       if (created) {
         player = { id: 'you-' + nextId(), joinedAt: Date.now() }
