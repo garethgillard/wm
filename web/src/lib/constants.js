@@ -38,18 +38,18 @@ export const REACTIONS = ['👍', '❤️', '😂', '😮', '💀', '🔥', '☕
 export const REACTION_PICKER = [0, 1, 2, 4, 5, 6, 7]
 
 // Emotes at the table: pop up over your figure for everyone watching. `say` is shown under the emoji.
-// Keep the count equal to EMOTE_COUNT in app/main.py (18).
+// Keep the count equal to EMOTE_COUNT in app/main.py (20).
 export const EMOTES = [
   // classics first (no text), then the short captions
   { emoji: '👋', label: 'Wave' }, { emoji: '😂', label: 'Laugh' }, { emoji: '❤️', label: 'Love' },
-  { emoji: '👏', label: 'Clap' }, { emoji: '😱', label: 'Scream' }, { emoji: '🎃', label: 'Pumpkin' },
+  { emoji: '👏', label: 'Clap' }, { emoji: '😱', label: 'Scream' }, { emoji: '🎃', label: 'Pumpkin' }, { emoji: '🪦', label: 'Grave' },
   { emoji: '🙌', label: 'Hail', say: 'Hail!' }, { emoji: '🔥', label: 'Fire', say: 'Burn it all!' }, { emoji: '🥂', label: 'Cheers', say: 'Skål!' },
   // the WM and science specials
   { emoji: '💀', label: 'Dead', say: 'Death to NMBU!' }, { emoji: '☕', label: 'Toast the Melange', say: 'Wiener Melange!' },
   { emoji: '🐟', label: 'Salmon', say: 'Salmo salar!' }, { emoji: '🔮', label: 'Chant', say: '*chanting sounds*' },
   { emoji: '🧬', label: 'DNA', say: 'ATGCGTACGTTAGC' }, { emoji: '👯', label: 'Duplicate', say: 'Whole genome duplication!' },
   { emoji: '📈', label: 'Significant', say: 'p < 0.05!' }, { emoji: '🦠', label: 'Alive', say: "It's alive!" },
-  { emoji: '💻', label: 'Laptop', say: 'Death to Orion!' },
+  { emoji: '💻', label: 'Laptop', say: 'Death to Orion!' }, { emoji: '🧪', label: 'Science', say: 'Science bitches!' },
 ]
 export const DEFAULT_NAME = 'The Melange Conclave'
 
