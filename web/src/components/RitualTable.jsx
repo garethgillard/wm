@@ -3,8 +3,9 @@
 // empty chairs wait for newcomers.
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Chair, Figure } from './Cult'
-import { roman } from '../lib/constants'
-import { nameOf } from '../lib/format'
+import { Dialog } from './Dialog'
+import { EMOJI, ROBES, roman } from '../lib/constants'
+import { RSVP, nameOf } from '../lib/format'
 
 const CX = 400
 const CY = 292
@@ -167,7 +168,33 @@ function Banner({ x }) {
   )
 }
 
-export function RitualTable({ party }) {
+// A big portrait of one member, opened by tapping their figure at the table.
+function CloseUp({ player, me, here, onClose }) {
+  const robe = ROBES[player.color ?? 0]
+  const answer = RSVP[player.rsvp]
+  return (
+    <Dialog label={`${player.codename}, close up`} className="closeup" onClose={onClose}>
+      <svg className="closeup-figure" viewBox="-80 -160 160 182" aria-hidden="true">
+        <ellipse cx="0" cy="-60" rx="78" ry="96" fill="url(#flame-glow)" opacity={here ? 0.5 : 0.18} />
+        <ellipse cx="0" cy="8" rx="62" ry="12" fill="#000" opacity="0.55" />
+        <Chair />
+        <g className="actor" style={motion(player.id)}><Figure player={player} lit={here} /></g>
+      </svg>
+      <h2 className="closeup-name">{player.codename}</h2>
+      <p className="closeup-meta">
+        <span>{EMOJI[player.emoji]} familiar</span>
+        <span className="closeup-robe"><i style={{ background: robe.fill, borderColor: robe.lit }} />{robe.name} robe</span>
+      </p>
+      <p className="closeup-tags">
+        <span className={`tag-pill rsvp-${player.rsvp || 'none'}`}>{answer ? answer.label : 'Undecided'}</span>
+        <span className={`tag-pill${here ? ' here' : ''}`}>{here ? 'Here now' : 'Away'}</span>
+        {player.id === me && <span className="tag-pill you">You</span>}
+      </p>
+    </Dialog>
+  )
+}
+
+export function RitualTable({ party, onOpenMembers }) {
   const { players, online, typing, me, messages } = party
 
   // Whoever just whispered hops in their seat for a moment.
@@ -186,7 +213,7 @@ export function RitualTable({ party }) {
     hopTimers.current[pid] = setTimeout(() => setSpeaking(s => { const n = new Set(s); n.delete(pid); return n }), 1500)
   }, [messages])
   useEffect(() => () => Object.values(hopTimers.current).forEach(clearTimeout), [])
-  const [selected, setSelected] = useState(null)
+  const [closeUp, setCloseUp] = useState(null) // member shown in the close-up box
   const [expanded, setExpanded] = useState(false) // the big view of the chamber
   const lightbox = useRef(null)
 
@@ -225,8 +252,8 @@ export function RitualTable({ party }) {
     return (
       <g key={p.id} className={`seat${isHere ? ' here' : ' away'}${p.id === me ? ' mine' : ''}`} style={{ transform }}
         role="button" tabIndex={0} aria-label={`${nameOf(players, p.id)}${p.id === me ? ' (you)' : ''}${status}${isHere ? ', here now' : ''}`}
-        onClick={e => { e.stopPropagation(); setSelected(selected === p.id ? null : p.id) }}
-        onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelected(selected === p.id ? null : p.id) } }}>
+        onClick={e => { e.stopPropagation(); setCloseUp(p.id) }}
+        onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setCloseUp(p.id) } }}>
         <title>{nameOf(players, p.id)}</title>
         <Chair />
         {p.id === me && <ellipse cx="0" cy="2" rx="44" ry="10" fill="none" stroke="url(#gold)" strokeWidth="2.5" />}
@@ -244,7 +271,7 @@ export function RitualTable({ party }) {
     const p = seat.player
     if (!p) return null
     const top = seat.y - 128 * seat.scale
-    const showName = selected === p.id
+    const showName = false
     const isTyping = typing.includes(p.id)
     if (!showName && p.id !== me && !isTyping) return null
     const label = showName ? nameOf(players, p.id) : p.id === me ? 'You' : ''
@@ -366,7 +393,18 @@ export function RitualTable({ party }) {
           </button>
         </div>
       )}
-      <figcaption>{caption}</figcaption>
+      {onOpenMembers ? (
+        <figcaption className="has-button">
+          <button type="button" className="caption-btn" onClick={onOpenMembers} aria-label="Show everyone who has taken their vows">
+            {caption}
+            <svg className="caption-icon" viewBox="0 0 20 20" aria-hidden="true">
+              <circle cx="7" cy="7" r="3" fill="none" stroke="currentColor" strokeWidth="1.5" />
+              <path d="M2 16 C2.6 12.6 4.6 11 7 11 C9.4 11 11.4 12.6 12 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              <path d="M14 8 H18.5 M14 11.5 H18.5 M14 15 H17" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            </svg>
+          </button>
+        </figcaption>
+      ) : <figcaption>{caption}</figcaption>}
       {expanded && (
         <div className="lightbox" role="dialog" aria-modal="true" aria-label="The chamber">
           <div className="lightbox-scroll" ref={lightbox}>{scene}</div>
@@ -375,6 +413,9 @@ export function RitualTable({ party }) {
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5 L19 19 M19 5 L5 19" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" /></svg>
           </button>
         </div>
+      )}
+      {closeUp && players[closeUp] && (
+        <CloseUp player={players[closeUp]} me={me} here={online.includes(closeUp)} onClose={() => setCloseUp(null)} />
       )}
     </figure>
   )

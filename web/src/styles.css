@@ -358,6 +358,39 @@ input.inline-field{height:40px;padding:0 11px}
 .swatches button[aria-pressed="true"]{border-color:var(--gold-bright);box-shadow:0 0 0 3px rgba(201,165,92,.25)}
 .err{margin:0;color:var(--blood-bright);font-size:14px}
 .sheet-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+
+/* ---------- pop-up boxes (members list, close-ups) ---------- */
+.dialog-layer{z-index:50}
+.dialog{position:relative;width:min(100%,520px);max-height:calc(100dvh - 32px);display:flex;flex-direction:column;
+  background:linear-gradient(180deg,#1e1922,#141117);border:1px solid var(--line-gold);border-radius:8px;box-shadow:var(--shadow),0 0 60px rgba(122,23,38,.25);animation:fade-in .2s ease}
+.dialog-title{margin:0;padding:22px 70px 14px 22px;font-family:var(--display);font-weight:600;font-size:21px;letter-spacing:.08em;color:var(--gold-bright)}
+.dialog-body{overflow-y:auto;overscroll-behavior:contain;padding:0 22px 22px;-webkit-overflow-scrolling:touch}
+.dialog-close{position:absolute;top:10px;right:10px;z-index:1;width:48px;height:48px;display:grid;place-items:center;border-radius:50%;
+  border:1px solid var(--line-gold);background:rgba(20,17,23,.92);color:var(--bone);cursor:pointer}
+.dialog-close svg{width:20px;height:20px}
+.dialog-close:hover{border-color:var(--gold-bright);color:var(--gold-bright)}
+.tally{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 0 18px}
+.tally div{display:flex;flex-direction:column-reverse;align-items:center;padding:10px 6px;border:1px solid var(--line);border-radius:6px;background:rgba(0,0,0,.2)}
+.tally dd{margin:0;font-family:var(--display);font-weight:600;font-size:22px;color:var(--gold-bright)}
+.tally dt{font-size:12px;font-style:italic;color:var(--ash)}
+.dialog .rollcall{display:flex;padding:0;border:0;background:none}
+.dialog .rollcall ul{grid-template-columns:1fr}
+.empty-note{margin:0;font-style:italic;color:var(--ash);text-align:center}
+.closeup{width:min(100%,380px)}
+.closeup .dialog-body{display:flex;flex-direction:column;align-items:center;gap:8px;padding-top:26px;text-align:center}
+.closeup-figure{width:min(62vw,230px);height:auto;filter:drop-shadow(0 10px 24px rgba(0,0,0,.6))}
+.closeup-name{margin:4px 0 0;font-family:var(--display);font-weight:600;font-size:22px;letter-spacing:.06em;line-height:1.2;color:var(--bone)}
+.closeup-meta{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 14px;margin:0;font-style:italic;color:var(--ash)}
+.closeup-robe{display:inline-flex;align-items:center;gap:6px}
+.closeup-robe i{display:inline-block;width:12px;height:12px;border-radius:50%;border:1px solid}
+.closeup-tags{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:6px 0 0}
+.tag-pill{padding:4px 11px;border:1px solid var(--line);border-radius:12px;font-size:12.5px;color:var(--ash)}
+.tag-pill.rsvp-yes,.tag-pill.here,.tag-pill.you{border-color:var(--gold);color:var(--gold-bright)}
+.tag-pill.rsvp-no{color:var(--dim)}
+.ritual figcaption.has-button{padding:0}
+.caption-btn{width:100%;display:flex;align-items:baseline;justify-content:flex-start;gap:4px 12px;padding:12px 16px 14px;border:0;background:none;color:inherit;font:inherit;text-align:inherit;cursor:pointer}
+.caption-btn:hover,.caption-btn:focus-visible{background:rgba(255,255,255,.03)}
+.caption-icon{flex:none;align-self:center;width:20px;height:20px;margin-left:auto;margin-right:8px;color:var(--gold)}
 .stack-fields{display:flex;flex-direction:column;gap:12px}
 
 .toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:40;max-width:calc(100% - 32px);
@@ -406,6 +439,9 @@ input.inline-field{height:40px;padding:0 11px}
   .chamber{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);grid-template-areas:"circle" "chat";gap:10px}
   .scene{max-height:22vh}
   .ritual figcaption{flex-wrap:nowrap;justify-content:flex-start;gap:8px;padding:5px 12px 6px;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .caption-btn{gap:8px;padding:7px 12px 8px;white-space:nowrap;overflow:hidden}
+  .caption-btn > span:not(.count-roman){overflow:hidden;text-overflow:ellipsis}
+  .tally dd{font-size:19px}
   .ritual figcaption > span:last-child{overflow:hidden;text-overflow:ellipsis}
   .count-roman{font-size:15px}
   .chat .panel-head{display:none}

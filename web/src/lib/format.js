@@ -49,7 +49,7 @@ export const nameOf = (players, pid) => players[pid]?.codename || 'A departed so
 
 // Attendance answers, as shown on buttons and in the chat.
 export const RSVP = {
-  yes: { button: 'Yes', short: 'attending', event: 'takes a seat at the table' },
-  maybe: { button: 'Maybe', short: 'maybe', event: 'retreats to the shadows' },
-  no: { button: 'No', short: 'not coming', event: 'sends regrets' },
+  yes: { button: 'Yes', label: 'Attending', short: 'attending', event: 'takes a seat at the table' },
+  maybe: { button: 'Maybe', label: 'Maybe', short: 'maybe', event: 'retreats to the shadows' },
+  no: { button: 'No', label: 'Not coming', short: 'not coming', event: 'sends regrets' },
 }

@@ -9,6 +9,7 @@ import { RitualTable } from './components/RitualTable'
 import { Board } from './components/Board'
 import { JoinSheet, OrganiserSheet, PasscodeSheet } from './components/Sheets'
 import { Landing } from './components/Landing'
+import { Dialog } from './components/Dialog'
 
 function useMedia(query) {
   const [match, setMatch] = useState(() => window.matchMedia(query).matches)
@@ -30,6 +31,21 @@ function useToast() {
     timer.current = setTimeout(() => setMessage(''), 3400)
   }, [])
   return [message, show]
+}
+
+// Headline numbers for the members box.
+function Tally({ party }) {
+  const list = Object.values(party.players)
+  const count = v => list.filter(p => (p.rsvp || 'none') === v).length
+  const items = [
+    [list.length, 'sworn'], [count('yes'), 'attending'], [count('maybe'), 'maybe'],
+    [count('no'), 'not coming'], [count('none'), 'undecided'], [list.filter(p => party.online.includes(p.id)).length, 'here now'],
+  ]
+  return (
+    <dl className="tally">
+      {items.map(([n, label]) => <div key={label}><dt>{label}</dt><dd>{n}</dd></div>)}
+    </dl>
+  )
 }
 
 // Everyone who has joined, grouped by their answer.
@@ -83,6 +99,8 @@ export default function App() {
   const [entered, setEntered] = useState(() => lsGet('wm-entered') === '1') // the landing page shows once per browser
   const [toast, showToast] = useToast()
   const narrow = useMedia('(max-width: 759px)')
+  const compact = useMedia('(max-width: 1179px)') // the member list isn't shown under the table here
+  const [membersOpen, setMembersOpen] = useState(false)
   const prompted = useRef(false)
 
   const { ready, connected, locked, me, players, activities, votes } = party
@@ -170,7 +188,7 @@ export default function App() {
       <main className="chamber">
         <Chat party={party} notice={notice} onSend={send} onVote={vote} onTyping={actions.typing} onDelete={deleteMessage} onReact={react} />
         <section className="panel circle" aria-label="The ritual table">
-          <RitualTable party={party} />
+          <RitualTable party={party} onOpenMembers={compact ? () => setMembersOpen(true) : undefined} />
           {!narrow && <RollCall party={party} onKick={kick} />}
         </section>
         <div className="board-wrap" id="board-panel">
@@ -194,6 +212,12 @@ export default function App() {
           onUnlock={async code => { await actions.unlockAdmin(code); showToast('Organiser mode is on') }} onClose={() => setSheet(null)} />
       )}
       {locked && entered && <PasscodeSheet wrong={party.passWrong} onSubmit={actions.enterPasscode} />}
+      {membersOpen && compact && (
+        <Dialog title="The Sworn" className="members" onClose={() => setMembersOpen(false)}>
+          <Tally party={party} />
+          {Object.keys(players).length ? <RollCall party={party} onKick={kick} /> : <p className="empty-note">No one has taken their vows yet.</p>}
+        </Dialog>
+      )}
       {!entered && <Landing onEnter={enter} />}
       {toast && <div className="toast" role="status">{toast}</div>}
     </div>
