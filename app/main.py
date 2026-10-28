@@ -33,6 +33,19 @@ ORGANISER_ANYTIME = {"kick", "delete_message", "edit_idea", "remove_idea", "info
 # The React build (web/dist). Run `npm run build` in web/ first, or use Docker.
 STATIC = Path(os.environ.get("WEB_DIST", Path(__file__).resolve().parent.parent / "web" / "dist"))
 TOKEN_RE = re.compile(r"^[A-Za-z0-9_-]{20,100}$")
+
+
+def current_build() -> str:
+    """The page build being served (its script file name changes with every release).
+    Browsers compare it with their own and refresh when a new version is live."""
+    try:
+        found = re.search(r"assets/(index-[A-Za-z0-9_-]+\.js)", (STATIC / "index.html").read_text())
+        return found.group(1) if found else ""
+    except OSError:
+        return ""
+
+
+BUILD = current_build()
 SPACES = re.compile(r"\s+")
 
 CSP = (
@@ -439,6 +452,7 @@ async def hello(conn: Conn, msg: dict) -> None:
         "you": conn.pid,
         "admin": conn.admin,
         "hasAdmin": bool(ADMIN_CODE),
+        "build": BUILD,
         "state": store.snapshot(),
     })
     await hub.presence()

@@ -5,6 +5,9 @@ import { connectDemo } from './demoServer'
 import { HISTORY } from './constants'
 
 export const DEMO = import.meta.env.MODE === 'demo'
+// This page's own build: the name of the script file it was loaded from (e.g. index-Bu_MIIoK.js).
+// The server says which build it serves; when they differ, a new version is live.
+export const CLIENT_BUILD = import.meta.env.PROD && !DEMO ? new URL(import.meta.url).pathname.split('/').pop() : ''
 
 const KEYS = { token: 'partyhq-token', pass: 'partyhq-pass', admin: 'partyhq-admin' }
 
@@ -51,7 +54,7 @@ function reducer(s, a) {
       const st = a.state || {}
       return {
         ...s, locked: false, passWrong: false, ready: true,
-        me: a.you || null, isAdmin: !!a.admin, hasAdmin: !!a.hasAdmin,
+        me: a.you || null, isAdmin: !!a.admin, hasAdmin: !!a.hasAdmin, serverBuild: a.build || '',
         info: st.info || null,
         players: Object.fromEntries((st.players || []).map(p => [p.id, p])),
         messages: st.messages || [],

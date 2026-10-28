@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { DEMO, lsGet, lsSet, useParty } from './lib/useParty'
+import { CLIENT_BUILD, DEMO, lsGet, lsSet, useParty } from './lib/useParty'
 import { DEMO_ADMIN_CODE } from './lib/demoServer'
 import { RSVP, errorText, nameOf } from './lib/format'
 import { Avatar, SvgDefs } from './components/Cult'
@@ -128,6 +128,27 @@ export default function App() {
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
   }, [narrow, boardOpen])
+
+  // A new version went live: refresh quietly. If they're typing, wait until the text is sent or cleared.
+  useEffect(() => {
+    const build = party.serverBuild
+    if (!CLIENT_BUILD || !build || build === CLIENT_BUILD) return
+    let tried = null
+    try { tried = sessionStorage.getItem('wm-reloaded-for') } catch { /* storage may be blocked */ }
+    if (tried === build) return // already refreshed once for this version; don't loop
+    const typing = () => {
+      const el = document.activeElement
+      return !!(document.querySelector('#msgInput')?.value.trim() || (el && /^(INPUT|TEXTAREA)$/.test(el.tagName) && el.value.trim()))
+    }
+    let timer = 0
+    const attempt = () => {
+      if (typing()) { timer = setTimeout(attempt, 2000); return }
+      try { sessionStorage.setItem('wm-reloaded-for', build) } catch { /* fine */ }
+      window.location.reload()
+    }
+    attempt()
+    return () => clearTimeout(timer)
+  }, [party.serverBuild])
 
   // Everything that writes goes through here first.
   function canAct() {
