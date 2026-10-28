@@ -24,7 +24,7 @@ function seatLayout(count) {
       x: CX + 292 * Math.cos(angle),
       y: CY + 92 * s + 34 * s * s,
       back: s < -0.05,
-      scale: crowd * (0.8 + 0.25 * ((s + 1) / 2)),
+      scale: crowd * (0.76 + 0.4 * ((s + 1) / 2)), // nearer figures are bigger
     }
   })
 }
@@ -222,7 +222,7 @@ function CloseUp({ player, me, here, onClose }) {
   )
 }
 
-export function RitualTable({ party, onOpenMembers, onEmote }) {
+export function RitualTable({ party, onOpenMembers, onEmote, tight = false }) {
   const { players, online, typing, me, messages, emotes } = party
 
   // Whoever just whispered hops in their seat for a moment.
@@ -352,7 +352,7 @@ export function RitualTable({ party, onOpenMembers, onEmote }) {
 
   // One scene element, shown either in the panel or in the big view (never both, so ids stay unique).
   const scene = (
-      <svg className="scene" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid slice" role="img"
+      <svg className="scene" viewBox={tight && !expanded ? '50 58 700 440' : '0 0 800 500'} preserveAspectRatio="xMidYMid slice" role="img"
         onClick={() => { if (!expanded) setExpanded(true) }}
         aria-label={`The ritual table. ${members.length} members, ${attendingCount} attending, ${here} here now.`}>
         <defs>

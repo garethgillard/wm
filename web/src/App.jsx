@@ -210,7 +210,7 @@ export default function App() {
       <main className="chamber">
         <Chat party={party} notice={notice} onSend={send} onVote={vote} onTyping={actions.typing} onDelete={deleteMessage} onReact={react} />
         <section className="panel circle" aria-label="The ritual table">
-          <RitualTable party={party} onOpenMembers={compact ? () => setMembersOpen(true) : undefined} onEmote={emote} />
+          <RitualTable party={party} onOpenMembers={compact ? () => setMembersOpen(true) : undefined} onEmote={emote} tight={narrow} />
           {!narrow && <RollCall party={party} onKick={kick} />}
         </section>
         <div className="board-wrap" id="board-panel">
