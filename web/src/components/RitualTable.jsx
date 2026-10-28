@@ -257,7 +257,7 @@ export function RitualTable({ party, onOpenMembers, onEmote }) {
     setBubbles(b => [...b.filter(y => !senders.has(y.pid)), ...latest])
     fresh.forEach(x => {
       hop(x.pid)
-      setTimeout(() => setBubbles(b => b.filter(y => y.id !== x.id)), 2700)
+      setTimeout(() => setBubbles(b => b.filter(y => y.id !== x.id)), 6100) // matches the 6s animation
     })
   }, [emotes])
   const [closeUp, setCloseUp] = useState(null) // member shown in the close-up box

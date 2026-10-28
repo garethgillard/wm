@@ -405,11 +405,16 @@ input.inline-field{height:40px;padding:0 11px}
 .emote-tray button{width:44px;height:44px;border:0;border-radius:10px;background:none;font-size:23px;line-height:1;cursor:pointer;transition:transform .12s,background .12s}
 .emote-tray button:hover{background:rgba(255,255,255,.08);transform:scale(1.15)}
 .emote-tray button:active{transform:scale(.9)}
-.emote-pop{transform-box:fill-box;transform-origin:50% 100%;animation:emote-pop 2.6s cubic-bezier(.2,.8,.3,1) forwards}
-@keyframes emote-pop{0%{opacity:0;transform:translateY(8px) scale(.3)}12%{opacity:1;transform:translateY(0) scale(1.18)}22%{transform:translateY(0) scale(1)}
-  75%{opacity:1;transform:translateY(-16px) scale(1)}100%{opacity:0;transform:translateY(-30px) scale(.95)}}
-@media (prefers-reduced-motion: reduce){.emote-pop{animation:emote-fade 2.6s linear forwards}}
-@keyframes emote-fade{0%,80%{opacity:1}100%{opacity:0}}
+.emote-pop{transform-box:fill-box;transform-origin:50% 100%;animation:emote-pop 6s linear forwards}
+/* pop in, hold for a few seconds, then drift slowly upwards as it fades */
+@keyframes emote-pop{
+  0%{opacity:0;transform:translateY(8px) scale(.3);animation-timing-function:cubic-bezier(.2,.8,.3,1)}
+  6%{opacity:1;transform:translateY(0) scale(1.15)}
+  10%{transform:translateY(0) scale(1)}
+  55%{opacity:1;transform:translateY(-4px) scale(1);animation-timing-function:ease-in}
+  100%{opacity:0;transform:translateY(-70px) scale(.96)}}
+@media (prefers-reduced-motion: reduce){.emote-pop{animation:emote-fade 6s linear forwards}}
+@keyframes emote-fade{0%,70%{opacity:1}100%{opacity:0}}
 .caption-icon{flex:none;align-self:center;width:20px;height:20px;margin-left:auto;margin-right:8px;color:var(--gold)}
 .stack-fields{display:flex;flex-direction:column;gap:12px}
 
