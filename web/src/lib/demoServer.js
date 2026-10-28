@@ -254,7 +254,7 @@ export function connectDemo({ onOpen, onMessage, onClose }) {
         return
       }
       case 'emote': {
-        if (!Number.isInteger(m.e) || m.e < 0 || m.e >= 8) return ack(false, { error: 'invalid' })
+        if (!Number.isInteger(m.e) || m.e < 0 || m.e >= 9) return ack(false, { error: 'invalid' })
         emit({ type: 'emote', pid: me, e: m.e })
         return ack(true)
       }

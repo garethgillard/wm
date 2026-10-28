@@ -394,12 +394,13 @@ input.inline-field{height:40px;padding:0 11px}
 /* ---------- emotes at the table ---------- */
 .emote-bar{position:absolute;right:12px;bottom:12px;z-index:3;display:flex;flex-direction:column;align-items:flex-end;gap:8px}
 .lightbox .emote-bar{position:fixed;right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px))}
-.emote-btn{display:inline-flex;align-items:center;gap:7px;height:40px;padding:0 15px;border:1px solid #e2bf74;border-radius:20px;cursor:pointer;
-  background:linear-gradient(180deg,#e2bf74,#a8823d);color:#1a1206;font-family:var(--display);font-weight:600;font-size:12px;letter-spacing:.14em;text-transform:uppercase;
-  box-shadow:0 4px 18px rgba(0,0,0,.55),0 0 16px rgba(236,202,126,.25)}
-.emote-btn span{font-size:16px;letter-spacing:0}
+.emote-btn{width:42px;height:42px;display:grid;place-items:center;padding:0;border:1px solid #e2bf74;border-radius:50%;cursor:pointer;
+  background:linear-gradient(180deg,#e2bf74,#a8823d);color:#1a1206;box-shadow:0 4px 18px rgba(0,0,0,.55),0 0 16px rgba(236,202,126,.25)}
+.emote-btn span{font-size:21px;line-height:1}
+.emote-btn.open span{font-size:16px}
+.emote-say{font-family:var(--display);font-weight:600;font-size:13px;letter-spacing:.05em;fill:#f1d58f}
 .emote-btn.open{background:rgba(20,17,23,.94);color:var(--bone);border-color:var(--line-gold)}
-.emote-tray{display:grid;grid-template-columns:repeat(4,44px);gap:4px;padding:6px;border:1px solid var(--line-gold);border-radius:14px;background:rgba(20,17,23,.95);
+.emote-tray{display:grid;grid-template-columns:repeat(3,44px);gap:4px;padding:6px;border:1px solid var(--line-gold);border-radius:14px;background:rgba(20,17,23,.95);
   box-shadow:var(--shadow);animation:fade-in .15s ease}
 .emote-tray button{width:44px;height:44px;border:0;border-radius:10px;background:none;font-size:23px;line-height:1;cursor:pointer;transition:transform .12s,background .12s}
 .emote-tray button:hover{background:rgba(255,255,255,.08);transform:scale(1.15)}
@@ -462,8 +463,9 @@ input.inline-field{height:40px;padding:0 11px}
   .caption-btn > span:not(.count-roman){overflow:hidden;text-overflow:ellipsis}
   .tally dd{font-size:19px}
   .emote-bar{right:8px;bottom:8px;gap:6px}
-  .emote-btn{height:34px;padding:0 12px;font-size:11px}
-  .emote-tray{grid-template-columns:repeat(8,34px);gap:2px;padding:4px}
+  .emote-btn{width:36px;height:36px}
+  .emote-btn span{font-size:18px}
+  .emote-tray{grid-template-columns:repeat(9,34px);gap:2px;padding:4px}
   .emote-tray button{width:34px;height:34px;font-size:19px}
   .ritual figcaption > span:last-child{overflow:hidden;text-overflow:ellipsis}
   .count-roman{font-size:15px}

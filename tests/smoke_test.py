@@ -130,7 +130,7 @@ async def run(url: str):
     r = await b.request("emote", e=7)
     ev = await a.expect("emote")
     check("an emote at the table reaches everyone", r["ok"] and ev["pid"] == b_id and ev["e"] == 7)
-    r = await b.request("emote", e=8)
+    r = await b.request("emote", e=9)
     check("an unknown emote is refused", r["ok"] is False and r["error"] == "invalid")
 
     r = await a.request("idea", title="Karaoke night")

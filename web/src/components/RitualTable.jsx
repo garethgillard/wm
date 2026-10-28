@@ -184,12 +184,13 @@ function EmoteBar({ onEmote }) {
       {open && (
         <div className="emote-tray" role="group" aria-label="Emotes">
           {EMOTES.map((m, e) => (
-            <button key={e} type="button" title={m.label} aria-label={m.label} onClick={() => onEmote(e)}>{m.emoji}</button>
+            <button key={e} type="button" title={m.say || m.label} aria-label={m.say || m.label} onClick={() => { setOpen(false); onEmote(e) }}>{m.emoji}</button>
           ))}
         </div>
       )}
-      <button type="button" className={`emote-btn${open ? ' open' : ''}`} onClick={() => setOpen(o => !o)} aria-expanded={open}>
-        <span aria-hidden="true">{open ? '✕' : '👋'}</span> {open ? 'Close' : 'React'}
+      <button type="button" className={`emote-btn${open ? ' open' : ''}`} onClick={() => setOpen(o => !o)} aria-expanded={open}
+        aria-label={open ? 'Close the emotes' : 'React at the table'} title={open ? 'Close' : 'React'}>
+        <span aria-hidden="true">{open ? '✕' : '👋'}</span>
       </button>
     </div>
   )
@@ -250,7 +251,10 @@ export function RitualTable({ party, onOpenMembers, onEmote }) {
     const fresh = emotes.filter(x => x.id > seenEmote.current)
     if (!fresh.length) return
     seenEmote.current = fresh[fresh.length - 1].id
-    setBubbles(b => [...b, ...fresh].slice(-24))
+    // A newer emote from the same person replaces their previous one, so they never pile up.
+    const latest = [...new Map(fresh.map(x => [x.pid, x])).values()]
+    const senders = new Set(latest.map(x => x.pid))
+    setBubbles(b => [...b.filter(y => !senders.has(y.pid)), ...latest])
     fresh.forEach(x => {
       hop(x.pid)
       setTimeout(() => setBubbles(b => b.filter(y => y.id !== x.id)), 2700)
@@ -426,12 +430,22 @@ export function RitualTable({ party, onOpenMembers, onEmote }) {
         {bubbles.map(bubble => {
           const seat = seats.find(x => x.player?.id === bubble.pid)
           if (!seat) return null
-          const stack = bubbles.filter(x => x.pid === bubble.pid && x.id < bubble.id).length % 3
+          const emote = EMOTES[bubble.e]
+          if (!emote) return null
+          const width = emote.say ? emote.say.length * 8.4 + 22 : 0
+          // keep the caption inside the picture near the side walls
+          const x = Math.min(Math.max(seat.x, 40 + width / 2), 760 - width / 2)
           return (
-            <g key={bubble.id} transform={`translate(${seat.x + stack * 16} ${seat.y - 150 * seat.scale - stack * 10})`} pointerEvents="none">
+            <g key={bubble.id} transform={`translate(${x} ${seat.y - 160 * seat.scale})`} pointerEvents="none">
               <g className="emote-pop">
-                <circle r="21" fill="#0b0a0d" fillOpacity="0.8" stroke="#c9a55c" strokeOpacity="0.7" />
-                <text y="1" fontSize="24" textAnchor="middle" dominantBaseline="central">{EMOTES[bubble.e]?.emoji}</text>
+                <circle r="30" fill="#0b0a0d" fillOpacity="0.82" stroke="#c9a55c" strokeOpacity="0.75" strokeWidth="1.5" />
+                <text y="2" fontSize="36" textAnchor="middle" dominantBaseline="central">{emote.emoji}</text>
+                {emote.say && (
+                  <g transform="translate(0 46)">
+                    <rect x={-width / 2} y="-13" width={width} height="26" rx="13" fill="#0b0a0d" fillOpacity="0.9" stroke="#c9a55c" strokeOpacity="0.8" />
+                    <text y="1" textAnchor="middle" dominantBaseline="central" className="emote-say">{emote.say}</text>
+                  </g>
+                )}
               </g>
             </g>
           )
