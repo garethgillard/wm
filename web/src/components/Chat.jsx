@@ -8,6 +8,15 @@ const SHOWN = new Set(['msg', 'suggest']) // whispers and proposed rites; joins,
 
 // Emoji reactions under a whisper: counts people can tap to join in, plus a picker opened from the smiley.
 function Reactions({ mid, byE = {}, players, me, open, onOpen, onReact }) {
+  // The picker floats above the smiley; near the top of the chat window it opens downwards instead.
+  const picker = useRef(null)
+  const [down, setDown] = useState(false)
+  useLayoutEffect(() => {
+    if (!open) { setDown(false); return }
+    const el = picker.current
+    const feed = el?.closest('.feed')
+    if (el && feed && el.getBoundingClientRect().top < feed.getBoundingClientRect().top + 4) setDown(true)
+  }, [open])
   const shown = REACTIONS.map((emoji, e) => ({ emoji, e, pids: byE[e] || [] })).filter(r => r.pids.length)
   return (
     <>
@@ -34,7 +43,7 @@ function Reactions({ mid, byE = {}, players, me, open, onOpen, onReact }) {
         </div>
       )}
       {open && (
-        <div className="react-picker" role="group" aria-label="Pick a reaction">
+        <div className={`react-picker${down ? ' down' : ''}`} ref={picker} role="group" aria-label="Pick a reaction">
           {REACTION_PICKER.map(e => {
             const emoji = REACTIONS[e]
             const mine = (byE[e] || []).includes(me)
