@@ -112,6 +112,21 @@ async def run(url: str):
     await a.request("msg", text="Who is ready to plan?")
     m = await b.expect("message", lambda m: m["message"]["kind"] == "msg")
     check("B receives A's chat message", m["message"]["text"] == "Who is ready to plan?" and m["message"]["pid"] == a_id)
+    mid = m["message"]["id"]
+    r = await b.request("react", mid=mid, e=2, on=True)
+    ev = await a.expect("reaction")
+    check("B reacts to A's whisper and A sees it", r["ok"] and ev["mid"] == mid and ev["pid"] == b_id and ev["e"] == 2 and ev["on"] is True)
+    r = await b.request("react", mid=mid, e=8, on=True)
+    check("an unknown reaction is refused", r["ok"] is False and r["error"] == "invalid")
+    r = await b.request("react", mid="999999", e=1, on=True)
+    check("reacting to a missing whisper is refused", r["ok"] is False and r["error"] == "gone")
+    await b.request("react", mid=mid, e=5, on=True)
+    await b.request("react", mid=mid, e=5, on=False)
+    peek = Client(url, "peek"); await peek.open()
+    await peek.send(type="hello", token=peek.token, passcode=PASS)
+    st = (await peek.expect("welcome"))["state"]
+    await peek.close()
+    check("reactions are saved and taking one back works", sorted((x["pid"], x["e"]) for x in st["reactions"] if x["mid"] == mid) == [(b_id, 2)])
 
     r = await a.request("idea", title="Karaoke night")
     check("A proposes an activity", r["ok"])

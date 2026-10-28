@@ -1,13 +1,63 @@
-import { Fragment, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { ROBES } from '../lib/constants'
+import { Fragment, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { REACTIONS, ROBES } from '../lib/constants'
 import { VoteButtons } from './VoteButtons'
 import { RSVP, dayLabel, nameOf, sameDay, tally, timeLabel } from '../lib/format'
 
 const GROUP_GAP = 5 * 60 * 1000 // messages closer than this from one person are grouped
 const SHOWN = new Set(['msg', 'suggest']) // whispers and proposed rites; joins, leaves and attendance stay off the chat
 
-export function Chat({ party, notice, onSend, onVote, onTyping, onDelete }) {
-  const { players, activities, votes, me, typing, ready, locked, connected, isAdmin } = party
+// Emoji reactions under a whisper: counts people can tap to join in, plus a picker opened from the smiley.
+function Reactions({ mid, byE = {}, players, me, open, onOpen, onReact }) {
+  const shown = REACTIONS.map((emoji, e) => ({ emoji, e, pids: byE[e] || [] })).filter(r => r.pids.length)
+  return (
+    <>
+      <button type="button" className={`react-add${open ? ' open' : ''}`} onClick={() => onOpen(open ? null : mid)}
+        aria-label="React to this whisper" aria-expanded={open}>
+        <svg viewBox="0 0 20 20" aria-hidden="true">
+          <circle cx="10" cy="10" r="7.5" fill="none" stroke="currentColor" strokeWidth="1.4" />
+          <circle cx="7.4" cy="8.4" r="1" fill="currentColor" /><circle cx="12.6" cy="8.4" r="1" fill="currentColor" />
+          <path d="M6.8 11.6 Q10 14.6 13.2 11.6" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+        </svg>
+      </button>
+      {shown.length > 0 && (
+        <div className="reactions">
+          {shown.map(r => {
+            const mine = r.pids.includes(me)
+            return (
+              <button key={r.e} type="button" className={`react-chip${mine ? ' mine' : ''}`} onClick={() => onReact(mid, r.e, !mine)}
+                title={r.pids.map(p => nameOf(players, p)).join(', ')} aria-pressed={mine}
+                aria-label={`${r.emoji} ${r.pids.length}${mine ? ', including you' : ''}`}>
+                <span className="react-emoji">{r.emoji}</span>{r.pids.length}
+              </button>
+            )
+          })}
+        </div>
+      )}
+      {open && (
+        <div className="react-picker" role="group" aria-label="Pick a reaction">
+          {REACTIONS.map((emoji, e) => {
+            const mine = (byE[e] || []).includes(me)
+            return (
+              <button key={e} type="button" className={mine ? 'mine' : ''} aria-pressed={mine}
+                onClick={() => { onOpen(null); onReact(mid, e, !mine) }}>{emoji}</button>
+            )
+          })}
+        </div>
+      )}
+    </>
+  )
+}
+
+export function Chat({ party, notice, onSend, onVote, onTyping, onDelete, onReact }) {
+  const { players, activities, votes, me, typing, ready, locked, connected, isAdmin, reactions } = party
+  const [picking, setPicking] = useState(null) // whisper whose reaction picker is open
+  useEffect(() => {
+    if (!picking) return
+    const close = e => { if (e.type === 'keydown' ? e.key === 'Escape' : !e.target.closest('.line')) setPicking(null) }
+    document.addEventListener('keydown', close)
+    document.addEventListener('pointerdown', close)
+    return () => { document.removeEventListener('keydown', close); document.removeEventListener('pointerdown', close) }
+  }, [picking])
   const messages = useMemo(() => party.messages.filter(m => SHOWN.has(m.kind)), [party.messages])
   const [armed, setArmed] = useState(null) // whisper waiting for a second tap to delete
   const moderate = isAdmin && connected
@@ -31,7 +81,7 @@ export function Chat({ party, notice, onSend, onVote, onTyping, onDelete }) {
       el.scrollTop = el.scrollHeight
       forceScroll.current = false
     }
-  }, [messages, votes])
+  }, [messages, votes, reactions])
 
   function onScroll() {
     const el = feed.current
@@ -140,6 +190,7 @@ export function Chat({ party, notice, onSend, onVote, onTyping, onDelete }) {
                 <div className={`line${grouped ? ' cont' : ''}${m.pid === me ? ' mine' : ''}`} style={ink}>
                   {!grouped && <div className="line-head">{who}<span className="time">{timeLabel(m.ts)}</span></div>}
                   <p className="line-text">{m.text}</p>
+                  <Reactions mid={m.id} byE={reactions[m.id]} players={players} me={me} open={picking === m.id} onOpen={setPicking} onReact={onReact} />
                   {moderate && (
                     <button type="button" className={`mod-del${armed === m.id ? ' armed' : ''}`} onClick={() => del(m.id)} aria-label="Delete this whisper">
                       {armed === m.id ? 'Delete?' : '✕'}

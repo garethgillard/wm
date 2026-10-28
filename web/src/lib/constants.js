@@ -30,6 +30,9 @@ export const ROBES = [
 export const IDEAS = ['Costume contest', 'Tarot readings', 'Pumpkin carving', 'Murder mystery', 'Horror film night', 'Ghost story circle', 'Melange tasting', 'Séance']
 
 export const HISTORY = 300 // messages kept in the browser
+
+// Reactions to whispers. Keep the length equal to REACTION_COUNT in app/store.py (8).
+export const REACTIONS = ['👍', '❤️', '😂', '😮', '💀', '🔥', '☕', '🐟']
 export const DEFAULT_NAME = 'The Melange Conclave'
 
 // Secret names mix three worlds: gothic cult, animals, and the lab.

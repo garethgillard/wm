@@ -105,7 +105,8 @@ export function connectDemo({ onOpen, onMessage, onClose }) {
   const clean = (v, n) => (typeof v === 'string' ? v.replace(/\s+/g, ' ').trim().slice(0, n) : '')
   const nextId = () => String(++db.nextId)
   const presence = () => emit({ type: 'presence', online: [...online, ...(me ? [me] : [])], typing: [...typing] })
-  const snapshot = () => ({ info: db.info, notices: db.notices, players: db.players, activities: db.activities, votes: db.votes, messages: db.messages.slice(-300) })
+  db.reactions ||= [] // demo data saved before reactions existed
+  const snapshot = () => ({ info: db.info, notices: db.notices, players: db.players, activities: db.activities, votes: db.votes, messages: db.messages.slice(-300), reactions: db.reactions })
 
   function addMessage(pid, kind, text = '', aid = '') {
     const m = { id: nextId(), pid, kind, text, aid, ts: Date.now() }
@@ -251,6 +252,16 @@ export function connectDemo({ onOpen, onMessage, onClose }) {
         emit({ type: 'reset', state: snapshot() })
         presence()
         return
+      }
+      case 'react': {
+        const { mid, e, on } = m
+        if (!Number.isInteger(e) || e < 0 || e >= 8 || typeof on !== 'boolean') return ack(false, { error: 'invalid' })
+        if (!db.messages.some(x => x.id === mid && x.kind === 'msg')) return ack(false, { error: 'gone' })
+        db.reactions = db.reactions.filter(r => !(r.mid === mid && r.pid === me && r.e === e))
+        if (on) db.reactions.push({ mid, pid: me, e })
+        save()
+        emit({ type: 'reaction', mid, pid: me, e, on })
+        return ack(true)
       }
       case 'delete_message': {
         if (!admin) return ack(false, { error: 'forbidden' })

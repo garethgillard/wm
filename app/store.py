@@ -19,6 +19,7 @@ HISTORY = 300      # messages sent to a browser when it connects
 DEFAULT_WHEN = "Friday 30 October"   # shown until the organiser edits the summons
 DEFAULT_WHERE = "CIGENE"
 KEEP = 2000        # messages kept in the database
+REACTION_COUNT = 8 # must match REACTIONS in web/src/lib/constants.js
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS info (
@@ -55,6 +56,12 @@ CREATE TABLE IF NOT EXISTS notices (
     id TEXT PRIMARY KEY,
     text TEXT NOT NULL,
     ts INTEGER NOT NULL
+);
+CREATE TABLE IF NOT EXISTS reactions (
+    mid INTEGER NOT NULL,
+    pid TEXT NOT NULL,
+    e INTEGER NOT NULL,
+    PRIMARY KEY (mid, pid, e)
 );
 CREATE TABLE IF NOT EXISTS votes (
     pid TEXT NOT NULL,
@@ -131,6 +138,9 @@ class Store:
             votes: dict[str, dict[str, int]] = {}
             for r in self.db.execute("SELECT pid, aid, v FROM votes WHERE v != 0"):
                 votes.setdefault(r["pid"], {})[r["aid"]] = r["v"]
+            oldest = msgs[-1]["id"] if msgs else 0
+            reactions = [{"mid": str(r["mid"]), "pid": r["pid"], "e": r["e"]}
+                         for r in self.db.execute("SELECT mid, pid, e FROM reactions WHERE mid >= ?", (oldest,))]
         return {
             "info": self._info(info),
             "players": players,
@@ -138,6 +148,7 @@ class Store:
             "activities": acts,
             "notices": notices,
             "votes": votes,
+            "reactions": reactions,
         }
 
     def player_by_token(self, token_hash: str):
@@ -202,6 +213,7 @@ class Store:
             ).fetchone()
             if row["id"] % 100 == 0:
                 self.db.execute("DELETE FROM messages WHERE id <= ?", (row["id"] - KEEP,))
+                self.db.execute("DELETE FROM reactions WHERE mid <= ?", (row["id"] - KEEP,))
         return self._message(row)
 
     def add_activity(self, title: str, pid: str) -> dict:
@@ -229,6 +241,19 @@ class Store:
                     "ON CONFLICT (pid, aid) DO UPDATE SET v = excluded.v",
                     (pid, aid, v),
                 )
+
+    def set_reaction(self, mid: str, pid: str, e: int, on: bool) -> bool:
+        """Add or take back an emoji reaction to a whisper. False if there is no such whisper."""
+        if not mid.isdigit():
+            return False
+        with self.lock:
+            if not self.db.execute("SELECT 1 FROM messages WHERE id = ? AND kind = 'msg'", (int(mid),)).fetchone():
+                return False
+            if on:
+                self.db.execute("INSERT INTO reactions (mid, pid, e) VALUES (?, ?, ?) ON CONFLICT DO NOTHING", (int(mid), pid, e))
+            else:
+                self.db.execute("DELETE FROM reactions WHERE mid = ? AND pid = ? AND e = ?", (int(mid), pid, e))
+        return True
 
     def notice_count(self) -> int:
         with self.lock:
@@ -262,12 +287,14 @@ class Store:
                 return None
             self.db.execute("DELETE FROM players WHERE id = ?", (pid,))
             self.db.execute("DELETE FROM votes WHERE pid = ?", (pid,))
+            self.db.execute("DELETE FROM reactions WHERE pid = ?", (pid,))
         return r["codename"]
 
     def delete_message(self, mid: str) -> bool:
         if not mid.isdigit():
             return False
         with self.lock:
+            self.db.execute("DELETE FROM reactions WHERE mid = ?", (int(mid),))
             return self.db.execute("DELETE FROM messages WHERE id = ?", (int(mid),)).rowcount > 0
 
     def remove_notice(self, nid: str) -> bool:
@@ -288,7 +315,7 @@ class Store:
     def reset(self) -> None:
         """Wipe everything: members, whispers, rites, votes, notices, and the summons back to its defaults."""
         with self.lock:
-            for table in ("votes", "messages", "activities", "notices", "players", "info"):
+            for table in ("reactions", "votes", "messages", "activities", "notices", "players", "info"):
                 self.db.execute(f"DELETE FROM {table}")
 
     def backup(self, dest: str) -> None:

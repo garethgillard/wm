@@ -1,5 +1,6 @@
-// The centrepiece: a round table in a candlelit dungeon. Every member sits at it as a robed,
-// masked figure. Their candle is lit while they are here; empty chairs wait for newcomers.
+// The centrepiece: a round table in a candlelit dungeon. Everyone who has taken their vows sits
+// at it as a robed figure, whatever their answer. Their candle is lit while they are here;
+// empty chairs wait for newcomers.
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Chair, Figure } from './Cult'
 import { roman } from '../lib/constants'
@@ -202,24 +203,15 @@ export function RitualTable({ party }) {
     () => Object.values(players).sort((a, b) => a.joinedAt - b.joinedAt || a.id.localeCompare(b.id)),
     [players],
   )
-  // Only those who said yes sit at the table.
+  // Every member has a seat, whether they are coming or not, here now or away.
   const seats = useMemo(() => {
-    const attending = members.filter(p => p.rsvp === 'yes')
-    const layout = seatLayout(attending.length)
+    const layout = seatLayout(members.length)
     const taken = new Map()
-    attending.forEach((p, i) => taken.set(Math.round((i * layout.length) / attending.length), p))
+    members.forEach((p, i) => taken.set(Math.round((i * layout.length) / members.length), p))
     return layout.map(seat => ({ ...seat, player: taken.get(seat.k) || null })).sort((a, b) => a.y - b.y)
   }, [members])
 
-  // Maybes and the undecided stand in the shadows along the back wall, unseated.
-  const shadows = useMemo(() => {
-    const lurkers = members.filter(p => p.rsvp !== 'yes' && p.rsvp !== 'no')
-    const n = lurkers.length
-    const scale = n <= 8 ? 0.5 : Math.max(0.32, 0.5 * Math.sqrt(8 / n))
-    return lurkers.map((p, i) => ({ k: `shadow-${p.id}`, x: 70 + (660 * (i + 0.5)) / n, y: 214 + (i % 2) * 8, scale, player: p, shadow: true }))
-  }, [members])
-
-  const attendingCount = seats.filter(s => s.player).length
+  const attendingCount = members.filter(p => p.rsvp === 'yes').length
   const here = members.filter(p => online.includes(p.id)).length
 
   function renderSeat(seat) {
@@ -229,18 +221,18 @@ export function RitualTable({ party }) {
       return <g key={`empty-${seat.k}`} className="seat" style={{ transform }}><Chair empty /></g>
     }
     const isHere = online.includes(p.id)
-    const status = seat.shadow ? (p.rsvp === 'maybe' ? ', maybe attending' : ', undecided') : ', attending'
+    const status = p.rsvp === 'yes' ? ', attending' : p.rsvp === 'maybe' ? ', maybe attending' : p.rsvp === 'no' ? ', not coming' : ', undecided'
     return (
-      <g key={p.id} className={`seat${isHere ? ' here' : ' away'}${p.id === me ? ' mine' : ''}${seat.shadow ? ' shadow' : ''}`} style={{ transform }}
+      <g key={p.id} className={`seat${isHere ? ' here' : ' away'}${p.id === me ? ' mine' : ''}`} style={{ transform }}
         role="button" tabIndex={0} aria-label={`${nameOf(players, p.id)}${p.id === me ? ' (you)' : ''}${status}${isHere ? ', here now' : ''}`}
         onClick={e => { e.stopPropagation(); setSelected(selected === p.id ? null : p.id) }}
         onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelected(selected === p.id ? null : p.id) } }}>
         <title>{nameOf(players, p.id)}</title>
-        {!seat.shadow && <Chair />}
+        <Chair />
         {p.id === me && <ellipse cx="0" cy="2" rx="44" ry="10" fill="none" stroke="url(#gold)" strokeWidth="2.5" />}
         <g className="actor" style={motion(p.id)}>
           <g className={`hop${speaking.has(p.id) ? ' speaking' : ''}`}>
-            <Figure player={p} lit={isHere && !seat.shadow} />
+            <Figure player={p} lit={isHere} />
           </g>
         </g>
       </g>
@@ -277,22 +269,18 @@ export function RitualTable({ party }) {
   const back = seats.filter(s => s.back)
   const front = seats.filter(s => !s.back)
 
-  const caption = attendingCount ? (
+  const caption = members.length ? (
     <>
-      <span className="count-roman" aria-hidden="true">{roman(attendingCount)}</span>
-      <span>
-        {attendingCount} attending
-        {shadows.length > 0 && ` · ${shadows.length} in the shadows`}
-        {` · ${here} here now`}
-      </span>
+      <span className="count-roman" aria-hidden="true">{roman(members.length)}</span>
+      <span>{members.length} sworn · {attendingCount} attending · {here} here now</span>
     </>
-  ) : <span>{members.length ? 'No one has said yes yet. The table waits.' : 'The table is empty. Take the first seat.'}</span>
+  ) : <span>The table is empty. Take the first seat.</span>
 
   // One scene element, shown either in the panel or in the big view (never both, so ids stay unique).
   const scene = (
       <svg className="scene" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid slice" role="img"
         onClick={() => { if (!expanded) setExpanded(true) }}
-        aria-label={`The ritual table. ${attendingCount} attending, ${here} here now.`}>
+        aria-label={`The ritual table. ${members.length} members, ${attendingCount} attending, ${here} here now.`}>
         <defs>
           <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0" stopColor="#1a141e" /><stop offset="0.55" stopColor="#120e15" /><stop offset="1" stopColor="#09070b" />
@@ -343,7 +331,6 @@ export function RitualTable({ party }) {
         <path d="M400 210 L60 500 M400 210 L250 500 M400 210 L550 500 M400 210 L740 500 M0 330 H800 M0 410 H800" stroke="#fff" strokeOpacity="0.03" />
         <ellipse cx={CX} cy={CY + 40} rx="380" ry="170" fill="url(#light-pool)" />
 
-        {shadows.map(renderSeat)}
         {back.map(renderSeat)}
 
         {/* the table */}
@@ -365,7 +352,7 @@ export function RitualTable({ party }) {
         <g className="fog fog-2"><ellipse cx="600" cy="480" rx="280" ry="30" fill="#8a8095" opacity="0.1" filter="url(#fog-blur)" /></g>
         <rect width="800" height="500" fill="url(#vignette)" pointerEvents="none" />
 
-        {[...shadows, ...seats].map(renderTag)}
+        {seats.map(renderTag)}
       </svg>
   )
 

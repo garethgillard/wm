@@ -15,7 +15,7 @@ from starlette.websockets import WebSocketDisconnected  # raised when the browse
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from .store import COLOR_COUNT, EMOJI_COUNT, Store
+from .store import COLOR_COUNT, EMOJI_COUNT, REACTION_COUNT, Store
 
 log = logging.getLogger("party-hq")
 
@@ -301,6 +301,17 @@ async def handle(conn: Conn, msg: dict) -> None:
         conn.typing = False
         await hub.broadcast({"type": "message", "message": store.add_message(conn.pid, "msg", text)})
         await hub.presence()
+        return await ack()
+
+    if kind == "react":
+        mid, e, on = str(msg.get("mid", "")), msg.get("e"), msg.get("on")
+        if not isinstance(e, int) or isinstance(e, bool) or not 0 <= e < REACTION_COUNT or not isinstance(on, bool):
+            return await ack(False, error="invalid")
+        if not conn.spend(0.25):
+            return await ack(False, error="slow")
+        if not store.set_reaction(mid, conn.pid, e, on):
+            return await ack(False, error="gone")
+        await hub.broadcast({"type": "reaction", "mid": mid, "pid": conn.pid, "e": e, "on": on})
         return await ack()
 
     if kind == "idea":

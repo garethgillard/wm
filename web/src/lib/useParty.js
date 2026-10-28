@@ -27,11 +27,18 @@ function getToken() {
 const initialState = {
   connected: false, ready: false, locked: false, passWrong: false,
   me: null, isAdmin: false, hasAdmin: false,
-  info: null, players: {}, messages: [], activities: [], notices: [], votes: {},
+  info: null, players: {}, messages: [], activities: [], notices: [], votes: {}, reactions: {},
   online: [], typing: [],
 }
 
 // Server events are reduced straight into state; their `type` names the case.
+// Server sends reactions as a flat list; keep them as { messageId: { emojiIndex: [playerIds] } }.
+function groupReactions(list = []) {
+  const out = {}
+  for (const r of list) ((out[r.mid] ||= {})[r.e] ||= []).push(r.pid)
+  return out
+}
+
 function reducer(s, a) {
   switch (a.type) {
     case 'connected':
@@ -49,6 +56,7 @@ function reducer(s, a) {
         activities: st.activities || [],
         notices: st.notices || [],
         votes: st.votes || {},
+        reactions: groupReactions(st.reactions),
       }
     }
     case 'reset': // the organiser wiped everything; everyone starts again with new vows
@@ -60,10 +68,23 @@ function reducer(s, a) {
       const votes = { ...s.votes }
       delete players[a.id]
       delete votes[a.id]
-      return { ...s, players, votes, me: s.me === a.id ? null : s.me }
+      const reactions = {}
+      for (const [mid, byE] of Object.entries(s.reactions)) {
+        reactions[mid] = Object.fromEntries(Object.entries(byE).map(([e, pids]) => [e, pids.filter(p => p !== a.id)]))
+      }
+      return { ...s, players, votes, reactions, me: s.me === a.id ? null : s.me }
     }
-    case 'message_removed':
-      return { ...s, messages: s.messages.filter(m => m.id !== a.id) }
+    case 'message_removed': {
+      const reactions = { ...s.reactions }
+      delete reactions[a.id]
+      return { ...s, messages: s.messages.filter(m => m.id !== a.id), reactions }
+    }
+    case 'reaction': { // someone added or took back an emoji on a whisper
+      const byE = { ...(s.reactions[a.mid] || {}) }
+      const pids = (byE[a.e] || []).filter(p => p !== a.pid)
+      byE[a.e] = a.on ? [...pids, a.pid] : pids
+      return { ...s, reactions: { ...s.reactions, [a.mid]: byE } }
+    }
     case 'message':
       if (s.messages.some(m => m.id === a.message.id)) return s
       return { ...s, messages: [...s.messages, a.message].slice(-HISTORY) }
@@ -158,6 +179,7 @@ export function useParty() {
     kick: id => request('kick', { id }),
     resetAll: () => request('reset', { confirm: 'RESET' }),
     deleteMessage: id => request('delete_message', { id }),
+    react: (mid, e, on) => request('react', { mid, e, on }),
     propose: title => request('idea', { title }),
     removeIdea: id => request('remove_idea', { id }),
     renameIdea: (id, title) => request('edit_idea', { id, title }),
