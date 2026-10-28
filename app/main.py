@@ -27,6 +27,7 @@ MAX_PLAYERS = int(os.environ.get("MAX_PLAYERS", "200"))
 MAX_CONNECTIONS = int(os.environ.get("MAX_CONNECTIONS", "500"))
 MAX_NOTICES = 20
 RSVP = ("yes", "maybe", "no")
+EMOTE_COUNT = 8  # must match EMOTES in web/src/lib/constants.js
 ORGANISER_ANYTIME = {"kick", "delete_message", "edit_idea", "remove_idea", "info", "notice", "edit_notice", "remove_notice"}
 
 # The React build (web/dist). Run `npm run build` in web/ first, or use Docker.
@@ -301,6 +302,16 @@ async def handle(conn: Conn, msg: dict) -> None:
         conn.typing = False
         await hub.broadcast({"type": "message", "message": store.add_message(conn.pid, "msg", text)})
         await hub.presence()
+        return await ack()
+
+    if kind == "emote":
+        # A moment at the table: an emoji pops up over your figure for everyone watching. Not stored.
+        e = msg.get("e")
+        if not isinstance(e, int) or isinstance(e, bool) or not 0 <= e < EMOTE_COUNT:
+            return await ack(False, error="invalid")
+        if not conn.spend(1):
+            return await ack(False, error="slow")
+        await hub.broadcast({"type": "emote", "pid": conn.pid, "e": e})
         return await ack()
 
     if kind == "react":

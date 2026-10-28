@@ -390,6 +390,25 @@ input.inline-field{height:40px;padding:0 11px}
 .ritual figcaption.has-button{padding:0}
 .caption-btn{width:100%;display:flex;align-items:baseline;justify-content:flex-start;gap:4px 12px;padding:12px 16px 14px;border:0;background:none;color:inherit;font:inherit;text-align:inherit;cursor:pointer}
 .caption-btn:hover,.caption-btn:focus-visible{background:rgba(255,255,255,.03)}
+
+/* ---------- emotes at the table ---------- */
+.emote-bar{position:absolute;right:12px;bottom:12px;z-index:3;display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+.lightbox .emote-bar{position:fixed;right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+.emote-btn{display:inline-flex;align-items:center;gap:7px;height:40px;padding:0 15px;border:1px solid #e2bf74;border-radius:20px;cursor:pointer;
+  background:linear-gradient(180deg,#e2bf74,#a8823d);color:#1a1206;font-family:var(--display);font-weight:600;font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  box-shadow:0 4px 18px rgba(0,0,0,.55),0 0 16px rgba(236,202,126,.25)}
+.emote-btn span{font-size:16px;letter-spacing:0}
+.emote-btn.open{background:rgba(20,17,23,.94);color:var(--bone);border-color:var(--line-gold)}
+.emote-tray{display:grid;grid-template-columns:repeat(4,44px);gap:4px;padding:6px;border:1px solid var(--line-gold);border-radius:14px;background:rgba(20,17,23,.95);
+  box-shadow:var(--shadow);animation:fade-in .15s ease}
+.emote-tray button{width:44px;height:44px;border:0;border-radius:10px;background:none;font-size:23px;line-height:1;cursor:pointer;transition:transform .12s,background .12s}
+.emote-tray button:hover{background:rgba(255,255,255,.08);transform:scale(1.15)}
+.emote-tray button:active{transform:scale(.9)}
+.emote-pop{transform-box:fill-box;transform-origin:50% 100%;animation:emote-pop 2.6s cubic-bezier(.2,.8,.3,1) forwards}
+@keyframes emote-pop{0%{opacity:0;transform:translateY(8px) scale(.3)}12%{opacity:1;transform:translateY(0) scale(1.18)}22%{transform:translateY(0) scale(1)}
+  75%{opacity:1;transform:translateY(-16px) scale(1)}100%{opacity:0;transform:translateY(-30px) scale(.95)}}
+@media (prefers-reduced-motion: reduce){.emote-pop{animation:emote-fade 2.6s linear forwards}}
+@keyframes emote-fade{0%,80%{opacity:1}100%{opacity:0}}
 .caption-icon{flex:none;align-self:center;width:20px;height:20px;margin-left:auto;margin-right:8px;color:var(--gold)}
 .stack-fields{display:flex;flex-direction:column;gap:12px}
 
@@ -442,6 +461,10 @@ input.inline-field{height:40px;padding:0 11px}
   .caption-btn{gap:8px;padding:7px 12px 8px;white-space:nowrap;overflow:hidden}
   .caption-btn > span:not(.count-roman){overflow:hidden;text-overflow:ellipsis}
   .tally dd{font-size:19px}
+  .emote-bar{right:8px;bottom:8px;gap:6px}
+  .emote-btn{height:34px;padding:0 12px;font-size:11px}
+  .emote-tray{grid-template-columns:repeat(8,34px);gap:2px;padding:4px}
+  .emote-tray button{width:34px;height:34px;font-size:19px}
   .ritual figcaption > span:last-child{overflow:hidden;text-overflow:ellipsis}
   .count-roman{font-size:15px}
   .chat .panel-head{display:none}

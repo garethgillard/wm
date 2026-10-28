@@ -4,7 +4,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Chair, Figure } from './Cult'
 import { Dialog } from './Dialog'
-import { EMOJI, ROBES, roman } from '../lib/constants'
+import { EMOJI, EMOTES, ROBES, roman } from '../lib/constants'
 import { RSVP, nameOf } from '../lib/format'
 
 const CX = 400
@@ -168,6 +168,33 @@ function Banner({ x }) {
   )
 }
 
+// The emote button in the corner of the scene, and the tray of emotes it opens.
+function EmoteBar({ onEmote }) {
+  const [open, setOpen] = useState(false)
+  const bar = useRef(null)
+  useEffect(() => {
+    if (!open) return
+    const close = e => { if (e.type === 'keydown' ? e.key === 'Escape' : !bar.current?.contains(e.target)) setOpen(false) }
+    document.addEventListener('pointerdown', close)
+    document.addEventListener('keydown', close)
+    return () => { document.removeEventListener('pointerdown', close); document.removeEventListener('keydown', close) }
+  }, [open])
+  return (
+    <div className="emote-bar" ref={bar} onClick={e => e.stopPropagation()}>
+      {open && (
+        <div className="emote-tray" role="group" aria-label="Emotes">
+          {EMOTES.map((m, e) => (
+            <button key={e} type="button" title={m.label} aria-label={m.label} onClick={() => onEmote(e)}>{m.emoji}</button>
+          ))}
+        </div>
+      )}
+      <button type="button" className={`emote-btn${open ? ' open' : ''}`} onClick={() => setOpen(o => !o)} aria-expanded={open}>
+        <span aria-hidden="true">{open ? '✕' : '👋'}</span> {open ? 'Close' : 'React'}
+      </button>
+    </div>
+  )
+}
+
 // A big portrait of one member, opened by tapping their figure at the table.
 function CloseUp({ player, me, here, onClose }) {
   const robe = ROBES[player.color ?? 0]
@@ -194,8 +221,8 @@ function CloseUp({ player, me, here, onClose }) {
   )
 }
 
-export function RitualTable({ party, onOpenMembers }) {
-  const { players, online, typing, me, messages } = party
+export function RitualTable({ party, onOpenMembers, onEmote }) {
+  const { players, online, typing, me, messages, emotes } = party
 
   // Whoever just whispered hops in their seat for a moment.
   const [speaking, setSpeaking] = useState(() => new Set())
@@ -207,12 +234,28 @@ export function RitualTable({ party, onOpenMembers }) {
     if (!last || last.id === lastMsg.current) return
     lastMsg.current = last.id
     if (firstLoad || last.kind !== 'msg') return
-    const pid = last.pid
+    hop(last.pid)
+  }, [messages])
+  function hop(pid) {
     setSpeaking(s => new Set(s).add(pid))
     clearTimeout(hopTimers.current[pid])
     hopTimers.current[pid] = setTimeout(() => setSpeaking(s => { const n = new Set(s); n.delete(pid); return n }), 1500)
-  }, [messages])
+  }
   useEffect(() => () => Object.values(hopTimers.current).forEach(clearTimeout), [])
+
+  // Emotes pop up over the sender's figure for a couple of seconds.
+  const [bubbles, setBubbles] = useState([])
+  const seenEmote = useRef(emotes.length ? emotes[emotes.length - 1].id : 0)
+  useEffect(() => {
+    const fresh = emotes.filter(x => x.id > seenEmote.current)
+    if (!fresh.length) return
+    seenEmote.current = fresh[fresh.length - 1].id
+    setBubbles(b => [...b, ...fresh].slice(-24))
+    fresh.forEach(x => {
+      hop(x.pid)
+      setTimeout(() => setBubbles(b => b.filter(y => y.id !== x.id)), 2700)
+    })
+  }, [emotes])
   const [closeUp, setCloseUp] = useState(null) // member shown in the close-up box
   const [expanded, setExpanded] = useState(false) // the big view of the chamber
   const lightbox = useRef(null)
@@ -380,6 +423,19 @@ export function RitualTable({ party, onOpenMembers }) {
         <rect width="800" height="500" fill="url(#vignette)" pointerEvents="none" />
 
         {seats.map(renderTag)}
+        {bubbles.map(bubble => {
+          const seat = seats.find(x => x.player?.id === bubble.pid)
+          if (!seat) return null
+          const stack = bubbles.filter(x => x.pid === bubble.pid && x.id < bubble.id).length % 3
+          return (
+            <g key={bubble.id} transform={`translate(${seat.x + stack * 16} ${seat.y - 150 * seat.scale - stack * 10})`} pointerEvents="none">
+              <g className="emote-pop">
+                <circle r="21" fill="#0b0a0d" fillOpacity="0.8" stroke="#c9a55c" strokeOpacity="0.7" />
+                <text y="1" fontSize="24" textAnchor="middle" dominantBaseline="central">{EMOTES[bubble.e]?.emoji}</text>
+              </g>
+            </g>
+          )
+        })}
       </svg>
   )
 
@@ -388,6 +444,7 @@ export function RitualTable({ party, onOpenMembers }) {
       {expanded ? <div className="scene scene-placeholder" aria-hidden="true" /> : (
         <div className="scene-wrap">
           {scene}
+          {onEmote && <EmoteBar onEmote={onEmote} />}
           <button type="button" className="expand-btn" onClick={() => setExpanded(true)} aria-label="Open the chamber full screen">
             <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4" fill="none" stroke="currentColor" strokeWidth="1.6" /></svg>
           </button>
@@ -408,6 +465,7 @@ export function RitualTable({ party, onOpenMembers }) {
       {expanded && (
         <div className="lightbox" role="dialog" aria-modal="true" aria-label="The chamber">
           <div className="lightbox-scroll" ref={lightbox}>{scene}</div>
+          {onEmote && <EmoteBar onEmote={onEmote} />}
           <p className="lightbox-caption">{caption}</p>
           <button type="button" className="lightbox-close" onClick={() => setExpanded(false)} aria-label="Close the chamber view" autoFocus>
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5 L19 19 M19 5 L5 19" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" /></svg>

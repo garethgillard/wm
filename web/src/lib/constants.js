@@ -33,6 +33,12 @@ export const HISTORY = 300 // messages kept in the browser
 
 // Reactions to whispers. Keep the length equal to REACTION_COUNT in app/store.py (8).
 export const REACTIONS = ['👍', '❤️', '😂', '😮', '💀', '🔥', '☕', '🐟']
+
+// Emotes at the table: pop up over your figure for everyone watching. Keep equal to EMOTE_COUNT in app/main.py (8).
+export const EMOTES = [
+  { emoji: '👋', label: 'Wave' }, { emoji: '😂', label: 'Laugh' }, { emoji: '🙌', label: 'Hail' }, { emoji: '❤️', label: 'Love' },
+  { emoji: '🔥', label: 'Fire' }, { emoji: '💀', label: 'Dead' }, { emoji: '☕', label: 'Toast the Melange' }, { emoji: '🔮', label: 'Prophesy' },
+]
 export const DEFAULT_NAME = 'The Melange Conclave'
 
 // Secret names mix three worlds: gothic cult, animals, and the lab.

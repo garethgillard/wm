@@ -27,12 +27,14 @@ function getToken() {
 const initialState = {
   connected: false, ready: false, locked: false, passWrong: false,
   me: null, isAdmin: false, hasAdmin: false,
-  info: null, players: {}, messages: [], activities: [], notices: [], votes: {}, reactions: {},
+  info: null, players: {}, messages: [], activities: [], notices: [], votes: {}, reactions: {}, emotes: [],
   online: [], typing: [],
 }
 
 // Server events are reduced straight into state; their `type` names the case.
 // Server sends reactions as a flat list; keep them as { messageId: { emojiIndex: [playerIds] } }.
+let emoteSeq = 0
+
 function groupReactions(list = []) {
   const out = {}
   for (const r of list) ((out[r.mid] ||= {})[r.e] ||= []).push(r.pid)
@@ -79,6 +81,8 @@ function reducer(s, a) {
       delete reactions[a.id]
       return { ...s, messages: s.messages.filter(m => m.id !== a.id), reactions }
     }
+    case 'emote': // momentary: the table shows it, then forgets it
+      return { ...s, emotes: [...s.emotes, { id: ++emoteSeq, pid: a.pid, e: a.e }].slice(-20) }
     case 'reaction': { // someone added or took back an emoji on a whisper
       const byE = { ...(s.reactions[a.mid] || {}) }
       const pids = (byE[a.e] || []).filter(p => p !== a.pid)
@@ -180,6 +184,7 @@ export function useParty() {
     resetAll: () => request('reset', { confirm: 'RESET' }),
     deleteMessage: id => request('delete_message', { id }),
     react: (mid, e, on) => request('react', { mid, e, on }),
+    emote: e => request('emote', { e }),
     propose: title => request('idea', { title }),
     removeIdea: id => request('remove_idea', { id }),
     renameIdea: (id, title) => request('edit_idea', { id, title }),

@@ -156,6 +156,7 @@ export default function App() {
   const removeIdea = id => actions.removeIdea(id).catch(e => showToast(errorText(e)))
   const kick = id => actions.kick(id).catch(e => showToast(errorText(e)))
   const deleteMessage = id => actions.deleteMessage(id).catch(e => showToast(errorText(e)))
+  const emote = e => { if (canAct()) actions.emote(e).catch(err => showToast(errorText(err))) }
   const react = (mid, e, on) => { if (canAct()) actions.react(mid, e, on).catch(err => showToast(errorText(err))) }
   async function leave() {
     try { await actions.leave(); setSheet(null); showToast('Your vows are renounced. Take new ones when ready.') } catch (e) { showToast(errorText(e)) }
@@ -188,7 +189,7 @@ export default function App() {
       <main className="chamber">
         <Chat party={party} notice={notice} onSend={send} onVote={vote} onTyping={actions.typing} onDelete={deleteMessage} onReact={react} />
         <section className="panel circle" aria-label="The ritual table">
-          <RitualTable party={party} onOpenMembers={compact ? () => setMembersOpen(true) : undefined} />
+          <RitualTable party={party} onOpenMembers={compact ? () => setMembersOpen(true) : undefined} onEmote={emote} />
           {!narrow && <RollCall party={party} onKick={kick} />}
         </section>
         <div className="board-wrap" id="board-panel">

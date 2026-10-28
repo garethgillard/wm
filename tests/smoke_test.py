@@ -127,6 +127,11 @@ async def run(url: str):
     st = (await peek.expect("welcome"))["state"]
     await peek.close()
     check("reactions are saved and taking one back works", sorted((x["pid"], x["e"]) for x in st["reactions"] if x["mid"] == mid) == [(b_id, 2)])
+    r = await b.request("emote", e=7)
+    ev = await a.expect("emote")
+    check("an emote at the table reaches everyone", r["ok"] and ev["pid"] == b_id and ev["e"] == 7)
+    r = await b.request("emote", e=8)
+    check("an unknown emote is refused", r["ok"] is False and r["error"] == "invalid")
 
     r = await a.request("idea", title="Karaoke night")
     check("A proposes an activity", r["ok"])

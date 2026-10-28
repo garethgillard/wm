@@ -253,6 +253,11 @@ export function connectDemo({ onOpen, onMessage, onClose }) {
         presence()
         return
       }
+      case 'emote': {
+        if (!Number.isInteger(m.e) || m.e < 0 || m.e >= 8) return ack(false, { error: 'invalid' })
+        emit({ type: 'emote', pid: me, e: m.e })
+        return ack(true)
+      }
       case 'react': {
         const { mid, e, on } = m
         if (!Number.isInteger(e) || e < 0 || e >= 8 || typeof on !== 'boolean') return ack(false, { error: 'invalid' })
