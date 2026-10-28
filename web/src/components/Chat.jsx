@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { REACTIONS, ROBES } from '../lib/constants'
+import { REACTION_PICKER, REACTIONS, ROBES } from '../lib/constants'
 import { VoteButtons } from './VoteButtons'
 import { RSVP, dayLabel, nameOf, sameDay, tally, timeLabel } from '../lib/format'
 
@@ -35,7 +35,8 @@ function Reactions({ mid, byE = {}, players, me, open, onOpen, onReact }) {
       )}
       {open && (
         <div className="react-picker" role="group" aria-label="Pick a reaction">
-          {REACTIONS.map((emoji, e) => {
+          {REACTION_PICKER.map(e => {
+            const emoji = REACTIONS[e]
             const mine = (byE[e] || []).includes(me)
             return (
               <button key={e} type="button" className={mine ? 'mine' : ''} aria-pressed={mine}

@@ -33,6 +33,9 @@ export const HISTORY = 300 // messages kept in the browser
 
 // Reactions to whispers. Keep the length equal to REACTION_COUNT in app/store.py (8).
 export const REACTIONS = ['👍', '❤️', '😂', '😮', '💀', '🔥', '☕', '🐟']
+// The ones offered in the picker. 😮 is retired from the picker but stays in REACTIONS, because
+// saved reactions are stored by position and must keep their meaning.
+export const REACTION_PICKER = [0, 1, 2, 4, 5, 6, 7]
 
 // Emotes at the table: pop up over your figure for everyone watching. `say` is shown under the emoji.
 // Keep the count equal to EMOTE_COUNT in app/main.py (18).
